@@ -12,3 +12,6 @@
 *.o
 *.a
 mkmf.log
+
+/test/sandbox/*
+!/test/sandbox/.gitkeep
