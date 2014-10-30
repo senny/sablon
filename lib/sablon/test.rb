@@ -1,0 +1,1 @@
+require "sablon/test/assertions"

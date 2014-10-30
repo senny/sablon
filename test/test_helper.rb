@@ -8,6 +8,7 @@ require "pathname"
 
 $: << File.expand_path('../../lib', __FILE__)
 require "sablon"
+require "sablon/test"
 
 class Sablon::TestCase < MiniTest::Test
 end
