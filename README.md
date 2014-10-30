@@ -1,8 +1,9 @@
 # Sablon
 
+[![Build Status](https://travis-ci.org/senny/sablon.svg?branch=master)](https://travis-ci.org/senny/sablon)
+
 Is a document template processor based on `docx`. Tags are represented using
 MailMerge fields.
-
 
 ## Installation
 
