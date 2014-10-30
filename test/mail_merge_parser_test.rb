@@ -50,6 +50,18 @@ body_xml
 body_xml
     end
 
+    def test_replace_with_nil
+      field = fields.first
+      field.replace(nil)
+
+      assert_equal <<-body_xml.strip, body_xml.gsub(/^\s+$/,'')
+<w:r w:rsidR=\"004B49F0\">
+    <w:rPr><w:noProof/></w:rPr>
+
+  </w:r>
+body_xml
+    end
+
     private
     def xml
       wrap(<<-xml)
@@ -95,6 +107,21 @@ body_xml
     <w:noProof/>
   </w:rPr>
   <w:t>First</w:t><w:br/><w:t>Second</w:t><w:br/><w:br/><w:t>Third</w:t>
+</w:r>
+body_xml
+    end
+
+    def test_replace_with_nil
+      field = fields.first
+      field.replace(nil)
+
+      assert_equal <<-body_xml.strip, body_xml.gsub(/^\s+$/,'')
+<w:r w:rsidR="004B49F0">
+  <w:rPr>
+    <w:b/>
+    <w:noProof/>
+  </w:rPr>
+
 </w:r>
 body_xml
     end

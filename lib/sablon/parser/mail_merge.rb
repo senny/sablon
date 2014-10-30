@@ -10,7 +10,7 @@ module Sablon
         private
         def replace_field_display(node, text)
           display_node = node.search(".//w:t").first
-          text.scan(/[^\n]+|\n/).reverse.each do |part|
+          (text || "").scan(/[^\n]+|\n/).reverse.each do |part|
             if part == "\n"
               display_node.add_next_sibling Nokogiri::XML::Node.new "w:br", display_node.document
             else
