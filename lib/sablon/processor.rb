@@ -43,11 +43,10 @@ module Sablon
       end
 
       def process(context)
-        body.map do |template_node|
-          replaced_node = template_node.dup
-          Processor.process replaced_node, context
-          replaced_node
-        end
+        replaced_node = Nokogiri::XML::Node.new("tmp", start_node.document)
+        replaced_node.children = Nokogiri::XML::NodeSet.new(start_node.document, body.map(&:dup))
+        Processor.process replaced_node, context
+        replaced_node.children
       end
 
       def replace(content)
@@ -108,6 +107,7 @@ module Sablon
 
       def consume(allow_insertion)
         @field = @fields.shift
+        return unless @field
         case @field.expression
         when /^=/
           if allow_insertion
@@ -125,10 +125,15 @@ module Sablon
       def consume_block(end_expression)
         start_field = end_field = @field
         while end_field && end_field.expression != end_expression
-          @operations << consume(false)
+          consume(false)
           end_field = @field
         end
-        Block.enclosed_by start_field, end_field
+
+        if end_field
+          Block.enclosed_by start_field, end_field
+        else
+          raise "no end field for #{start_field.expression}. Was looking for #{end_expression}"
+        end
       end
     end
   end
