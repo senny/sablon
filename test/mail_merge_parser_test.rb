@@ -62,6 +62,18 @@ body_xml
 body_xml
     end
 
+    def test_replace_with_numeric
+      field = fields.first
+      field.replace(45)
+
+      assert_equal <<-body_xml.strip, body_xml.gsub(/^\s+$/,'')
+<w:r w:rsidR=\"004B49F0\">
+    <w:rPr><w:noProof/></w:rPr>
+    <w:t>45</w:t>
+  </w:r>
+body_xml
+    end
+
     private
     def xml
       wrap(<<-xml)
