@@ -25,6 +25,8 @@ module Sablon
           content = entry.get_input_stream.read
           if entry_name == 'word/document.xml'
             out.write(Processor.process(Nokogiri::XML(content), context, properties).to_xml)
+          elsif entry_name =~ /word\/header\d*\.xml/ || entry_name =~ /word\/footer\d*\.xml/
+            out.write(Processor.process(Nokogiri::XML(content), context).to_xml)
           else
             out.write(content)
           end

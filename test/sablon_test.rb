@@ -17,6 +17,8 @@ class SablonTest < Sablon::TestCase
     position = Struct.new(:duration, :label, :description)
     language = Struct.new(:name, :skill)
     context = {
+      "current_time" => Time.now.strftime("%d.%m.%Y %H:%M"),
+      "author" => "Yves Senn",
       "title" => "Letter of application",
       "person" => person,
       "items" => [item.new("1.", "Ruby", "★" * 5), item.new("2.", "Java", "★" * 1), item.new("3.", "Python", "★" * 3)],
