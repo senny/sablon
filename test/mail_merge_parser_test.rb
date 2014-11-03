@@ -10,13 +10,20 @@ module MailMergeParser
       @parser = Sablon::Parser::MailMerge.new
     end
 
+    def field
+      @field ||= fields.first
+    end
+
     def fields
-      @document = xml
-      @parser.parse_fields(@document)
+      @parser.parse_fields(document)
     end
 
     def body_xml
-      @document.search(".//w:body").children.map(&:to_xml).join.strip
+      document.search(".//w:body").children.map(&:to_xml).join.strip
+    end
+
+    def document
+      @document ||= xml
     end
   end
 
@@ -28,7 +35,6 @@ module MailMergeParser
     end
 
     def test_replace
-      field = fields.first
       field.replace("Hello")
       assert_equal <<-body_xml.strip, body_xml
 <w:r w:rsidR=\"004B49F0\">
@@ -39,7 +45,6 @@ body_xml
     end
 
     def test_replace_with_newlines
-      field = fields.first
       field.replace("First\nSecond\n\nThird")
 
       assert_equal <<-body_xml.strip, body_xml
@@ -51,7 +56,6 @@ body_xml
     end
 
     def test_replace_with_nil
-      field = fields.first
       field.replace(nil)
 
       assert_equal <<-body_xml.strip, body_xml.gsub(/^\s+$/,'')
@@ -63,7 +67,6 @@ body_xml
     end
 
     def test_replace_with_numeric
-      field = fields.first
       field.replace(45)
 
       assert_equal <<-body_xml.strip, body_xml.gsub(/^\s+$/,'')
@@ -95,7 +98,6 @@ body_xml
     end
 
     def test_replace
-      field = fields.first
       field.replace("Hello")
       assert_equal <<-body_xml.strip, body_xml
 <w:r w:rsidR="004B49F0">
@@ -109,7 +111,6 @@ body_xml
     end
 
     def test_replace_with_newlines
-      field = fields.first
       field.replace("First\nSecond\n\nThird")
 
       assert_equal <<-body_xml.strip, body_xml
@@ -124,7 +125,6 @@ body_xml
     end
 
     def test_replace_with_nil
-      field = fields.first
       field.replace(nil)
 
       assert_equal <<-body_xml.strip, body_xml.gsub(/^\s+$/,'')
