@@ -38,34 +38,23 @@ class ProcessorTest < Sablon::TestCase
     result = process(<<-documentxml, {"last_name" => "Zane"})
       <w:r><w:t xml:space="preserve">Hello! My Name is </w:t></w:r>
       <w:r w:rsidR="00BE47B1" w:rsidRPr="00BE47B1">
-        <w:rPr>
-          <w:b/>
-        </w:rPr>
+        <w:rPr><w:b/></w:rPr>
         <w:fldChar w:fldCharType="begin"/>
       </w:r>
       <w:r w:rsidR="00BE47B1" w:rsidRPr="00BE47B1">
-        <w:rPr>
-          <w:b/>
-        </w:rPr>
+        <w:rPr><w:b/></w:rPr>
         <w:instrText xml:space="preserve"> MERGEFIELD =last_name \\* MERGEFORMAT </w:instrText>
       </w:r>
       <w:r w:rsidR="00BE47B1" w:rsidRPr="00BE47B1">
-        <w:rPr>
-          <w:b/>
-        </w:rPr>
+        <w:rPr><w:b/></w:rPr>
         <w:fldChar w:fldCharType="separate"/>
       </w:r>
       <w:r w:rsidR="004B49F0">
-        <w:rPr>
-          <w:b/>
-          <w:noProof/>
-        </w:rPr>
+        <w:rPr><w:b/><w:noProof/></w:rPr>
         <w:t>«=last_name»</w:t>
       </w:r>
       <w:r w:rsidR="00BE47B1" w:rsidRPr="00BE47B1">
-        <w:rPr>
-          <w:b/>
-        </w:rPr>
+        <w:rPr><w:b/></w:rPr>
         <w:fldChar w:fldCharType="end"/>
       </w:r>
       <w:r w:rsidR="00BE47B1"><w:t xml:space="preserve">, nice to meet you.</w:t></w:r>
@@ -75,10 +64,7 @@ class ProcessorTest < Sablon::TestCase
     assert_xml_equal <<-document, result
       <w:r><w:t xml:space="preserve">Hello! My Name is </w:t></w:r>
       <w:r w:rsidR="004B49F0">
-        <w:rPr>
-          <w:b/>
-          <w:noProof/>
-        </w:rPr>
+        <w:rPr><w:b/><w:noProof/></w:rPr>
         <w:t>Zane</w:t>
       </w:r>
       <w:r w:rsidR="00BE47B1"><w:t xml:space="preserve">, nice to meet you.</w:t></w:r>
@@ -106,9 +92,7 @@ class ProcessorTest < Sablon::TestCase
         <w:fldChar w:fldCharType="separate" />
       </w:r>
       <w:r w:rsidR="00441382">
-        <w:rPr>
-          <w:noProof />
-        </w:rPr>
+        <w:rPr><w:noProof /></w:rPr>
         <w:t>«=person.first_name»</w:t>
       </w:r>
       <w:r w:rsidR="003C4780">
@@ -121,9 +105,7 @@ class ProcessorTest < Sablon::TestCase
     assert_xml_equal <<-document, result
       <w:r><w:t xml:space="preserve">Hello! My Name is </w:t></w:r>
       <w:r w:rsidR="00441382">
-        <w:rPr>
-          <w:noProof/>
-        </w:rPr>
+        <w:rPr><w:noProof/></w:rPr>
         <w:t>Daniel</w:t>
       </w:r>
       <w:r w:rsidR="00BE47B1"><w:t xml:space="preserve">, nice to meet you.</w:t></w:r>
@@ -142,9 +124,7 @@ class ProcessorTest < Sablon::TestCase
          </w:pPr>
          <w:fldSimple w:instr=" MERGEFIELD technologies:each(technology) \\* MERGEFORMAT ">
             <w:r>
-               <w:rPr>
-                  <w:noProof />
-               </w:rPr>
+               <w:rPr><w:noProof /></w:rPr>
                <w:t>«technologies:each(technology)»</w:t>
             </w:r>
          </w:fldSimple>
@@ -173,9 +153,7 @@ class ProcessorTest < Sablon::TestCase
             <w:fldChar w:fldCharType="separate" />
          </w:r>
          <w:r w:rsidR="009F01DA">
-            <w:rPr>
-               <w:noProof />
-            </w:rPr>
+            <w:rPr><w:noProof /></w:rPr>
             <w:t>«=technology»</w:t>
          </w:r>
          <w:r>
@@ -192,9 +170,7 @@ class ProcessorTest < Sablon::TestCase
          </w:pPr>
          <w:fldSimple w:instr=" MERGEFIELD technologies:endEach \\* MERGEFORMAT ">
             <w:r>
-               <w:rPr>
-                  <w:noProof />
-               </w:rPr>
+               <w:rPr><w:noProof /></w:rPr>
                <w:t>«technologies:endEach»</w:t>
             </w:r>
          </w:fldSimple>
@@ -212,9 +188,7 @@ class ProcessorTest < Sablon::TestCase
             </w:numPr>
          </w:pPr>
          <w:r w:rsidR="009F01DA">
-            <w:rPr>
-               <w:noProof/>
-            </w:rPr>
+            <w:rPr><w:noProof/></w:rPr>
             <w:t>Ruby</w:t>
          </w:r>
       </w:p><w:p w14:paraId="1081E316" w14:textId="3EAB5FDC" w:rsidR="00380EE8" w:rsidRDefault="00380EE8" w:rsidP="007F5CDE">
@@ -226,9 +200,7 @@ class ProcessorTest < Sablon::TestCase
             </w:numPr>
          </w:pPr>
          <w:r w:rsidR="009F01DA">
-            <w:rPr>
-               <w:noProof/>
-            </w:rPr>
+            <w:rPr><w:noProof/></w:rPr>
             <w:t>Rails</w:t>
          </w:r>
       </w:p>
@@ -281,16 +253,16 @@ class ProcessorTest < Sablon::TestCase
       <w:tr w:rsidR="00757DAD">
         <w:tc>
           <w:p>
-              <w:r w:rsidR="004B49F0">
-                <w:rPr><w:noProof/></w:rPr>
-                <w:t>Puppet</w:t>
-              </w:r>
+            <w:r w:rsidR="004B49F0">
+              <w:rPr><w:noProof/></w:rPr>
+              <w:t>Puppet</w:t>
+            </w:r>
           </w:p>
           <w:p>
-              <w:r w:rsidR="004B49F0">
-                <w:rPr><w:noProof/></w:rPr>
-                <w:t>Chef</w:t>
-              </w:r>
+            <w:r w:rsidR="004B49F0">
+              <w:rPr><w:noProof/></w:rPr>
+              <w:t>Chef</w:t>
+            </w:r>
           </w:p>
         </w:tc>
       </w:tr>
@@ -328,9 +300,7 @@ class ProcessorTest < Sablon::TestCase
               <w:fldChar w:fldCharType="separate"/>
             </w:r>
             <w:r>
-              <w:rPr>
-                <w:noProof/>
-              </w:rPr>
+              <w:rPr><w:noProof/></w:rPr>
               <w:t>«items:each(item)»</w:t>
             </w:r>
             <w:r>
@@ -367,9 +337,7 @@ class ProcessorTest < Sablon::TestCase
               <w:fldChar w:fldCharType="separate"/>
             </w:r>
             <w:r>
-              <w:rPr>
-                <w:noProof/>
-              </w:rPr>
+              <w:rPr><w:noProof/></w:rPr>
               <w:t>«=item.index»</w:t>
             </w:r>
             <w:r>
@@ -392,9 +360,7 @@ class ProcessorTest < Sablon::TestCase
               <w:fldChar w:fldCharType="separate"/>
             </w:r>
             <w:r>
-              <w:rPr>
-                <w:noProof/>
-              </w:rPr>
+              <w:rPr><w:noProof/></w:rPr>
               <w:t>«=item.label»</w:t>
             </w:r>
             <w:r>
@@ -417,9 +383,7 @@ class ProcessorTest < Sablon::TestCase
               <w:fldChar w:fldCharType="separate"/>
             </w:r>
             <w:r>
-              <w:rPr>
-                <w:noProof/>
-              </w:rPr>
+              <w:rPr><w:noProof/></w:rPr>
               <w:t>«=item.rating»</w:t>
             </w:r>
             <w:r>
@@ -444,9 +408,7 @@ class ProcessorTest < Sablon::TestCase
               <w:fldChar w:fldCharType="separate"/>
             </w:r>
             <w:r>
-              <w:rPr>
-                <w:noProof/>
-              </w:rPr>
+              <w:rPr><w:noProof/></w:rPr>
               <w:t>«items:endEach»</w:t>
             </w:r>
             <w:r>
@@ -489,9 +451,7 @@ class ProcessorTest < Sablon::TestCase
           </w:tcPr>
           <w:p w14:paraId="41ACB3D9" w14:textId="77777777" w:rsidR="00757DAD" w:rsidRDefault="00757DAD" w:rsidP="006333C3">
             <w:r>
-              <w:rPr>
-                <w:noProof/>
-              </w:rPr>
+              <w:rPr><w:noProof/></w:rPr>
               <w:t>1.</w:t>
             </w:r>
           </w:p>
@@ -502,9 +462,7 @@ class ProcessorTest < Sablon::TestCase
           </w:tcPr>
           <w:p w14:paraId="197C6F31" w14:textId="77777777" w:rsidR="00757DAD" w:rsidRDefault="00757DAD" w:rsidP="006333C3">
             <w:r>
-              <w:rPr>
-                <w:noProof/>
-              </w:rPr>
+              <w:rPr><w:noProof/></w:rPr>
               <w:t>Milk</w:t>
             </w:r>
           </w:p>
@@ -515,9 +473,7 @@ class ProcessorTest < Sablon::TestCase
           </w:tcPr>
           <w:p w14:paraId="55C258BB" w14:textId="77777777" w:rsidR="00757DAD" w:rsidRDefault="00757DAD" w:rsidP="006333C3">
             <w:r>
-              <w:rPr>
-                <w:noProof/>
-              </w:rPr>
+              <w:rPr><w:noProof/></w:rPr>
               <w:t>***</w:t>
             </w:r>
           </w:p>
@@ -529,9 +485,7 @@ class ProcessorTest < Sablon::TestCase
           </w:tcPr>
           <w:p w14:paraId="41ACB3D9" w14:textId="77777777" w:rsidR="00757DAD" w:rsidRDefault="00757DAD" w:rsidP="006333C3">
             <w:r>
-              <w:rPr>
-                <w:noProof/>
-              </w:rPr>
+              <w:rPr><w:noProof/></w:rPr>
               <w:t>2.</w:t>
             </w:r>
           </w:p>
@@ -542,9 +496,7 @@ class ProcessorTest < Sablon::TestCase
           </w:tcPr>
           <w:p w14:paraId="197C6F31" w14:textId="77777777" w:rsidR="00757DAD" w:rsidRDefault="00757DAD" w:rsidP="006333C3">
             <w:r>
-              <w:rPr>
-                <w:noProof/>
-              </w:rPr>
+              <w:rPr><w:noProof/></w:rPr>
               <w:t>Sugar</w:t>
             </w:r>
           </w:p>
@@ -555,9 +507,7 @@ class ProcessorTest < Sablon::TestCase
           </w:tcPr>
           <w:p w14:paraId="55C258BB" w14:textId="77777777" w:rsidR="00757DAD" w:rsidRDefault="00757DAD" w:rsidP="006333C3">
             <w:r>
-              <w:rPr>
-                <w:noProof/>
-              </w:rPr>
+              <w:rPr><w:noProof/></w:rPr>
               <w:t>**</w:t>
             </w:r>
           </w:p>
@@ -583,9 +533,7 @@ class ProcessorTest < Sablon::TestCase
                <w:p w14:paraId="7630A6C6" w14:textId="699D0C71" w:rsidR="00F23752" w:rsidRDefault="00F23752" w:rsidP="003F16E3">
                   <w:fldSimple w:instr=" MERGEFIELD foods:each(food) \\* MERGEFORMAT ">
                      <w:r w:rsidR="00213ACD">
-                        <w:rPr>
-                           <w:noProof />
-                        </w:rPr>
+                        <w:rPr><w:noProof /></w:rPr>
                         <w:t>«foods:each(food)»</w:t>
                      </w:r>
                   </w:fldSimple>
@@ -608,9 +556,7 @@ class ProcessorTest < Sablon::TestCase
                <w:p w14:paraId="3FCF3855" w14:textId="38FA7F3B" w:rsidR="00F23752" w:rsidRDefault="00F23752" w:rsidP="00F23752">
                   <w:fldSimple w:instr=" MERGEFIELD =food.index \\* MERGEFORMAT ">
                      <w:r w:rsidR="00213ACD">
-                        <w:rPr>
-                           <w:noProof />
-                        </w:rPr>
+                        <w:rPr><w:noProof /></w:rPr>
                         <w:t>«=food.index»</w:t>
                      </w:r>
                   </w:fldSimple>
@@ -660,9 +606,7 @@ class ProcessorTest < Sablon::TestCase
                <w:p w14:paraId="3E9FF163" w14:textId="0F37CDFB" w:rsidR="00213ACD" w:rsidRDefault="00213ACD" w:rsidP="003F16E3">
                   <w:fldSimple w:instr=" MERGEFIELD =food.body \\* MERGEFORMAT ">
                      <w:r>
-                        <w:rPr>
-                           <w:noProof />
-                        </w:rPr>
+                        <w:rPr><w:noProof /></w:rPr>
                         <w:t>«=food.body»</w:t>
                      </w:r>
                   </w:fldSimple>
@@ -686,9 +630,7 @@ class ProcessorTest < Sablon::TestCase
                      <w:fldChar w:fldCharType="separate" />
                   </w:r>
                   <w:r>
-                     <w:rPr>
-                        <w:noProof />
-                     </w:rPr>
+                     <w:rPr><w:noProof /></w:rPr>
                      <w:t>«foods:endEach»</w:t>
                   </w:r>
                   <w:r>
@@ -716,9 +658,7 @@ class ProcessorTest < Sablon::TestCase
       <w:p>
         <w:fldSimple w:instr=" MERGEFIELD middle_name:if \\* MERGEFORMAT ">
           <w:r>
-            <w:rPr>
-              <w:noProof/>
-            </w:rPr>
+            <w:rPr><w:noProof/></w:rPr>
             <w:t>«middle_name:if»</w:t>
           </w:r>
         </w:fldSimple>
@@ -726,9 +666,7 @@ class ProcessorTest < Sablon::TestCase
       <w:p>
         <w:fldSimple w:instr=" MERGEFIELD =middle_name \\* MERGEFORMAT ">
           <w:r>
-            <w:rPr>
-              <w:noProof/>
-            </w:rPr>
+            <w:rPr><w:noProof/></w:rPr>
             <w:t>«=middle_name»</w:t>
           </w:r>
         </w:fldSimple>
@@ -736,9 +674,7 @@ class ProcessorTest < Sablon::TestCase
       <w:p>
         <w:fldSimple w:instr=" MERGEFIELD middle_name:endIf \\* MERGEFORMAT ">
           <w:r>
-            <w:rPr>
-              <w:noProof/>
-            </w:rPr>
+            <w:rPr><w:noProof/></w:rPr>
             <w:t>«middle_name:endIf»</w:t>
           </w:r>
         </w:fldSimple>
@@ -757,9 +693,7 @@ class ProcessorTest < Sablon::TestCase
       <w:p>
         <w:fldSimple w:instr=" MERGEFIELD body:if(empty?) \\* MERGEFORMAT ">
           <w:r>
-            <w:rPr>
-              <w:noProof/>
-            </w:rPr>
+            <w:rPr><w:noProof/></w:rPr>
             <w:t>«body:if(empty?)»</w:t>
           </w:r>
         </w:fldSimple>
@@ -770,9 +704,7 @@ class ProcessorTest < Sablon::TestCase
       <w:p>
         <w:fldSimple w:instr=" MERGEFIELD body:endIf \\* MERGEFORMAT ">
           <w:r>
-            <w:rPr>
-              <w:noProof/>
-            </w:rPr>
+            <w:rPr><w:noProof/></w:rPr>
             <w:t>«body:endIf»</w:t>
           </w:r>
         </w:fldSimple>
