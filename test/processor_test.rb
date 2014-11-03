@@ -131,7 +131,6 @@ class ProcessorTest < Sablon::TestCase
   end
 
   def test_paragraph_block_replacement
-    item = Struct.new(:index, :label, :rating)
     result = process(<<-document, {"technologies" => ["Ruby", "Rails"]})
       <w:p w14:paraId="6CB29D92" w14:textId="164B70F4" w:rsidR="007F5CDE" w:rsidRDefault="007F5CDE" w:rsidP="007F5CDE">
          <w:pPr>
@@ -233,6 +232,69 @@ class ProcessorTest < Sablon::TestCase
             <w:t>Rails</w:t>
          </w:r>
       </w:p>
+    document
+  end
+
+  def test_paragraph_block_within_table_cell
+    result = process(<<-document, {"technologies" => ["Puppet", "Chef"]})
+    <w:tbl>
+      <w:tblGrid>
+        <w:gridCol w:w="2202"/>
+      </w:tblGrid>
+      <w:tr w:rsidR="00757DAD">
+        <w:tc>
+          <w:p>
+            <w:fldSimple w:instr=" MERGEFIELD technologies:each(technology) \\* MERGEFORMAT ">
+              <w:r w:rsidR="004B49F0">
+                <w:rPr><w:noProof/></w:rPr>
+                <w:t>«technologies:each(technology)»</w:t>
+              </w:r>
+            </w:fldSimple>
+          </w:p>
+          <w:p>
+            <w:fldSimple w:instr=" MERGEFIELD =technology \\* MERGEFORMAT ">
+              <w:r w:rsidR="004B49F0">
+                <w:rPr><w:noProof/></w:rPr>
+                <w:t>«=technology»</w:t>
+              </w:r>
+            </w:fldSimple>
+          </w:p>
+          <w:p>
+            <w:fldSimple w:instr=" MERGEFIELD technologies:endEach \\* MERGEFORMAT ">
+              <w:r w:rsidR="004B49F0">
+                <w:rPr><w:noProof/></w:rPr>
+                <w:t>«technologies:endEach»</w:t>
+              </w:r>
+            </w:fldSimple>
+          </w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
+    document
+
+    assert_equal "Puppet Chef", text(result)
+    assert_xml_equal <<-document, result
+    <w:tbl>
+      <w:tblGrid>
+        <w:gridCol w:w="2202"/>
+      </w:tblGrid>
+      <w:tr w:rsidR="00757DAD">
+        <w:tc>
+          <w:p>
+              <w:r w:rsidR="004B49F0">
+                <w:rPr><w:noProof/></w:rPr>
+                <w:t>Puppet</w:t>
+              </w:r>
+          </w:p>
+          <w:p>
+              <w:r w:rsidR="004B49F0">
+                <w:rPr><w:noProof/></w:rPr>
+                <w:t>Chef</w:t>
+              </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
     document
   end
 

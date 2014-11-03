@@ -38,7 +38,7 @@ module Sablon
     class Block < Struct.new(:start_field, :end_field)
       def self.enclosed_by(start_field, end_field)
         @blocks ||= [RowBlock, ParagraphBlock]
-        block_class = @blocks.detect { |klass| klass.possible?(start_field) && klass.possible?(end_field) }
+        block_class = @blocks.detect { |klass| klass.encloses?(start_field, end_field) }
         block_class.new start_field, end_field
       end
 
@@ -75,14 +75,20 @@ module Sablon
         @end_node ||= self.class.parent(end_field).first
       end
 
-      def self.possible?(node)
-        parent(node).any?
+      def self.encloses?(start_field, end_field)
+        parent(start_field).any? && parent(end_field).any?
       end
     end
 
     class RowBlock < Block
       def self.parent(node)
         node.ancestors ".//w:tr"
+      end
+
+      def self.encloses?(start_field, end_field)
+        if super
+          parent(start_field) != parent(end_field)
+        end
       end
     end
 
