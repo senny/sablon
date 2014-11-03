@@ -16,9 +16,10 @@ module Sablon
       end
     end
 
-    class Condition < Struct.new(:conditon_expr, :block)
+    class Condition < Struct.new(:conditon_expr, :block, :predicate)
       def evaluate(context)
-        if truthy?(conditon_expr.evaluate(context))
+        value = conditon_expr.evaluate(context)
+        if truthy?(predicate ? value.public_send(predicate) : value)
           block.replace(block.process(context).reverse)
         else
           block.replace([])

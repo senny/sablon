@@ -690,6 +690,39 @@ class ProcessorTest < Sablon::TestCase
     assert_equal "Anthony Hall", text(result)
   end
 
+  def test_conditional_with_predicate
+    document = <<-documentxml
+      <w:p>
+        <w:fldSimple w:instr=" MERGEFIELD body:if(empty?) \\* MERGEFORMAT ">
+          <w:r>
+            <w:rPr>
+              <w:noProof/>
+            </w:rPr>
+            <w:t>«body:if(empty?)»</w:t>
+          </w:r>
+        </w:fldSimple>
+      </w:p>
+      <w:p>
+        <w:t>some content</w:t>
+      </w:p>
+      <w:p>
+        <w:fldSimple w:instr=" MERGEFIELD body:endIf \\* MERGEFORMAT ">
+          <w:r>
+            <w:rPr>
+              <w:noProof/>
+            </w:rPr>
+            <w:t>«body:endIf»</w:t>
+          </w:r>
+        </w:fldSimple>
+      </w:p>
+    documentxml
+    result = process(document, {"body" => ""})
+    assert_equal "some content", text(result)
+
+    result = process(document, {"body" => "not empty"})
+    assert_equal "", text(result)
+  end
+
   private
   def process(document, context)
     @processor.process(wrap(document), context).to_xml

@@ -61,8 +61,16 @@ context variable. Conditional fields are inserted around the content.
 ```
 
 This will render the enclosed markup only if the expression is truthy.
-Note that `nil`, `false` and `[]` are considered falsy. Everything else is truthy.
+Note that `nil`, `false` and `[]` are considered falsy. Everything else is
+truthy.
 
+For more complex conditionals you can use a predicate like so:
+
+```
+«body:if(present?)»
+    ... arbitrary document markup ...
+«body:endIf»
+```
 
 #### Loops
 
