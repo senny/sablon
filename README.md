@@ -2,8 +2,9 @@
 
 [![Build Status](https://travis-ci.org/senny/sablon.svg?branch=master)](https://travis-ci.org/senny/sablon)
 
-Is a document template processor based on `docx`. Tags are represented using
-MailMerge fields.
+Is a document template processor for Word `docx` files. It leverages Word's
+built-in formatting and layouting capabilities to make it easy to create your
+templates.
 
 ## Installation
 
@@ -33,7 +34,7 @@ Sablon templates are normal word documents (`.docx`) sprinkled with MergeFields
 to perform operations. The following section will use the notation `«=title»` to
 refer to [Word MailMerge](http://en.wikipedia.org/wiki/Mail_merge) fields.
 
-#### Inserting content
+#### Content Insertion
 
 The most basic operation is to insert content. The contents of a context
 variable can be inserted using a field like:
@@ -115,6 +116,7 @@ For more details, check out this [test case](test/sablon_test.rb).
   alt="Sablon Output"/>
 </p>
 
+
 ## Contributing
 
 1. Fork it ( https://github.com/[my-github-username]/sablon/fork )
@@ -122,6 +124,7 @@ For more details, check out this [test case](test/sablon_test.rb).
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create a new Pull Request
+
 
 ## Inspiration
 
