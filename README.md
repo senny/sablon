@@ -96,10 +96,24 @@ It is possible to nest loops and conditionals.
 
 ### Examples
 
-[This test](test/sablon_test.rb) is a good example of what Sablon can do for
-you. Make sure to look at the [template](test/fixtures/sablon_template.docx) and
-the corresponding [output](test/fixtures/sablon_sample.docx).
+There is a [sample template](test/fixtures/sablon_template.docx) in the
+repository, which illustrates the functionality of sablon:
 
+<p align="center">
+  <img
+  src="https://raw.githubusercontent.com/senny/sablon/master/misc/template.png"
+  alt="Sablon Template"/>
+</p>
+
+Processing this template with some sample data yields the following
+[output document](test/fixtures/sablon_sample.docx).
+For more details, check out this [test case](test/sablon_test.rb).
+
+<p align="center">
+  <img
+  src="https://raw.githubusercontent.com/senny/sablon/master/misc/output.png"
+  alt="Sablon Output"/>
+</p>
 
 ## Contributing
 
