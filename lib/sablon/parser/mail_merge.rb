@@ -70,17 +70,22 @@ module Sablon
           if node.name == "fldSimple"
             field = SimpleField.new(node)
           elsif node.name == "fldChar" && node["w:fldCharType"] == "begin"
-            possible_field_node = node.parent
-            field_nodes = [possible_field_node]
-            while possible_field_node && possible_field_node.search(".//w:fldChar[@w:fldCharType='end']").empty?
-              possible_field_node = possible_field_node.next_element
-              field_nodes << possible_field_node
-            end
-            field = ComplexField.new(field_nodes)
+            field = build_complex_field(node)
           end
           fields << field if field && field.expression
         end
         fields
+      end
+
+      private
+      def build_complex_field(node)
+        possible_field_node = node.parent
+        field_nodes = [possible_field_node]
+        while possible_field_node && possible_field_node.search(".//w:fldChar[@w:fldCharType='end']").empty?
+          possible_field_node = possible_field_node.next_element
+          field_nodes << possible_field_node
+        end
+        ComplexField.new(field_nodes)
       end
     end
   end
