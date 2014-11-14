@@ -68,7 +68,7 @@ module Sablon
         fields = []
         xml.traverse do |node|
           if node.name == "fldSimple" && node.namespace && node.namespace.prefix == "w"
-            fields << SimpleField.new(node)
+            field = SimpleField.new(node)
           elsif node.name == "fldChar" && node.namespace && node.namespace.prefix == "w" && node["w:fldCharType"] == "begin"
             possible_field_node = node.parent
             field_nodes = [possible_field_node]
@@ -76,8 +76,9 @@ module Sablon
               possible_field_node = possible_field_node.next_element
               field_nodes << possible_field_node
             end
-            fields << ComplexField.new(field_nodes)
+            field = ComplexField.new(field_nodes)
           end
+          fields << field if field && field.expression
         end
         fields
       end

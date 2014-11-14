@@ -167,4 +167,58 @@ body_xml
       xml
     end
   end
+
+  class NonSablonFieldTest < Sablon::TestCase
+    include SharedBehavior
+
+    def test_is_ignored
+      assert_equal [], fields.map(&:class)
+    end
+
+    private
+    def xml
+      wrap(<<-xml)
+  <w:p w14:paraId="0CF428D7" w14:textId="77777777" w:rsidR="00043618" w:rsidRDefault="00043618" w:rsidP="00B960C2">
+    <w:pPr>
+      <w:pStyle w:val="Footer" />
+      <w:framePr w:wrap="around" w:vAnchor="text" w:hAnchor="margin" w:xAlign="right" w:y="1" />
+      <w:rPr>
+        <w:rStyle w:val="PageNumber" />
+      </w:rPr>
+    </w:pPr>
+    <w:r>
+      <w:rPr>
+        <w:rStyle w:val="PageNumber" />
+      </w:rPr>
+      <w:fldChar w:fldCharType="begin" />
+    </w:r>
+    <w:r>
+      <w:rPr>
+        <w:rStyle w:val="PageNumber" />
+      </w:rPr>
+      <w:instrText xml:space="preserve">PAGE  </w:instrText>
+    </w:r>
+    <w:r>
+      <w:rPr>
+        <w:rStyle w:val="PageNumber" />
+      </w:rPr>
+      <w:fldChar w:fldCharType="separate" />
+    </w:r>
+    <w:r w:rsidR="00326FC5">
+      <w:rPr>
+        <w:rStyle w:val="PageNumber" />
+        <w:noProof />
+      </w:rPr>
+      <w:t>1</w:t>
+    </w:r>
+    <w:r>
+      <w:rPr>
+        <w:rStyle w:val="PageNumber" />
+      </w:rPr>
+      <w:fldChar w:fldCharType="end" />
+    </w:r>
+  </w:p>
+      xml
+    end
+  end
 end
