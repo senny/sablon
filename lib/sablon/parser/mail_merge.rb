@@ -67,9 +67,9 @@ module Sablon
       def parse_fields(xml)
         fields = []
         xml.traverse do |node|
-          if node.name == "fldSimple" && node.namespace && node.namespace.prefix == "w"
+          if node.name == "fldSimple"
             field = SimpleField.new(node)
-          elsif node.name == "fldChar" && node.namespace && node.namespace.prefix == "w" && node["w:fldCharType"] == "begin"
+          elsif node.name == "fldChar" && node["w:fldCharType"] == "begin"
             possible_field_node = node.parent
             field_nodes = [possible_field_node]
             while possible_field_node && possible_field_node.search(".//w:fldChar[@w:fldCharType='end']").empty?
