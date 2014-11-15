@@ -6,6 +6,8 @@ Is a document template processor for Word `docx` files. It leverages Word's
 built-in formatting and layouting capabilities to make it easy to create your
 templates.
 
+*Note: Sablon is still in early development. If you encounter any issues along the way please report.*
+
 ## Installation
 
 Add this line to your application's Gemfile:
