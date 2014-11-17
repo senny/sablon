@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 module Sablon
   class Processor
     def self.process(xml_node, context, properties = {})
@@ -142,7 +143,7 @@ module Sablon
         if end_field
           Block.enclosed_by start_field, end_field
         else
-          raise "no end field for #{start_field.expression}. Was looking for #{end_expression}"
+          raise TemplateError, "Could not find end field for «#{start_field.expression}». Was looking for «#{end_expression}»"
         end
       end
     end

@@ -8,6 +8,7 @@ require 'zip'
 require 'nokogiri'
 
 module Sablon
+  class TemplateError < ArgumentError; end
   class ContextError < ArgumentError; end
 
   def self.template(path)

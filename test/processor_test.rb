@@ -218,6 +218,20 @@ class ProcessorTest < Sablon::TestCase
     assert_equal "The expression «technologies» should evaluate to an enumerable but was: nil", e.message
   end
 
+  def test_loop_with_missing_end_raises_error
+    e = assert_raises Sablon::TemplateError do
+      process(snippet("loop_without_ending"), {})
+    end
+    assert_equal "Could not find end field for «technologies:each(technology)». Was looking for «technologies:endEach»", e.message
+  end
+
+  def test_conditional_with_missing_end_raises_error
+    e = assert_raises Sablon::TemplateError do
+      process(snippet("conditional_without_ending"), {})
+    end
+    assert_equal "Could not find end field for «middle_name:if». Was looking for «middle_name:endIf»", e.message
+  end
+
   def test_multi_row_table_loop
     item = Struct.new(:index, :label, :body)
     context = {"foods" => [item.new("1.", "Milk", "Milk is a white liquid."),
