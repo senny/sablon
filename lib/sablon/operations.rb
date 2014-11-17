@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 module Sablon
   module Statement
     class Insertion < Struct.new(:expr, :field)
@@ -8,7 +9,10 @@ module Sablon
 
     class Loop < Struct.new(:list_expr, :iterator_name, :block)
       def evaluate(context)
-        content = list_expr.evaluate(context).flat_map do |item|
+        value = list_expr.evaluate(context)
+        raise ContextError, "The expression #{list_expr.inspect} should evaluate to an enumerable but was: #{value.inspect}" unless value.is_a? Enumerable
+
+        content = value.flat_map do |item|
           iteration_context = context.merge(iterator_name => item)
           block.process(iteration_context)
         end
@@ -42,11 +46,19 @@ module Sablon
       def evaluate(context)
         context[name]
       end
+
+      def inspect
+        "«#{name}»"
+      end
     end
 
     class SimpleMethodCall < Struct.new(:receiver, :method)
       def evaluate(context)
         receiver.evaluate(context).public_send method
+      end
+
+      def inspect
+        "«#{receiver.name}.#{method}»"
       end
     end
 

@@ -211,6 +211,13 @@ class ProcessorTest < Sablon::TestCase
     document
   end
 
+  def test_loop_with_missing_variable_raises_error
+    e = assert_raises Sablon::ContextError do
+      process(snippet("paragraph_loop"), {})
+    end
+    assert_equal "The expression «technologies» should evaluate to an enumerable but was: nil", e.message
+  end
+
   def test_multi_row_table_loop
     item = Struct.new(:index, :label, :body)
     context = {"foods" => [item.new("1.", "Milk", "Milk is a white liquid."),
