@@ -1,0 +1,157 @@
+<w:tbl>
+  <w:tblPr>
+    <w:tblStyle w:val="TableGrid"/>
+    <w:tblW w:w="0" w:type="auto"/>
+    <w:tblLook w:val="04A0" w:firstRow="1" w:lastRow="0" w:firstColumn="1" w:lastColumn="0" w:noHBand="0" w:noVBand="1"/>
+  </w:tblPr>
+  <w:tblGrid>
+    <w:gridCol w:w="2202"/>
+    <w:gridCol w:w="4285"/>
+    <w:gridCol w:w="2029"/>
+  </w:tblGrid>
+  <w:tr w:rsidR="00757DAD" w14:paraId="229B7A39" w14:textId="77777777" w:rsidTr="006333C3">
+    <w:tc>
+      <w:tcPr>
+        <w:tcW w:w="2202" w:type="dxa"/>
+      </w:tcPr>
+      <w:p w14:paraId="3D472BF1" w14:textId="77777777" w:rsidR="00757DAD" w:rsidRDefault="00757DAD" w:rsidP="006333C3">
+        <w:r>
+          <w:fldChar w:fldCharType="begin"/>
+        </w:r>
+        <w:r>
+          <w:instrText xml:space="preserve"> MERGEFIELD items:each(item) \* MERGEFORMAT </w:instrText>
+        </w:r>
+        <w:r>
+          <w:fldChar w:fldCharType="separate"/>
+        </w:r>
+        <w:r>
+          <w:rPr><w:noProof/></w:rPr>
+          <w:t>«items:each(item)»</w:t>
+        </w:r>
+        <w:r>
+          <w:fldChar w:fldCharType="end"/>
+        </w:r>
+      </w:p>
+    </w:tc>
+    <w:tc>
+      <w:tcPr>
+        <w:tcW w:w="4285" w:type="dxa"/>
+      </w:tcPr>
+      <w:p w14:paraId="6E6D8DB2" w14:textId="77777777" w:rsidR="00757DAD" w:rsidRDefault="00757DAD" w:rsidP="006333C3"/>
+    </w:tc>
+    <w:tc>
+      <w:tcPr>
+        <w:tcW w:w="2029" w:type="dxa"/>
+      </w:tcPr>
+      <w:p w14:paraId="7BE1DB00" w14:textId="77777777" w:rsidR="00757DAD" w:rsidRDefault="00757DAD" w:rsidP="006333C3"/>
+    </w:tc>
+  </w:tr>
+  <w:tr w:rsidR="00757DAD" w14:paraId="1BD2E50A" w14:textId="77777777" w:rsidTr="006333C3">
+    <w:tc>
+      <w:tcPr>
+        <w:tcW w:w="2202" w:type="dxa"/>
+      </w:tcPr>
+      <w:p w14:paraId="41ACB3D9" w14:textId="77777777" w:rsidR="00757DAD" w:rsidRDefault="00757DAD" w:rsidP="006333C3">
+        <w:r>
+          <w:fldChar w:fldCharType="begin"/>
+        </w:r>
+        <w:r>
+          <w:instrText xml:space="preserve"> MERGEFIELD =item.index \* MERGEFORMAT </w:instrText>
+        </w:r>
+        <w:r>
+          <w:fldChar w:fldCharType="separate"/>
+        </w:r>
+        <w:r>
+          <w:rPr><w:noProof/></w:rPr>
+          <w:t>«=item.index»</w:t>
+        </w:r>
+        <w:r>
+          <w:fldChar w:fldCharType="end"/>
+        </w:r>
+      </w:p>
+    </w:tc>
+    <w:tc>
+      <w:tcPr>
+        <w:tcW w:w="4285" w:type="dxa"/>
+      </w:tcPr>
+      <w:p w14:paraId="197C6F31" w14:textId="77777777" w:rsidR="00757DAD" w:rsidRDefault="00757DAD" w:rsidP="006333C3">
+        <w:r>
+          <w:fldChar w:fldCharType="begin"/>
+        </w:r>
+        <w:r>
+          <w:instrText xml:space="preserve"> MERGEFIELD =item.label \* MERGEFORMAT </w:instrText>
+        </w:r>
+        <w:r>
+          <w:fldChar w:fldCharType="separate"/>
+        </w:r>
+        <w:r>
+          <w:rPr><w:noProof/></w:rPr>
+          <w:t>«=item.label»</w:t>
+        </w:r>
+        <w:r>
+          <w:fldChar w:fldCharType="end"/>
+        </w:r>
+      </w:p>
+    </w:tc>
+    <w:tc>
+      <w:tcPr>
+        <w:tcW w:w="2029" w:type="dxa"/>
+      </w:tcPr>
+      <w:p w14:paraId="55C258BB" w14:textId="77777777" w:rsidR="00757DAD" w:rsidRDefault="00757DAD" w:rsidP="006333C3">
+        <w:r>
+          <w:fldChar w:fldCharType="begin"/>
+        </w:r>
+        <w:r>
+          <w:instrText xml:space="preserve"> MERGEFIELD =item.rating \* MERGEFORMAT </w:instrText>
+        </w:r>
+        <w:r>
+          <w:fldChar w:fldCharType="separate"/>
+        </w:r>
+        <w:r>
+          <w:rPr><w:noProof/></w:rPr>
+          <w:t>«=item.rating»</w:t>
+        </w:r>
+        <w:r>
+          <w:fldChar w:fldCharType="end"/>
+        </w:r>
+      </w:p>
+    </w:tc>
+  </w:tr>
+  <w:tr w:rsidR="00757DAD" w14:paraId="2D3C09BC" w14:textId="77777777" w:rsidTr="006333C3">
+    <w:tc>
+      <w:tcPr>
+        <w:tcW w:w="2202" w:type="dxa"/>
+      </w:tcPr>
+      <w:p w14:paraId="04A961B7" w14:textId="77777777" w:rsidR="00757DAD" w:rsidRDefault="00757DAD" w:rsidP="006333C3">
+        <w:r>
+          <w:fldChar w:fldCharType="begin"/>
+        </w:r>
+        <w:r>
+          <w:instrText xml:space="preserve"> MERGEFIELD items:endEach \* MERGEFORMAT </w:instrText>
+        </w:r>
+        <w:r>
+          <w:fldChar w:fldCharType="separate"/>
+        </w:r>
+        <w:r>
+          <w:rPr><w:noProof/></w:rPr>
+          <w:t>«items:endEach»</w:t>
+        </w:r>
+        <w:r>
+          <w:fldChar w:fldCharType="end"/>
+        </w:r>
+      </w:p>
+    </w:tc>
+    <w:tc>
+      <w:tcPr>
+        <w:tcW w:w="4285" w:type="dxa"/>
+      </w:tcPr>
+      <w:p w14:paraId="71165BFB" w14:textId="77777777" w:rsidR="00757DAD" w:rsidRDefault="00757DAD" w:rsidP="006333C3"/>
+    </w:tc>
+    <w:tc>
+      <w:tcPr>
+        <w:tcW w:w="2029" w:type="dxa"/>
+      </w:tcPr>
+      <w:p w14:paraId="01D3965C" w14:textId="77777777" w:rsidR="00757DAD" w:rsidRDefault="00757DAD" w:rsidP="006333C3"/>
+    </w:tc>
+  </w:tr>
+</w:tbl>

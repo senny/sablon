@@ -1,0 +1,26 @@
+<w:r><w:t xml:space="preserve">Anthony</w:t></w:r>
+<w:p>
+  <w:fldSimple w:instr=" MERGEFIELD middle_name:if \* MERGEFORMAT ">
+    <w:r>
+      <w:rPr><w:noProof/></w:rPr>
+      <w:t>«middle_name:if»</w:t>
+    </w:r>
+  </w:fldSimple>
+</w:p>
+<w:p>
+  <w:fldSimple w:instr=" MERGEFIELD =middle_name \* MERGEFORMAT ">
+    <w:r>
+      <w:rPr><w:noProof/></w:rPr>
+      <w:t>«=middle_name»</w:t>
+    </w:r>
+  </w:fldSimple>
+</w:p>
+<w:p>
+  <w:fldSimple w:instr=" MERGEFIELD middle_name:endIf \* MERGEFORMAT ">
+    <w:r>
+      <w:rPr><w:noProof/></w:rPr>
+      <w:t>«middle_name:endIf»</w:t>
+    </w:r>
+  </w:fldSimple>
+</w:p>
+<w:r><w:t xml:space="preserve">Hall</w:t></w:r>

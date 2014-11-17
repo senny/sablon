@@ -1,0 +1,33 @@
+<w:tbl>
+  <w:tblGrid>
+    <w:gridCol w:w="2202"/>
+  </w:tblGrid>
+  <w:tr w:rsidR="00757DAD">
+    <w:tc>
+      <w:p>
+        <w:fldSimple w:instr=" MERGEFIELD technologies:each(technology) \* MERGEFORMAT ">
+          <w:r w:rsidR="004B49F0">
+            <w:rPr><w:noProof/></w:rPr>
+            <w:t>«technologies:each(technology)»</w:t>
+          </w:r>
+        </w:fldSimple>
+      </w:p>
+      <w:p>
+        <w:fldSimple w:instr=" MERGEFIELD =technology \* MERGEFORMAT ">
+          <w:r w:rsidR="004B49F0">
+            <w:rPr><w:noProof/></w:rPr>
+            <w:t>«=technology»</w:t>
+          </w:r>
+        </w:fldSimple>
+      </w:p>
+      <w:p>
+        <w:fldSimple w:instr=" MERGEFIELD technologies:endEach \* MERGEFORMAT ">
+          <w:r w:rsidR="004B49F0">
+            <w:rPr><w:noProof/></w:rPr>
+            <w:t>«technologies:endEach»</w:t>
+          </w:r>
+        </w:fldSimple>
+      </w:p>
+    </w:tc>
+  </w:tr>
+</w:tbl>

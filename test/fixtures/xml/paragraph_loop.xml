@@ -1,0 +1,61 @@
+<w:p w14:paraId="6CB29D92" w14:textId="164B70F4" w:rsidR="007F5CDE" w:rsidRDefault="007F5CDE" w:rsidP="007F5CDE">
+   <w:pPr>
+      <w:pStyle w:val="ListParagraph" />
+      <w:numPr>
+         <w:ilvl w:val="0" />
+         <w:numId w:val="1" />
+      </w:numPr>
+   </w:pPr>
+   <w:fldSimple w:instr=" MERGEFIELD technologies:each(technology) \* MERGEFORMAT ">
+      <w:r>
+         <w:rPr><w:noProof /></w:rPr>
+         <w:t>«technologies:each(technology)»</w:t>
+      </w:r>
+   </w:fldSimple>
+</w:p>
+<w:p w14:paraId="1081E316" w14:textId="3EAB5FDC" w:rsidR="00380EE8" w:rsidRDefault="00380EE8" w:rsidP="007F5CDE">
+   <w:pPr>
+      <w:pStyle w:val="ListParagraph" />
+      <w:numPr>
+         <w:ilvl w:val="0" />
+         <w:numId w:val="1" />
+      </w:numPr>
+   </w:pPr>
+   <w:r>
+      <w:fldChar w:fldCharType="begin" />
+   </w:r>
+   <w:r>
+      <w:instrText xml:space="preserve"> </w:instrText>
+   </w:r>
+   <w:r w:rsidR="009F01DA">
+      <w:instrText>MERGEFIELD =technology</w:instrText>
+   </w:r>
+   <w:r>
+      <w:instrText xml:space="preserve"> \* MERGEFORMAT </w:instrText>
+   </w:r>
+   <w:r>
+      <w:fldChar w:fldCharType="separate" />
+   </w:r>
+   <w:r w:rsidR="009F01DA">
+      <w:rPr><w:noProof /></w:rPr>
+      <w:t>«=technology»</w:t>
+   </w:r>
+   <w:r>
+      <w:fldChar w:fldCharType="end" />
+   </w:r>
+</w:p>
+<w:p w14:paraId="7F936853" w14:textId="078377AD" w:rsidR="00380EE8" w:rsidRPr="007F5CDE" w:rsidRDefault="00380EE8" w:rsidP="007F5CDE">
+   <w:pPr>
+      <w:pStyle w:val="ListParagraph" />
+      <w:numPr>
+         <w:ilvl w:val="0" />
+         <w:numId w:val="1" />
+      </w:numPr>
+   </w:pPr>
+   <w:fldSimple w:instr=" MERGEFIELD technologies:endEach \* MERGEFORMAT ">
+      <w:r>
+         <w:rPr><w:noProof /></w:rPr>
+         <w:t>«technologies:endEach»</w:t>
+      </w:r>
+   </w:fldSimple>
+</w:p>

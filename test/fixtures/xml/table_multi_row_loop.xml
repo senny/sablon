@@ -1,0 +1,124 @@
+<w:tbl>
+   <w:tr w:rsidR="00F23752" w14:paraId="3FF89DEC" w14:textId="77777777" w:rsidTr="00213ACD">
+      <w:tc>
+         <w:tcPr>
+            <w:tcW w:w="2235" w:type="dxa" />
+            <w:shd w:val="clear" w:color="auto" w:fill="auto" />
+         </w:tcPr>
+         <w:p w14:paraId="7630A6C6" w14:textId="699D0C71" w:rsidR="00F23752" w:rsidRDefault="00F23752" w:rsidP="003F16E3">
+            <w:fldSimple w:instr=" MERGEFIELD foods:each(food) \* MERGEFORMAT ">
+               <w:r w:rsidR="00213ACD">
+                  <w:rPr><w:noProof /></w:rPr>
+                  <w:t>«foods:each(food)»</w:t>
+               </w:r>
+            </w:fldSimple>
+         </w:p>
+      </w:tc>
+      <w:tc>
+         <w:tcPr>
+            <w:tcW w:w="6287" w:type="dxa" />
+            <w:shd w:val="clear" w:color="auto" w:fill="auto" />
+         </w:tcPr>
+         <w:p w14:paraId="437AFC74" w14:textId="77777777" w:rsidR="00F23752" w:rsidRDefault="00F23752" w:rsidP="003F16E3" />
+      </w:tc>
+   </w:tr>
+   <w:tr w:rsidR="00F23752" w14:paraId="320AE02B" w14:textId="77777777" w:rsidTr="00213ACD">
+      <w:tc>
+         <w:tcPr>
+            <w:tcW w:w="2235" w:type="dxa" />
+            <w:shd w:val="clear" w:color="auto" w:fill="8DB3E2" w:themeFill="text2" w:themeFillTint="66" />
+         </w:tcPr>
+         <w:p w14:paraId="3FCF3855" w14:textId="38FA7F3B" w:rsidR="00F23752" w:rsidRDefault="00F23752" w:rsidP="00F23752">
+            <w:fldSimple w:instr=" MERGEFIELD =food.index \* MERGEFORMAT ">
+               <w:r w:rsidR="00213ACD">
+                  <w:rPr><w:noProof /></w:rPr>
+                  <w:t>«=food.index»</w:t>
+               </w:r>
+            </w:fldSimple>
+         </w:p>
+      </w:tc>
+      <w:tc>
+         <w:tcPr>
+            <w:tcW w:w="6287" w:type="dxa" />
+            <w:shd w:val="clear" w:color="auto" w:fill="8DB3E2" w:themeFill="text2" w:themeFillTint="66" />
+         </w:tcPr>
+         <w:p w14:paraId="0BB0E74E" w14:textId="4FA0D282" w:rsidR="00F23752" w:rsidRPr="00F576DA" w:rsidRDefault="00F23752" w:rsidP="00F23752">
+            <w:r w:rsidRPr="00F576DA">
+               <w:fldChar w:fldCharType="begin" />
+            </w:r>
+            <w:r w:rsidRPr="00F576DA">
+               <w:instrText xml:space="preserve"> MERGEFIELD =</w:instrText>
+            </w:r>
+            <w:r>
+               <w:instrText>food</w:instrText>
+            </w:r>
+            <w:r w:rsidRPr="00F576DA">
+               <w:instrText xml:space="preserve">.label \* MERGEFORMAT </w:instrText>
+            </w:r>
+            <w:r w:rsidRPr="00F576DA">
+               <w:fldChar w:fldCharType="separate" />
+            </w:r>
+            <w:r w:rsidR="00213ACD">
+               <w:rPr>
+                  <w:rFonts w:ascii="Comic Sans MS" w:hAnsi="Comic Sans MS" />
+                  <w:noProof />
+               </w:rPr>
+               <w:t>«=food.label»</w:t>
+            </w:r>
+            <w:r w:rsidRPr="00F576DA">
+               <w:fldChar w:fldCharType="end" />
+            </w:r>
+         </w:p>
+      </w:tc>
+   </w:tr>
+   <w:tr w:rsidR="00213ACD" w14:paraId="1EA188ED" w14:textId="77777777" w:rsidTr="00213ACD">
+      <w:tc>
+         <w:tcPr>
+            <w:tcW w:w="8522" w:type="dxa" />
+            <w:gridSpan w:val="2" />
+            <w:shd w:val="clear" w:color="auto" w:fill="auto" />
+         </w:tcPr>
+         <w:p w14:paraId="3E9FF163" w14:textId="0F37CDFB" w:rsidR="00213ACD" w:rsidRDefault="00213ACD" w:rsidP="003F16E3">
+            <w:fldSimple w:instr=" MERGEFIELD =food.body \* MERGEFORMAT ">
+               <w:r>
+                  <w:rPr><w:noProof /></w:rPr>
+                  <w:t>«=food.body»</w:t>
+               </w:r>
+            </w:fldSimple>
+         </w:p>
+      </w:tc>
+   </w:tr>
+   <w:tr w:rsidR="00213ACD" w14:paraId="34315A41" w14:textId="77777777" w:rsidTr="00213ACD">
+      <w:tc>
+         <w:tcPr>
+            <w:tcW w:w="2235" w:type="dxa" />
+            <w:shd w:val="clear" w:color="auto" w:fill="auto" />
+         </w:tcPr>
+         <w:p w14:paraId="1CA83F76" w14:textId="2622C490" w:rsidR="00213ACD" w:rsidRDefault="00213ACD" w:rsidP="003F16E3">
+            <w:r>
+               <w:fldChar w:fldCharType="begin" />
+            </w:r>
+            <w:r>
+               <w:instrText xml:space="preserve"> MERGEFIELD foods:endEach \* MERGEFORMAT </w:instrText>
+            </w:r>
+            <w:r>
+               <w:fldChar w:fldCharType="separate" />
+            </w:r>
+            <w:r>
+               <w:rPr><w:noProof /></w:rPr>
+               <w:t>«foods:endEach»</w:t>
+            </w:r>
+            <w:r>
+               <w:fldChar w:fldCharType="end" />
+            </w:r>
+         </w:p>
+      </w:tc>
+      <w:tc>
+         <w:tcPr>
+            <w:tcW w:w="6287" w:type="dxa" />
+            <w:shd w:val="clear" w:color="auto" w:fill="auto" />
+         </w:tcPr>
+         <w:p w14:paraId="7D976602" w14:textId="77777777" w:rsidR="00213ACD" w:rsidRDefault="00213ACD" w:rsidP="003F16E3" />
+      </w:tc>
+   </w:tr>
+</w:tbl>
