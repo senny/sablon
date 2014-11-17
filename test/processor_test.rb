@@ -34,6 +34,25 @@ class ProcessorTest < Sablon::TestCase
     document
   end
 
+  def test_context_can_contain_string_and_symbol_keys
+    result = process(<<-documentxml, {"first_name" => "Jack", last_name: "Davis"})
+      <w:fldSimple w:instr=" MERGEFIELD =first_name \\* MERGEFORMAT ">
+        <w:r w:rsidR="004B49F0">
+          <w:rPr><w:noProof/></w:rPr>
+          <w:t>«=first_name»</w:t>
+        </w:r>
+      </w:fldSimple>
+      <w:fldSimple w:instr=" MERGEFIELD =last_name \\* MERGEFORMAT ">
+        <w:r w:rsidR="004B49F0">
+          <w:rPr><w:noProof/></w:rPr>
+          <w:t>«=last_name»</w:t>
+        </w:r>
+      </w:fldSimple>
+    documentxml
+
+    assert_equal "Jack Davis", text(result)
+  end
+
   def test_complex_field_replacement
     result = process(<<-documentxml, {"last_name" => "Zane"})
       <w:r><w:t xml:space="preserve">Hello! My Name is </w:t></w:r>

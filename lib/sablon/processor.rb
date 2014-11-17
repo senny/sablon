@@ -2,7 +2,8 @@ module Sablon
   class Processor
     def self.process(xml_node, context, properties = {})
       processor = new(parser)
-      processor.manipulate xml_node, context
+      stringified_context = context.map {|k, v| [k.to_s, v] }.to_h
+      processor.manipulate xml_node, stringified_context
       processor.write_properties xml_node, properties if properties.any?
       xml_node
     end
