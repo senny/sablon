@@ -2,7 +2,6 @@
 
 require 'sablon'
 require 'json'
-require 'ostruct'
 
 if ARGV.size != 2
   puts <<-HELP
