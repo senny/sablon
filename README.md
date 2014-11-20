@@ -51,6 +51,10 @@ It's also possible to call a method on a context object using:
 «=post.title»
 ```
 
+NOTE: The dot operator can also be used to perform a hash lookup.
+This means that it's not possible to call methods on a hash instance.
+Sablon will always try to make a lookup instead.
+
 
 #### Conditionals
 
@@ -96,6 +100,17 @@ to repeat. Have a look at the
 
 It is possible to nest loops and conditionals.
 
+
+### Executable
+
+The `sablon` executable can be used to process templates on the command-line.
+The usage is as follows:
+
+```
+cat <context path>.json | sablon <template path> <output path>
+```
+
+Have a look at [this test](test/executable_test.rb) for an example.
 
 ### Examples
 

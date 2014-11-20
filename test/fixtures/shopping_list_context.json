@@ -1,0 +1,8 @@
+{
+  "title": "Shopping List",
+  "items": [
+    {"name": "Milk", "amount": "1L"},
+    {"name": "Sugar", "amount": "1kg"},
+    {"name": "Tomatoes", "amount": "500g"}
+  ]
+}

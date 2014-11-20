@@ -16,9 +16,22 @@ class VariableExpressionTest < Sablon::TestCase
   end
 end
 
-class SimpleMethodCallTest < Sablon::TestCase
-  def test_calls_method_on_context_variable
+class LookupOrMethodCallTest < Sablon::TestCase
+  def test_calls_method_on_object
     user = OpenStruct.new(first_name: "Jack")
+    expr = Sablon::Expression.parse("user.first_name")
+    assert_equal "Jack", expr.evaluate({"user" => user})
+  end
+
+  def test_calls_perform_lookup_on_hash_with_string_keys
+    user = {"first_name" => "Jack"}
+    expr = Sablon::Expression.parse("user.first_name")
+    assert_equal "Jack", expr.evaluate({"user" => user})
+  end
+
+  def test_calls_perform_lookup_on_hash_with_symbol_keys
+    skip
+    user = {first_name: "Jack"}
     expr = Sablon::Expression.parse("user.first_name")
     assert_equal "Jack", expr.evaluate({"user" => user})
   end
