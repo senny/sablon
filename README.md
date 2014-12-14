@@ -3,10 +3,10 @@
 [![Gem Version](https://badge.fury.io/rb/sablon.svg)](http://badge.fury.io/rb/sablon) [![Build Status](https://travis-ci.org/senny/sablon.svg?branch=master)](https://travis-ci.org/senny/sablon)
 
 Is a document template processor for Word `docx` files. It leverages Word's
-built-in formatting and layouting capabilities to make it easy to create your
-templates.
+built-in formatting and layouting capabilities to make template creation easy
+and efficient.
 
-*Note: Sablon is still in early development. If you encounter any issues along the way please report.*
+*Note: Sablon is still in early development. Please report if you encounter any issues along the way.*
 
 ## Installation
 
@@ -145,7 +145,7 @@ For more details, check out this [test case](test/sablon_test.rb).
 
 ## Inspiration
 
-The following projects address a similar goal and inspired the work on Sablon:
+These projects address a similar goal and inspired the work on Sablon:
 
 * [ruby-docx-templater](https://github.com/jawspeak/ruby-docx-templater)
 * [docx_mailmerge](https://github.com/annaswims/docx_mailmerge)
