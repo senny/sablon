@@ -36,57 +36,60 @@ module MailMergeParser
 
     def test_replace
       field.replace("Hello")
-      assert_equal <<-body_xml.strip, body_xml
-<w:r w:rsidR=\"004B49F0\">
+      xml = <<-xml
+  <w:r w:rsidR=\"004B49F0\">
     <w:rPr><w:noProof/></w:rPr>
     <w:t>Hello</w:t>
   </w:r>
-body_xml
+xml
+    assert_equal body_xml.strip, xml.strip
     end
 
     def test_replace_with_newlines
       field.replace("First\nSecond\n\nThird")
-
-      assert_equal <<-body_xml.strip, body_xml
+      xml = <<-xml
 <w:r w:rsidR=\"004B49F0\">
     <w:rPr><w:noProof/></w:rPr>
     <w:t>First</w:t><w:br/><w:t>Second</w:t><w:br/><w:br/><w:t>Third</w:t>
   </w:r>
-body_xml
+xml
+      assert_equal body_xml.strip, xml.strip
     end
 
     def test_replace_with_nil
       field.replace(nil)
-
-      assert_equal <<-body_xml.strip, body_xml.gsub(/^\s+$/,'')
+      xml = <<-xml
 <w:r w:rsidR=\"004B49F0\">
     <w:rPr><w:noProof/></w:rPr>
 
   </w:r>
-body_xml
+xml
+      assert_equal body_xml.gsub(/^\s+$/,'').strip, xml.strip
     end
 
     def test_replace_with_numeric
       field.replace(45)
-
-      assert_equal <<-body_xml.strip, body_xml.gsub(/^\s+$/,'')
+      xml = <<-xml
 <w:r w:rsidR=\"004B49F0\">
     <w:rPr><w:noProof/></w:rPr>
     <w:t>45</w:t>
   </w:r>
-body_xml
+xml
+      assert_equal body_xml.gsub(/^\s+$/,'').strip, xml.strip
     end
 
     private
+
     def xml
-      wrap(<<-xml)
+      xml = <<-xml
 <w:fldSimple w:instr=" MERGEFIELD =first_name \\* MERGEFORMAT ">
   <w:r w:rsidR="004B49F0">
     <w:rPr><w:noProof/></w:rPr>
     <w:t>«=first_name»</w:t>
   </w:r>
 </w:fldSimple>
-      xml
+xml
+      wrap(xml)
     end
   end
 
@@ -99,7 +102,7 @@ body_xml
 
     def test_replace
       field.replace("Hello")
-      assert_equal <<-body_xml.strip, body_xml
+      xml = <<-xml
 <w:r w:rsidR="004B49F0">
   <w:rPr>
     <w:b/>
@@ -107,13 +110,13 @@ body_xml
   </w:rPr>
   <w:t>Hello</w:t>
 </w:r>
-body_xml
+xml
+      assert_equal body_xml.strip, xml.strip
     end
 
     def test_replace_with_newlines
       field.replace("First\nSecond\n\nThird")
-
-      assert_equal <<-body_xml.strip, body_xml
+      xml = <<-xml
 <w:r w:rsidR="004B49F0">
   <w:rPr>
     <w:b/>
@@ -121,13 +124,14 @@ body_xml
   </w:rPr>
   <w:t>First</w:t><w:br/><w:t>Second</w:t><w:br/><w:br/><w:t>Third</w:t>
 </w:r>
-body_xml
+xml
+      assert_equal body_xml.strip, xml.strip
     end
 
     def test_replace_with_nil
       field.replace(nil)
 
-      assert_equal <<-body_xml.strip, body_xml.gsub(/^\s+$/,'')
+      xml = <<-xml
 <w:r w:rsidR="004B49F0">
   <w:rPr>
     <w:b/>
@@ -135,12 +139,14 @@ body_xml
   </w:rPr>
 
 </w:r>
-body_xml
+xml
+      assert_equal body_xml.gsub(/^\s+$/,'').strip, xml.strip
     end
 
     private
+
     def xml
-      wrap(<<-xml)
+      xml = <<-xml
 <w:r w:rsidR="00BE47B1" w:rsidRPr="00BE47B1">
   <w:rPr><w:b/></w:rPr>
   <w:fldChar w:fldCharType="begin"/>
@@ -164,7 +170,8 @@ body_xml
   <w:rPr><w:b/></w:rPr>
   <w:fldChar w:fldCharType="end"/>
 </w:r>
-      xml
+xml
+      wrap(xml)
     end
   end
 
@@ -176,8 +183,9 @@ body_xml
     end
 
     private
+
     def xml
-      wrap(<<-xml)
+      xml = <<-xml
   <w:p w14:paraId="0CF428D7" w14:textId="77777777" w:rsidR="00043618" w:rsidRDefault="00043618" w:rsidP="00B960C2">
     <w:pPr>
       <w:pStyle w:val="Footer" />
@@ -218,7 +226,8 @@ body_xml
       <w:fldChar w:fldCharType="end" />
     </w:r>
   </w:p>
-      xml
+xml
+      wrap(xml)
     end
   end
 end
