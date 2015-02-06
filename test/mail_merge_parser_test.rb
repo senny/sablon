@@ -230,4 +230,24 @@ xml
       wrap(xml)
     end
   end
+
+  class FieldWithWhitespaceTest < Sablon::TestCase
+    include SharedBehavior
+
+    def test_recognizes_expression
+      assert_equal ["=title"], fields.map(&:expression)
+    end
+
+    def xml
+      xml = <<-xml
+<w:fldSimple w:instr="  MERGEFIELD    =title    \\*   MERGEFORMAT    ">
+  <w:r w:rsidR="004B49F0">
+    <w:rPr><w:noProof/></w:rPr>
+    <w:t>«=title»</w:t>
+  </w:r>
+</w:fldSimple>
+xml
+      wrap(xml)
+    end
+  end
 end

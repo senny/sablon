@@ -2,7 +2,7 @@ module Sablon
   module Parser
     class MailMerge
       class MergeField
-        KEY_PATTERN = /^\s*MERGEFIELD ([^ ]+)\s+\\\* MERGEFORMAT\s*$/
+        KEY_PATTERN = /^\s*MERGEFIELD\s+([^ ]+)\s+\\\*\s+MERGEFORMAT\s*$/
         def expression
           $1 if @raw_expression =~ KEY_PATTERN
         end
