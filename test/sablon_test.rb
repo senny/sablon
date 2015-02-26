@@ -12,7 +12,7 @@ class SablonTest < Sablon::TestCase
 
   def test_generate_document_from_template
     template = Sablon.template(@base_path + "fixtures/sablon_template.docx")
-    person = OpenStruct.new "first_name" => "Ronald", "last_name" => "Anderson"
+    person = OpenStruct.new "first_name" => "Ronald", "last_name" => "Anderson", "address" => {"street" => "Panda Bay 4A"}
     item = Struct.new(:index, :label, :rating)
     position = Struct.new(:duration, :label, :description)
     language = Struct.new(:name, :skill)

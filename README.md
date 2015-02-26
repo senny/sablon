@@ -55,6 +55,11 @@ NOTE: The dot operator can also be used to perform a hash lookup.
 This means that it's not possible to call methods on a hash instance.
 Sablon will always try to make a lookup instead.
 
+This works for chained method calls and nested hash lookup as well:
+
+```
+«=buyer.address.street»
+```
 
 #### Conditionals
 

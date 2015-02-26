@@ -1,5 +1,11 @@
 {
   "title": "Shopping List",
+  "details": {
+    "author": {
+      "first_name": "John",
+      "last_name": "Doe"
+    }
+  },
   "items": [
     {"name": "Milk", "amount": "1L"},
     {"name": "Sugar", "amount": "1kg"},
