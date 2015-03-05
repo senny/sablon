@@ -3,17 +3,22 @@
 require 'sablon'
 require 'json'
 
-if ARGV.size != 2
+if ARGV.size < 1
   puts <<-HELP
-cat <context path> | sablon <template path> <output path>
+cat <context path> | sablon <template path> [<output path>]
   HELP
   exit
 end
 
 template_path = File.expand_path(ARGV[0])
-output_path = File.expand_path(ARGV[1])
 context_json = STDIN.readlines.join
 context = JSON.parse(context_json)
 
 template = Sablon.template(template_path)
-template.render_to_file(output_path, context)
+
+if !ARGV[1].nil? && !ARGV[1].empty?
+  output_path = File.expand_path(ARGV[1])
+  template.render_to_file(output_path, context)
+else
+  $stdout.print template.render_to_string(context)
+end

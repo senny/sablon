@@ -115,7 +115,10 @@ The usage is as follows:
 cat <context path>.json | sablon <template path> <output path>
 ```
 
-Have a look at [this test](test/executable_test.rb) for an example.
+If no `<output path>` is given, the document will be printed to stdout.
+
+
+Have a look at [this test](test/executable_test.rb) for examples.
 
 ### Examples
 
