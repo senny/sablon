@@ -22,6 +22,7 @@ module Sablon
       operations.each do |step|
         step.evaluate context
       end
+      cleanup(xml_node)
       xml_node
     end
 
@@ -35,6 +36,17 @@ module Sablon
     private
     def build_operations(fields)
       OperationConstruction.new(fields).operations
+    end
+
+    def cleanup(xml_node)
+      fill_empty_table_cells xml_node
+    end
+
+    def fill_empty_table_cells(xml_node)
+      xml_node.xpath("//w:tc[count(*[name() = 'w:p'])=0 or not(*)]").each do |blank_cell|
+        filler = Nokogiri::XML::Node.new("w:p", xml_node.document)
+        blank_cell.add_child filler
+      end
     end
 
     class Block < Struct.new(:start_field, :end_field)

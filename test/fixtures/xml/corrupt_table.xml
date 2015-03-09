@@ -1,0 +1,42 @@
+<w:tbl>
+  <w:tblGrid>
+    <w:gridCol w:w="2202"/>
+  </w:tblGrid>
+  <w:tr w:rsidR="00757DAD">
+    <w:tc>
+      <w:p>
+        Hans
+      </w:p>
+    </w:tc>
+
+    <w:tc>
+      <w:tcPr>
+        <w:tcW w:w="5635" w:type="dxa"/>
+      </w:tcPr>
+    </w:tc>
+  </w:tr>
+
+  <w:tr w:rsidR="00757DAD">
+    <w:tc>
+      <w:tcPr>
+        <w:tcW w:w="2202" w:type="dxa"/>
+      </w:tcPr>
+      <w:p>
+        <w:r>
+          <w:rPr><w:noProof/></w:rPr>
+          <w:t>1.</w:t>
+        </w:r>
+      </w:p>
+    </w:tc>
+
+    <w:tc>
+      <w:p>
+        </w:p><w:p>
+        <w:r w:rsidR="004B49F0">
+          <w:rPr><w:noProof/></w:rPr>
+          <w:t>Chef</w:t>
+        </w:r>
+      </w:p>
+    </w:tc>
+  </w:tr>
+</w:tbl>

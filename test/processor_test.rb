@@ -121,6 +121,73 @@ class ProcessorTest < Sablon::TestCase
     document
   end
 
+  def test_paragraph_block_within_empty_table_cell_and_blank_replacement
+    result = process(snippet("paragraph_loop_within_table_cell"), {"technologies" => []})
+
+    assert_equal "", text(result)
+    assert_xml_equal <<-document, result
+    <w:tbl>
+      <w:tblGrid>
+        <w:gridCol w:w="2202"/>
+      </w:tblGrid>
+      <w:tr w:rsidR="00757DAD">
+        <w:tc>
+          <w:p></w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
+    document
+  end
+
+  def test_adds_blank_paragraph_to_empty_table_cells
+    result = process(snippet("corrupt_table"), {})
+    assert_xml_equal <<-document, result
+<w:tbl>
+  <w:tblGrid>
+    <w:gridCol w:w="2202"/>
+  </w:tblGrid>
+  <w:tr w:rsidR="00757DAD">
+    <w:tc>
+      <w:p>
+        Hans
+      </w:p>
+    </w:tc>
+
+    <w:tc>
+      <w:tcPr>
+        <w:tcW w:w="5635" w:type="dxa"/>
+      </w:tcPr>
+      <w:p></w:p>
+    </w:tc>
+  </w:tr>
+
+  <w:tr w:rsidR="00757DAD">
+    <w:tc>
+      <w:tcPr>
+        <w:tcW w:w="2202" w:type="dxa"/>
+      </w:tcPr>
+      <w:p>
+        <w:r>
+          <w:rPr><w:noProof/></w:rPr>
+          <w:t>1.</w:t>
+        </w:r>
+      </w:p>
+    </w:tc>
+
+    <w:tc>
+      <w:p>
+        </w:p><w:p>
+        <w:r w:rsidR="004B49F0">
+          <w:rPr><w:noProof/></w:rPr>
+          <w:t>Chef</w:t>
+        </w:r>
+      </w:p>
+    </w:tc>
+  </w:tr>
+</w:tbl>
+    document
+  end
+
   def test_single_row_table_loop
     item = Struct.new(:index, :label, :rating)
     result = process(snippet("table_row_loop"), {"items" => [item.new("1.", "Milk", "***"), item.new("2.", "Sugar", "**")]})
