@@ -278,6 +278,25 @@ class ProcessorTest < Sablon::TestCase
     document
   end
 
+  def test_loop_over_collection_convertable_to_an_enumerable
+    style_collection = Class.new do
+      def to_ary
+        ["CSS", "SCSS", "LESS"]
+      end
+    end
+
+    result = process(snippet("paragraph_loop"), {"technologies" => style_collection.new})
+    assert_equal "CSS SCSS LESS", text(result)
+  end
+
+  def test_loop_over_collection_not_convertable_to_an_enumerable_raises_error
+    not_a_collection = Class.new {}
+
+    assert_raises Sablon::ContextError do
+      process(snippet("paragraph_loop"), {"technologies" => not_a_collection.new})
+    end
+  end
+
   def test_loop_with_missing_variable_raises_error
     e = assert_raises Sablon::ContextError do
       process(snippet("paragraph_loop"), {})
