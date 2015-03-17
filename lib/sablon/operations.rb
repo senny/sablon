@@ -10,7 +10,7 @@ module Sablon
     class Loop < Struct.new(:list_expr, :iterator_name, :block)
       def evaluate(context)
         value = list_expr.evaluate(context)
-        raise ContextError, "The expression #{list_expr.inspect} should evaluate to an enumerable but was: #{value.inspect}" unless value.is_a? Enumerable
+        raise ContextError, "The expression #{list_expr.inspect} should evaluate to an enumerable but was: #{value.inspect}" unless value.try("to_a").is_a? Enumerable
 
         content = value.flat_map do |item|
           iteration_context = context.merge(iterator_name => item)
