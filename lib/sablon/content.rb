@@ -1,14 +1,10 @@
 module Sablon
   module Content
-    class String
+    class String < Struct.new(:string)
       include Sablon::Content
 
-      def initialize(string)
-        @string = string
-      end
-
       def append_to(node)
-        @string.scan(/[^\n]+|\n/).reverse.each do |part|
+        string.scan(/[^\n]+|\n/).reverse.each do |part|
           if part == "\n"
             node.add_next_sibling Nokogiri::XML::Node.new "w:br", node.document
           else
@@ -20,15 +16,11 @@ module Sablon
       end
     end
 
-    class WordML
+    class WordML < Struct.new(:xml)
       include Sablon::Content
 
-      def initialize(xml)
-        @xml = xml
-      end
-
       def append_to(node)
-        Nokogiri::XML.fragment(@xml).children.reverse.each do |child|
+        Nokogiri::XML.fragment(xml).children.reverse.each do |child|
           node.add_next_sibling child
         end
       end

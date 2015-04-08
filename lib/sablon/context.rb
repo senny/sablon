@@ -1,11 +1,28 @@
 module Sablon
   module Context
     def self.transform(hash)
-      stringify_keys(hash)
+      transform_hash(hash)
     end
 
-    def self.stringify_keys(hash)
-      Hash[hash.map{|k,v| v.is_a?(Hash) ? [k.to_s, stringify_keys(v)] : [k.to_s, v] }]
+    def self.transform_hash(hash)
+      Hash[hash.map{|k,v| transform_pair(k.to_s, v) }]
+    end
+
+    def self.transform_pair(key, value)
+      if key =~ /\Awordml:(.+)\z/
+        [$1, Sablon.word_ml(value)]
+      else
+        transform_standard_key(key, value)
+      end
+    end
+
+    def self.transform_standard_key(key, value)
+      case value
+      when Hash
+        [key, transform_hash(value)]
+      else
+        [key, value]
+      end
     end
   end
 end
