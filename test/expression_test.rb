@@ -29,13 +29,6 @@ class LookupOrMethodCallTest < Sablon::TestCase
     assert_equal "Jack", expr.evaluate("user" => user)
   end
 
-  def test_calls_perform_lookup_on_hash_with_symbol_keys
-    skip
-    user = {first_name: "Jack"}
-    expr = Sablon::Expression.parse("user.first_name")
-    assert_equal "Jack", expr.evaluate("user" => user)
-  end
-
   def test_inspect
     expr = Sablon::Expression.parse("user.first_name")
     assert_equal "«user.first_name»", expr.inspect

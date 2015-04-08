@@ -1,4 +1,5 @@
 require "sablon/version"
+require "sablon/context"
 require "sablon/template"
 require "sablon/processor"
 require "sablon/processor/section_properties"
