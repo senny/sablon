@@ -61,6 +61,39 @@ This works for chained method calls and nested hash lookup as well:
 «=buyer.address.street»
 ```
 
+##### WordProcessingML
+
+Generally Sablon tries to reuse the formatting defined in the template. However,
+there are situations where more fine grained control is needed. Imagine you need
+to insert a body of text containing different formats. If you can't decide the
+format ahead of processing time (in the template) you can insert
+[WordProcessingML](http://en.wikipedia.org/wiki/Microsoft_Office_XML_formats)
+directly.
+
+The template can use a simple insertion operation like so:
+```
+«=long_description»
+```
+
+The thing that changes is the context passed when processing the template:
+
+```ruby
+word_processing_ml = <<-XML
+<w:p>
+  <w:r w:rsidRPr="00B97C39">
+    <w:rPr>
+      <w:b />
+    </w:rPr>
+    <w:t>this is bold text</w:t>
+  </w:r>
+</w:p>
+XML
+context = {
+  long_description: Sablon.word_ml(word_processing_ml)
+}
+template.render_to_file File.expand_path("~/Desktop/output.docx"), context
+```
+
 #### Conditionals
 
 Sablon can render parts of the template conditonally based on the value of a

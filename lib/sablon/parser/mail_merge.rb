@@ -8,17 +8,9 @@ module Sablon
         end
 
         private
-        def replace_field_display(node, text)
+        def replace_field_display(node, content)
           display_node = node.search(".//w:t").first
-          text.to_s.scan(/[^\n]+|\n/).reverse.each do |part|
-            if part == "\n"
-              display_node.add_next_sibling Nokogiri::XML::Node.new "w:br", display_node.document
-            else
-              text_part = display_node.dup
-              text_part.content = part
-              display_node.add_next_sibling text_part
-            end
-          end
+          content.append_to(display_node)
           display_node.remove
         end
       end
@@ -29,8 +21,8 @@ module Sablon
           @raw_expression = @nodes.flat_map {|n| n.search(".//w:instrText").map(&:content) }.join
         end
 
-        def replace(value)
-          replace_field_display(pattern_node, value)
+        def replace(content)
+          replace_field_display(pattern_node, content)
           (@nodes - [pattern_node]).each(&:remove)
         end
 
@@ -54,8 +46,8 @@ module Sablon
           @raw_expression = @node["w:instr"]
         end
 
-        def replace(value)
-          replace_field_display(@node, value)
+        def replace(content)
+          replace_field_display(@node, content)
           @node.replace(@node.children)
         end
 

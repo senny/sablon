@@ -35,7 +35,7 @@ module MailMergeParser
     end
 
     def test_replace
-      field.replace("Hello")
+      field.replace(Sablon.string("Hello"))
       xml = <<-xml
   <w:r w:rsidR=\"004B49F0\">
     <w:rPr><w:noProof/></w:rPr>
@@ -43,39 +43,6 @@ module MailMergeParser
   </w:r>
 xml
     assert_equal body_xml.strip, xml.strip
-    end
-
-    def test_replace_with_newlines
-      field.replace("First\nSecond\n\nThird")
-      xml = <<-xml
-<w:r w:rsidR=\"004B49F0\">
-    <w:rPr><w:noProof/></w:rPr>
-    <w:t>First</w:t><w:br/><w:t>Second</w:t><w:br/><w:br/><w:t>Third</w:t>
-  </w:r>
-xml
-      assert_equal body_xml.strip, xml.strip
-    end
-
-    def test_replace_with_nil
-      field.replace(nil)
-      xml = <<-xml
-<w:r w:rsidR=\"004B49F0\">
-    <w:rPr><w:noProof/></w:rPr>
-
-  </w:r>
-xml
-      assert_equal body_xml.gsub(/^\s+$/,'').strip, xml.strip
-    end
-
-    def test_replace_with_numeric
-      field.replace(45)
-      xml = <<-xml
-<w:r w:rsidR=\"004B49F0\">
-    <w:rPr><w:noProof/></w:rPr>
-    <w:t>45</w:t>
-  </w:r>
-xml
-      assert_equal body_xml.gsub(/^\s+$/,'').strip, xml.strip
     end
 
     private
@@ -101,7 +68,7 @@ xml
     end
 
     def test_replace
-      field.replace("Hello")
+      field.replace(Sablon.string("Hello"))
       xml = <<-xml
 <w:r w:rsidR="004B49F0">
   <w:rPr>
@@ -112,35 +79,6 @@ xml
 </w:r>
 xml
       assert_equal body_xml.strip, xml.strip
-    end
-
-    def test_replace_with_newlines
-      field.replace("First\nSecond\n\nThird")
-      xml = <<-xml
-<w:r w:rsidR="004B49F0">
-  <w:rPr>
-    <w:b/>
-    <w:noProof/>
-  </w:rPr>
-  <w:t>First</w:t><w:br/><w:t>Second</w:t><w:br/><w:br/><w:t>Third</w:t>
-</w:r>
-xml
-      assert_equal body_xml.strip, xml.strip
-    end
-
-    def test_replace_with_nil
-      field.replace(nil)
-
-      xml = <<-xml
-<w:r w:rsidR="004B49F0">
-  <w:rPr>
-    <w:b/>
-    <w:noProof/>
-  </w:rPr>
-
-</w:r>
-xml
-      assert_equal body_xml.gsub(/^\s+$/,'').strip, xml.strip
     end
 
     private
