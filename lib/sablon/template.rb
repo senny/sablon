@@ -6,7 +6,7 @@ module Sablon
 
     # Same as +render_to_string+ but writes the processed template to +output_path+.
     def render_to_file(output_path, context, properties = {})
-      File.open(output_path, 'w') do |f|
+      File.open(output_path, 'wb') do |f|
         f.write render_to_string(context, properties)
       end
     end
