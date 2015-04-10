@@ -71,6 +71,7 @@ format ahead of processing time (in the template) you can insert
 directly.
 
 The template can use a simple insertion operation like so:
+
 ```
 «=long_description»
 ```
@@ -93,6 +94,10 @@ context = {
 }
 template.render_to_file File.expand_path("~/Desktop/output.docx"), context
 ```
+
+**IMPORTANT:** This feature is very much *experimental*. Currently, this only
+  works if the insertion is the only thing inside the template paragraph. Other
+  content is discarded!
 
 #### Conditionals
 

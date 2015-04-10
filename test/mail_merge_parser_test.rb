@@ -19,7 +19,7 @@ module MailMergeParser
     end
 
     def body_xml
-      document.search(".//w:body").children.map(&:to_xml).join.strip
+      document.search(".//w:body").children.map(&:to_xml).map(&:strip).join
     end
 
     def document
@@ -36,25 +36,27 @@ module MailMergeParser
 
     def test_replace
       field.replace(Sablon.string("Hello"))
-      xml = <<-xml
-  <w:r w:rsidR=\"004B49F0\">
-    <w:rPr><w:noProof/></w:rPr>
-    <w:t>Hello</w:t>
-  </w:r>
+      xml = <<-xml.strip
+<w:p>
+<w:r w:rsidR=\"004B49F0\">
+<w:rPr><w:noProof/></w:rPr>
+<w:t>Hello</w:t>
+</w:r>
+</w:p>
 xml
-    assert_equal body_xml.strip, xml.strip
+    assert_equal xml, body_xml
     end
 
     private
 
     def xml
-      xml = <<-xml
-<w:fldSimple w:instr=" MERGEFIELD =first_name \\* MERGEFORMAT ">
-  <w:r w:rsidR="004B49F0">
-    <w:rPr><w:noProof/></w:rPr>
-    <w:t>«=first_name»</w:t>
-  </w:r>
-</w:fldSimple>
+      xml = <<-xml.strip
+<w:p><w:fldSimple w:instr=" MERGEFIELD =first_name \\* MERGEFORMAT ">
+<w:r w:rsidR="004B49F0">
+<w:rPr><w:noProof/></w:rPr>
+<w:t>«=first_name»</w:t>
+</w:r>
+</w:fldSimple></w:p>
 xml
       wrap(xml)
     end
@@ -69,14 +71,18 @@ xml
 
     def test_replace
       field.replace(Sablon.string("Hello"))
-      xml = <<-xml
+      xml = <<-xml.strip
+<w:p>
+
+
 <w:r w:rsidR="004B49F0">
-  <w:rPr>
-    <w:b/>
-    <w:noProof/>
-  </w:rPr>
-  <w:t>Hello</w:t>
+<w:rPr>
+<w:b/>
+<w:noProof/>
+</w:rPr>
+<w:t>Hello</w:t>
 </w:r>
+</w:p>
 xml
       assert_equal body_xml.strip, xml.strip
     end
@@ -84,30 +90,30 @@ xml
     private
 
     def xml
-      xml = <<-xml
-<w:r w:rsidR="00BE47B1" w:rsidRPr="00BE47B1">
-  <w:rPr><w:b/></w:rPr>
-  <w:fldChar w:fldCharType="begin"/>
+      xml = <<-xml.strip
+<w:p><w:r w:rsidR="00BE47B1" w:rsidRPr="00BE47B1">
+<w:rPr><w:b/></w:rPr>
+<w:fldChar w:fldCharType="begin"/>
 </w:r>
 <w:r w:rsidR="00BE47B1" w:rsidRPr="00BE47B1">
-  <w:rPr><w:b/></w:rPr>
-  <w:instrText xml:space="preserve"> MERGEFIELD =last_name \\* MERGEFORMAT </w:instrText>
+<w:rPr><w:b/></w:rPr>
+<w:instrText xml:space="preserve"> MERGEFIELD =last_name \\* MERGEFORMAT </w:instrText>
 </w:r>
 <w:r w:rsidR="00BE47B1" w:rsidRPr="00BE47B1">
-  <w:rPr><w:b/></w:rPr>
-  <w:fldChar w:fldCharType="separate"/>
+<w:rPr><w:b/></w:rPr>
+<w:fldChar w:fldCharType="separate"/>
 </w:r>
 <w:r w:rsidR="004B49F0">
-  <w:rPr>
-    <w:b/>
-    <w:noProof/>
-  </w:rPr>
-  <w:t>«=last_name»</w:t>
+<w:rPr>
+<w:b/>
+<w:noProof/>
+</w:rPr>
+<w:t>«=last_name»</w:t>
 </w:r>
 <w:r w:rsidR="00BE47B1" w:rsidRPr="00BE47B1">
-  <w:rPr><w:b/></w:rPr>
-  <w:fldChar w:fldCharType="end"/>
-</w:r>
+<w:rPr><w:b/></w:rPr>
+<w:fldChar w:fldCharType="end"/>
+</w:r></w:p>
 xml
       wrap(xml)
     end
@@ -178,12 +184,12 @@ xml
 
     def xml
       xml = <<-xml
-<w:fldSimple w:instr="  MERGEFIELD    =title    \\*   MERGEFORMAT    ">
-  <w:r w:rsidR="004B49F0">
-    <w:rPr><w:noProof/></w:rPr>
-    <w:t>«=title»</w:t>
-  </w:r>
-</w:fldSimple>
+<w:p><w:fldSimple w:instr="  MERGEFIELD    =title    \\*   MERGEFORMAT    ">
+<w:r w:rsidR="004B49F0">
+<w:rPr><w:noProof/></w:rPr>
+<w:t>«=title»</w:t>
+</w:r>
+</w:fldSimple></w:p>
 xml
       wrap(xml)
     end

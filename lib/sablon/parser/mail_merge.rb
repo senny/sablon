@@ -9,8 +9,9 @@ module Sablon
 
         private
         def replace_field_display(node, content)
+          paragraph = node.ancestors(".//w:p").first
           display_node = node.search(".//w:t").first
-          content.append_to(display_node)
+          content.append_to(paragraph, display_node)
           display_node.remove
         end
       end

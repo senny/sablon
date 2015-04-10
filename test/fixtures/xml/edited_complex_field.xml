@@ -1,26 +1,28 @@
-<w:r>
-  <w:t xml:space="preserve">Hello! My Name is </w:t>
-</w:r>
-<w:r w:rsidR="003C4780">
-  <w:fldChar w:fldCharType="begin" />
-</w:r>
-<w:r w:rsidR="003C4780">
-  <w:instrText xml:space="preserve"> MERGEFIELD </w:instrText>
-</w:r>
-<w:r w:rsidR="003A4504">
-  <w:instrText>=</w:instrText>
-</w:r>
-<w:r w:rsidR="003C4780">
-  <w:instrText xml:space="preserve">first_name \* MERGEFORMAT </w:instrText>
-</w:r>
-<w:r w:rsidR="003C4780">
-  <w:fldChar w:fldCharType="separate" />
-</w:r>
-<w:r w:rsidR="00441382">
-  <w:rPr><w:noProof /></w:rPr>
-  <w:t>«=person.first_name»</w:t>
-</w:r>
-<w:r w:rsidR="003C4780">
-  <w:fldChar w:fldCharType="end" />
-</w:r>
-<w:r w:rsidR="00BE47B1"><w:t xml:space="preserve">, nice to meet you.</w:t></w:r>
+<w:p>
+  <w:r>
+    <w:t xml:space="preserve">Hello! My Name is </w:t>
+  </w:r>
+  <w:r w:rsidR="003C4780">
+    <w:fldChar w:fldCharType="begin" />
+  </w:r>
+  <w:r w:rsidR="003C4780">
+    <w:instrText xml:space="preserve"> MERGEFIELD </w:instrText>
+  </w:r>
+  <w:r w:rsidR="003A4504">
+    <w:instrText>=</w:instrText>
+  </w:r>
+  <w:r w:rsidR="003C4780">
+    <w:instrText xml:space="preserve">first_name \* MERGEFORMAT </w:instrText>
+  </w:r>
+  <w:r w:rsidR="003C4780">
+    <w:fldChar w:fldCharType="separate" />
+  </w:r>
+  <w:r w:rsidR="00441382">
+    <w:rPr><w:noProof /></w:rPr>
+    <w:t>«=person.first_name»</w:t>
+  </w:r>
+  <w:r w:rsidR="003C4780">
+    <w:fldChar w:fldCharType="end" />
+  </w:r>
+  <w:r w:rsidR="00BE47B1"><w:t xml:space="preserve">, nice to meet you.</w:t></w:r>
+</w:p>

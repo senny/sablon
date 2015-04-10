@@ -1,8 +1,10 @@
-<w:r><w:t xml:space="preserve">Hello! My Name is </w:t></w:r>
-<w:fldSimple w:instr=" MERGEFIELD =first_name \* MERGEFORMAT ">
-  <w:r w:rsidR="004B49F0">
-    <w:rPr><w:noProof/></w:rPr>
-    <w:t>«=first_name»</w:t>
-  </w:r>
-</w:fldSimple>
-<w:r w:rsidR="00BE47B1"><w:t xml:space="preserve">, nice to meet you.</w:t></w:r>
+<w:p>
+  <w:r><w:t xml:space="preserve">Hello! My Name is </w:t></w:r>
+  <w:fldSimple w:instr=" MERGEFIELD =first_name \* MERGEFORMAT ">
+    <w:r w:rsidR="004B49F0">
+      <w:rPr><w:noProof/></w:rPr>
+      <w:t>«=first_name»</w:t>
+    </w:r>
+  </w:fldSimple>
+  <w:r w:rsidR="00BE47B1"><w:t xml:space="preserve">, nice to meet you.</w:t></w:r>
+</w:p>

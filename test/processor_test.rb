@@ -17,12 +17,14 @@ class ProcessorTest < Sablon::TestCase
 
     assert_equal "Hello! My Name is Jack , nice to meet you.", text(result)
     assert_xml_equal <<-document, result
+    <w:p>
       <w:r><w:t xml:space="preserve">Hello! My Name is </w:t></w:r>
         <w:r w:rsidR="004B49F0">
           <w:rPr><w:noProof/></w:rPr>
           <w:t>Jack</w:t>
         </w:r>
       <w:r w:rsidR="00BE47B1"><w:t xml:space="preserve">, nice to meet you.</w:t></w:r>
+    </w:p>
     document
   end
 
@@ -36,12 +38,14 @@ class ProcessorTest < Sablon::TestCase
 
     assert_equal "Hello! My Name is Zane , nice to meet you.", text(result)
     assert_xml_equal <<-document, result
+    <w:p>
       <w:r><w:t xml:space="preserve">Hello! My Name is </w:t></w:r>
       <w:r w:rsidR="004B49F0">
         <w:rPr><w:b/><w:noProof/></w:rPr>
         <w:t>Zane</w:t>
       </w:r>
       <w:r w:rsidR="00BE47B1"><w:t xml:space="preserve">, nice to meet you.</w:t></w:r>
+    </w:p>
     document
   end
 
@@ -50,12 +54,14 @@ class ProcessorTest < Sablon::TestCase
 
     assert_equal "Hello! My Name is Daniel , nice to meet you.", text(result)
     assert_xml_equal <<-document, result
+    <w:p>
       <w:r><w:t xml:space="preserve">Hello! My Name is </w:t></w:r>
       <w:r w:rsidR="00441382">
         <w:rPr><w:noProof/></w:rPr>
         <w:t>Daniel</w:t>
       </w:r>
       <w:r w:rsidR="00BE47B1"><w:t xml:space="preserve">, nice to meet you.</w:t></w:r>
+    </w:p>
     document
   end
 
