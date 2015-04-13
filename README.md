@@ -90,7 +90,7 @@ word_processing_ml = <<-XML
 </w:p>
 XML
 context = {
-  long_description: Sablon.word_ml(word_processing_ml)
+  long_description: Sablon.content(:word_ml, word_processing_ml)
 }
 template.render_to_file File.expand_path("~/Desktop/output.docx"), context
 ```
