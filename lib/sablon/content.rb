@@ -77,7 +77,24 @@ module Sablon
       end
     end
 
+    class Markdown < Struct.new(:word_ml)
+      include Sablon::Content
+      def self.id; :markdown end
+      def self.wraps?(value) false end
+
+      def initialize(markdown)
+        redcarpet = ::Redcarpet::Markdown.new(Sablon::Redcarpet::Render::WordML)
+        word_ml = Sablon.content(:word_ml, redcarpet.render(markdown))
+        super word_ml
+      end
+
+      def append_to(*args)
+        word_ml.append_to(*args)
+      end
+    end
+
     register Sablon::Content::String
     register Sablon::Content::WordML
+    register Sablon::Content::Markdown
   end
 end

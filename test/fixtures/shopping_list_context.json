@@ -5,7 +5,8 @@
       "first_name": "John",
       "last_name": "Doe"
     },
-    "word_ml:description": "<w:p><w:r><w:t xml:space=\"preserve\">A list of items to buy at the next </w:t></w:r><w:r><w:rPr><w:b /></w:rPr><w:t>Shop</w:t></w:r><w:r><w:t xml:space=\"preserve\">.</w:t></w:r></w:p>"
+    "word_ml:description": "<w:p><w:r><w:t xml:space=\"preserve\">A list of items to buy at the next </w:t></w:r><w:r><w:rPr><w:b /></w:rPr><w:t>Shop</w:t></w:r><w:r><w:t xml:space=\"preserve\">.</w:t></w:r></w:p>",
+    "markdown:outro": "## Bruschetta with Tomato and Basil Recipe\n\nWe suggest using **plum tomatoes** for bruschetta because they have *thicker* flesh with fewer seeds and less juice than regular tomatoes, but feel free to use any tomato for this recipe.\n\nIf you use **cherry tomatoes**, just quarter them, don't bother blanching or peeling them.\n### Ingredients\n\n- 6 or 7 ripe plum tomatoes\n- 2 cloves garlic, minced\n- 1 Tbsp extra virgin olive oil\n- 1 teaspoon balsamic vinegar\n- 6-8 fresh basil leaves\n- 1 teaspoon salt\n- 1/2 teaspoon black pepper\n- 1 baguette French bread\n- 1/4 cup olive oil"
   },
   "items": [
     {"name": "Milk", "amount": "1L"},
