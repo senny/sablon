@@ -8,8 +8,8 @@ class ContextTest < Sablon::TestCase
   end
 
   def test_recognizes_wordml_keys
-    transformed = Sablon::Context.transform({"wordml:mykey" => "<w:p><w:p>", "otherkey" => "<nope>"})
-    assert_equal({ "mykey"=>Sablon.word_ml("<w:p><w:p>"),
+    transformed = Sablon::Context.transform({"word_ml:mykey" => "<w:p><w:p>", "otherkey" => "<nope>"})
+    assert_equal({ "mykey"=>Sablon.content(:word_ml, "<w:p><w:p>"),
                    "otherkey"=>"<nope>"}, transformed)
   end
 end

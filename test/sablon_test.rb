@@ -23,7 +23,7 @@ class SablonTest < Sablon::TestCase
       author: "Yves Senn",
       title: "Letter of application",
       person: person,
-      about_me: Sablon.word_ml(snippet("about_me_snippet").strip),
+      about_me: Sablon.content(:word_ml, snippet("about_me_snippet").strip),
       items: [item.new("1.", "Ruby", "★" * 5), item.new("2.", "Java", "★" * 1), item.new("3.", "Python", "★" * 3)],
       career: [position.new("1999 - 2006", "Junior Java Engineer", "Lorem ipsum dolor\nsit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."),
                position.new("2006 - 2013", "Senior Ruby Developer", "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo."),

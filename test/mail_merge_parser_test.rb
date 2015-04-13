@@ -35,7 +35,7 @@ module MailMergeParser
     end
 
     def test_replace
-      field.replace(Sablon.string("Hello"))
+      field.replace(Sablon.content(:string, "Hello"))
       xml = <<-xml.strip
 <w:p>
 <w:r w:rsidR=\"004B49F0\">
@@ -70,7 +70,7 @@ xml
     end
 
     def test_replace
-      field.replace(Sablon.string("Hello"))
+      field.replace(Sablon.content(:string, "Hello"))
       xml = <<-xml.strip
 <w:p>
 

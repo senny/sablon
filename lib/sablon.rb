@@ -18,11 +18,7 @@ module Sablon
     Template.new(path)
   end
 
-  def self.word_ml(xml)
-    Sablon::Content::WordML.new(xml)
-  end
-
-  def self.string(object)
-    Sablon::Content::String.new(object.to_s)
+  def self.content(type, *args)
+    Content.make(type, *args)
   end
 end

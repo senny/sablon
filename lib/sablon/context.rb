@@ -9,8 +9,8 @@ module Sablon
     end
 
     def self.transform_pair(key, value)
-      if key =~ /\Awordml:(.+)\z/
-        [$1, Sablon.word_ml(value)]
+      if key =~ /\A([^:]+):(.+)\z/
+        [$2, Sablon.content($1.to_sym, value)]
       else
         transform_standard_key(key, value)
       end

@@ -5,7 +5,7 @@
       "first_name": "John",
       "last_name": "Doe"
     },
-    "wordml:description": "<w:p><w:r><w:t xml:space=\"preserve\">A list of items to buy at the next </w:t></w:r><w:r><w:rPr><w:b /></w:rPr><w:t>Shop</w:t></w:r><w:r><w:t xml:space=\"preserve\">.</w:t></w:r></w:p>"
+    "word_ml:description": "<w:p><w:r><w:t xml:space=\"preserve\">A list of items to buy at the next </w:t></w:r><w:r><w:rPr><w:b /></w:rPr><w:t>Shop</w:t></w:r><w:r><w:t xml:space=\"preserve\">.</w:t></w:r></w:p>"
   },
   "items": [
     {"name": "Milk", "amount": "1L"},
