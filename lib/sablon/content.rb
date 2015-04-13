@@ -1,5 +1,14 @@
 module Sablon
   module Content
+    def self.for(value)
+      case value
+      when Sablon::Content
+        value
+      else
+        Sablon.string(value)
+      end
+    end
+
     class String < Struct.new(:string)
       include Sablon::Content
 
