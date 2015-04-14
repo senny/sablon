@@ -32,8 +32,8 @@ template.render_to_file File.expand_path("~/Desktop/output.docx"), context
 
 ### Writing Templates
 
-Sablon templates are normal word documents (`.docx`) sprinkled with MergeFields
-to perform operations. The following section will use the notation `«=title»` to
+Sablon templates are normal Word documents (`.docx`) sprinkled with MailMerge fields
+to perform operations. The following section uses the notation `«=title»` to
 refer to [Word MailMerge](http://en.wikipedia.org/wiki/Mail_merge) fields.
 
 #### Content Insertion
@@ -70,41 +70,41 @@ format ahead of processing time (in the template) you can insert
 [WordProcessingML](http://en.wikipedia.org/wiki/Microsoft_Office_XML_formats)
 directly.
 
-The template can use a simple insertion operation like so:
+It's enough to use a simply insertion operation in the template:
 
 ```
 «=long_description»
 ```
 
-The thing that changes is the context passed when processing the template:
+To insert WordProcessingML prepare the context accordingly:
 
 ```ruby
-word_processing_ml = <<-XML
+word_processing_ml = <<-XML.gsub("\n", "")
 <w:p>
-  <w:r w:rsidRPr="00B97C39">
-    <w:rPr>
-      <w:b />
-    </w:rPr>
-    <w:t>this is bold text</w:t>
-  </w:r>
+<w:r w:rsidRPr="00B97C39">
+<w:rPr>
+<w:b />
+</w:rPr>
+<w:t>this is bold text</w:t>
+</w:r>
 </w:p>
 XML
+
 context = {
   long_description: Sablon.content(:word_ml, word_processing_ml)
 }
 template.render_to_file File.expand_path("~/Desktop/output.docx"), context
 ```
 
-**IMPORTANT:** This feature is very much *experimental*. Currently, this only
-  works if the insertion is the only thing inside the template paragraph. Other
-  content is discarded!
+IMPORTANT: This feature is very much *experimental*. Currently, the insertion
+    will replace the containing paragraph. This means that other content in the same
+    paragraph is discarded.
 
 ##### Markdown
 
-Similar to WordProcessingML it's possible to insert markdown into a template.
-Currently Sablon only supports a limited subset of markdown. More features will
-follow in the future. You don't need to modify your templates, a simple
-insertion operation is sufficient:
+Similar to WordProcessingML it's possible to use markdown while processing the
+tempalte. You don't need to modify your templates, a simple insertion operation
+is sufficient:
 
 ```
 «=article.body»
@@ -122,6 +122,24 @@ context = {
 }
 template.render_to_file File.expand_path("~/Desktop/output.docx"), context
 ```
+
+Markdown insertion has built-in support for:
+
+* [Headers](http://spec.commonmark.org/0.17/#atx-header)
+* [Paragraphs](http://spec.commonmark.org/0.17/#paragraphs)
+* [Emphasis and strong emphasis](http://spec.commonmark.org/0.17/#emphasis-and-strong-emphasis)
+* [Hard line breaks](http://spec.commonmark.org/0.17/#hard-line-breaks)
+* [Lists](http://spec.commonmark.org/0.17/#lists)
+
+For headings and lists to function properly it is necessary that the template
+defines specific styles. Headings use styles called `Heading1`, `Heading2`,
+etc. according to the header level. Ordered lists will use the style
+`ListNumber` and unordered lists use `ListBullet`. Nested lists are not
+supported.
+
+IMPORTANT: This feature is very much *experimental*. Currently, the insertion
+    will replace the containing paragraph. This means that other content in the same
+    paragraph is discarded.
 
 #### Conditionals
 
