@@ -184,12 +184,14 @@ Have a look at [this test](test/executable_test.rb) for examples.
 
 ### Examples
 
+#### Using a Ruby script
+
 There is a [sample template](test/fixtures/sablon_template.docx) in the
 repository, which illustrates the functionality of sablon:
 
 <p align="center">
   <img
-  src="https://raw.githubusercontent.com/senny/sablon/master/misc/template.png"
+  src="https://raw.githubusercontent.com/senny/sablon/master/misc/cv_template.png"
   alt="Sablon Template"/>
 </p>
 
@@ -199,10 +201,31 @@ For more details, check out this [test case](test/sablon_test.rb).
 
 <p align="center">
   <img
-  src="https://raw.githubusercontent.com/senny/sablon/master/misc/output.png"
+  src="https://raw.githubusercontent.com/senny/sablon/master/misc/cv_sample.png"
   alt="Sablon Output"/>
 </p>
 
+#### Using the sablon executable
+
+The [executable test](test/executable_test.rb) showcases the `sablon`
+executable.
+
+The [template](test/fixtures/recipe_template.docx)
+
+<p align="center">
+  <img
+  src="https://raw.githubusercontent.com/senny/sablon/master/misc/recipe_template.png"
+  alt="Sablon Output"/>
+</p>
+
+is rendered using a [json context](test/fixtures/recipe_context.json) to provide
+the data. Following is the resulting [output](test/fixtures/recipe_sample.docx):
+
+<p align="center">
+  <img
+  src="https://raw.githubusercontent.com/senny/sablon/master/misc/recipe_sample.png"
+  alt="Sablon Output"/>
+</p>
 
 ## Contributing
 
