@@ -160,7 +160,7 @@ Loops repeat parts of the document.
 Loops can be used to repeat table rows or list enumerations. The fields need to
 be placed in within table cells or enumeration items enclosing the rows or items
 to repeat. Have a look at the
-[example template](test/fixtures/sablon_sample.docx) for more details.
+[example template](test/fixtures/cv_template.docx) for more details.
 
 
 #### Nesting
@@ -186,7 +186,7 @@ Have a look at [this test](test/executable_test.rb) for examples.
 
 #### Using a Ruby script
 
-There is a [sample template](test/fixtures/sablon_template.docx) in the
+There is a [sample template](test/fixtures/cv_template.docx) in the
 repository, which illustrates the functionality of sablon:
 
 <p align="center">
@@ -196,7 +196,7 @@ repository, which illustrates the functionality of sablon:
 </p>
 
 Processing this template with some sample data yields the following
-[output document](test/fixtures/sablon_sample.docx).
+[output document](test/fixtures/cv_sample.docx).
 For more details, check out this [test case](test/sablon_test.rb).
 
 <p align="center">
