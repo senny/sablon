@@ -9,6 +9,8 @@ require "sablon/content"
 
 require 'zip'
 require 'nokogiri'
+require 'redcarpet'
+require "sablon/redcarpet/render/word_ml"
 
 module Sablon
   class TemplateError < ArgumentError; end

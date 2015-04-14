@@ -10,7 +10,6 @@ class ExecutableTest < Sablon::TestCase
     @template_path = @base_path + "fixtures/shopping_list_template.docx"
     @context_path = @base_path + "fixtures/shopping_list_context.json"
     @executable_path = @base_path + '../exe/sablon'
-
     @output_path.delete if @output_path.exist?
   end
 

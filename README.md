@@ -99,6 +99,30 @@ template.render_to_file File.expand_path("~/Desktop/output.docx"), context
   works if the insertion is the only thing inside the template paragraph. Other
   content is discarded!
 
+##### Markdown
+
+Similar to WordProcessingML it's possible to insert markdown into a template.
+Currently Sablon only supports a limited subset of markdown. More features will
+follow in the future. You don't need to modify your templates, a simple
+insertion operation is sufficient:
+
+```
+«=article.body»
+```
+
+To use Markdown insertion prepare the context like so:
+
+```ruby
+markdown_body = <<-MD
+This text can contain *additional formatting*
+according to the **Markdown** specification.
+MD
+context = {
+  article: { body: Sablon.content(:markdown, markdown_body) }
+}
+template.render_to_file File.expand_path("~/Desktop/output.docx"), context
+```
+
 #### Conditionals
 
 Sablon can render parts of the template conditonally based on the value of a

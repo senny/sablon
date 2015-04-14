@@ -158,3 +158,38 @@ class ContentWordMLTest < Sablon::TestCase
     skip "Content::WordML currently removes the paragraph..."
   end
 end
+
+
+class ContentMarkdownTest < Sablon::TestCase
+  include ContentTestSetup
+
+  def test_blank_markdown
+    Sablon.content(:markdown, "").append_to @paragraph, @node
+
+    assert_xml_equal "<w:p>AFTER</w:p>", @document
+  end
+
+  def test_inserts_markdown
+    Sablon.content(:markdown, "yay **bold** text").append_to @paragraph, @node
+
+    output = <<-XML.strip.gsub("\n", "")
+<w:p>
+<w:r><w:t xml:space=\"preserve\">yay </w:t></w:r>
+<w:r>
+<w:rPr><w:b/></w:rPr>
+<w:t xml:space=\"preserve\">bold</w:t>
+</w:r>
+<w:r>
+<w:t xml:space=\"preserve\"> text</w:t>
+</w:r>
+</w:p>
+<w:p>AFTER</w:p>
+    XML
+
+    assert_xml_equal output, @document
+  end
+
+  def test_inserting_markdown_multiple_times_into_same_paragraph
+    skip "Content::Markdown currently removes the paragraph..."
+  end
+end
