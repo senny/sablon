@@ -65,7 +65,7 @@ class SablonTest < Sablon::TestCase
                   language.new("German", "fluent"),
                   language.new("French", "basics"),
                  ],
-      about_me: Sablon.content(:markdown, "I am fond of writing *short stories* and *poems* in my spare time, and have won several literary contests in pursuit of my **passion**."),
+      about_me: Sablon.content(:markdown, "I am fond of writing *short stories* and *poems* in my spare time,  \nand have won several literary contests in pursuit of my **passion**."),
       activities: ["Writing", "Photography", "Traveling"],
       referees: [
                  referee.new("Mary P. Larsen", "Strongbod",

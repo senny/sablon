@@ -135,7 +135,8 @@ For headings and lists to function properly it is necessary that the template
 defines specific styles. Headings use styles called `Heading1`, `Heading2`,
 etc. according to the header level. Ordered lists will use the style
 `ListNumber` and unordered lists use `ListBullet`. Nested lists are not
-supported.
+supported. Normal text paragraphs use the style `Paragraph`. It's not necessary
+to have that style in the template. Word will fall back to using the `Normal` style.
 
 IMPORTANT: This feature is very much *experimental*. Currently, the insertion
     will replace the containing paragraph. This means that other content in the same

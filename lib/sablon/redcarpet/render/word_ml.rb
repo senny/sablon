@@ -2,18 +2,26 @@ module Sablon
   module Redcarpet
     module Render
       class WordML < ::Redcarpet::Render::Base
+        PARAGRAPH_PATTERN = <<-XML.gsub("\n", "")
+<w:p>
+<w:pPr>
+<w:pStyle w:val="%s" />
+</w:pPr>
+%s
+</w:p>
+XML
+
         def linebreak
-          "</w:p><w:p>"
+          "<w:r><w:br/></w:r>"
         end
 
         def header(title, level)
-          style = "Heading#{level}"
-
-          "<w:p><w:pPr><w:pStyle w:val=\"#{style}\"/></w:pPr>#{title}</w:p>"
+          heading_style = "Heading#{level}"
+          PARAGRAPH_PATTERN % [heading_style, title]
         end
 
         def paragraph(text)
-          "<w:p>#{text}</w:p>"
+          PARAGRAPH_PATTERN % ["Paragraph", text]
         end
 
         def normal_text(text)
@@ -34,14 +42,6 @@ module Sablon
           content
         end
 
-        LIST_PATTERN = <<-XML.gsub("\n", "")
-<w:p>
-<w:pPr>
-<w:pStyle w:val="%s" />
-</w:pPr>
-%s
-</w:p>
-XML
         LIST_STYLE_MAPPING = {
           ordered: "ListNumber",
           unordered: "ListBullet"
@@ -49,7 +49,7 @@ XML
 
         def list_item(content, list_type)
           list_style = LIST_STYLE_MAPPING[list_type]
-          LIST_PATTERN % [list_style, content]
+          PARAGRAPH_PATTERN % [list_style, content]
         end
       end
     end

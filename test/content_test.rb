@@ -174,6 +174,7 @@ class ContentMarkdownTest < Sablon::TestCase
 
     output = <<-XML.strip.gsub("\n", "")
 <w:p>
+<w:pPr><w:pStyle w:val=\"Paragraph\"/></w:pPr>
 <w:r><w:t xml:space=\"preserve\">yay </w:t></w:r>
 <w:r>
 <w:rPr><w:b/></w:rPr>

@@ -9,6 +9,7 @@ class RedcarpetRenderWordMLTest < Sablon::TestCase
   def test_normal_text
     word_ml = <<-XML.gsub("\n", "")
 <w:p>
+<w:pPr><w:pStyle w:val=\"Paragraph\" /></w:pPr>
 <w:r><w:t xml:space=\"preserve\">normal</w:t></w:r>
 </w:p>
 XML
@@ -26,9 +27,9 @@ XML
   def test_newline_in_a_paragraph_starts_new_paragraph
     word_ml = <<-XML.gsub("\n", "")
 <w:p>
+<w:pPr><w:pStyle w:val=\"Paragraph\" /></w:pPr>
 <w:r><w:t xml:space=\"preserve\">some  </w:t></w:r>
-</w:p>
-<w:p>
+<w:r><w:br/></w:r>
 <w:r><w:t xml:space=\"preserve\">text</w:t></w:r>
 </w:p>
 XML
@@ -38,6 +39,7 @@ XML
   def test_bold_text
     word_ml = <<-XML.gsub("\n", "")
 <w:p>
+<w:pPr><w:pStyle w:val=\"Paragraph\" /></w:pPr>
 <w:r>
 <w:rPr><w:b /></w:rPr>
 <w:t xml:space="preserve">bold</w:t>
@@ -50,6 +52,7 @@ XML
   def test_italic_text
     word_ml = <<-XML.gsub("\n", "")
 <w:p>
+<w:pPr><w:pStyle w:val=\"Paragraph\" /></w:pPr>
 <w:r>
 <w:rPr><w:i /></w:rPr>
 <w:t xml:space="preserve">italic</w:t>
@@ -62,6 +65,7 @@ XML
   def test_single_line_mixed_text
     word_ml = <<-XML.gsub("\n", "")
 <w:p>
+<w:pPr><w:pStyle w:val=\"Paragraph\" /></w:pPr>
 
 <w:r><w:t xml:space="preserve">some </w:t></w:r>
 
