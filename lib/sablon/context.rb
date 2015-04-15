@@ -10,7 +10,11 @@ module Sablon
 
     def self.transform_pair(key, value)
       if key =~ /\A([^:]+):(.+)\z/
-        [$2, Sablon.content($1.to_sym, value)]
+        if value.nil?
+          [$2, value]
+        else
+          [$2, Sablon.content($1.to_sym, value)]
+        end
       else
         transform_standard_key(key, value)
       end
