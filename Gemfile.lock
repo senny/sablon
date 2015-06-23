@@ -10,11 +10,11 @@ GEM
   remote: https://rubygems.org/
   specs:
     mini_portile (0.6.2)
-    minitest (5.6.1)
+    minitest (5.7.0)
     nokogiri (1.6.6.2)
       mini_portile (~> 0.6.0)
     rake (10.4.2)
-    redcarpet (3.2.3)
+    redcarpet (3.3.2)
     rubyzip (1.1.7)
     xml-simple (1.1.5)
 
@@ -27,3 +27,6 @@ DEPENDENCIES
   rake (~> 10.0)
   sablon!
   xml-simple
+
+BUNDLED WITH
+   1.10.2
