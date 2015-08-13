@@ -119,6 +119,33 @@ xml
     end
   end
 
+  class InvalidFldCharTest < Sablon::TestCase
+    include SharedBehavior
+
+    def test_is_ignored
+      assert_equal [], fields.map(&:class)
+    end
+
+    private
+    def xml
+      xml = <<-xml.strip
+<w:p><w:r w:rsidR="00BE47B1" w:rsidRPr="00BE47B1">
+<w:rPr><w:b/></w:rPr>
+<w:fldChar w:fldCharType="begin"/>
+</w:r>
+<w:r w:rsidR="00BE47B1" w:rsidRPr="00BE47B1">
+<w:rPr><w:b/></w:rPr>
+<w:instrText xml:space="preserve"> MERGEFIELD =last_name \\* MERGEFORMAT </w:instrText>
+</w:r>
+<w:r w:rsidR="00BE47B1" w:rsidRPr="00BE47B1">
+<w:rPr><w:b/></w:rPr>
+<w:fldChar w:fldCharType="end"/>
+</w:r></w:p>
+xml
+      wrap(xml)
+    end
+  end
+
   class NonSablonFieldTest < Sablon::TestCase
     include SharedBehavior
 

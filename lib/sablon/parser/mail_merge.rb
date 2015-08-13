@@ -3,6 +3,11 @@ module Sablon
     class MailMerge
       class MergeField
         KEY_PATTERN = /^\s*MERGEFIELD\s+([^ ]+)\s+\\\*\s+MERGEFORMAT\s*$/
+
+        def valid?
+          expression
+        end
+
         def expression
           $1 if @raw_expression =~ KEY_PATTERN
         end
@@ -20,6 +25,10 @@ module Sablon
         def initialize(nodes)
           @nodes = nodes
           @raw_expression = @nodes.flat_map {|n| n.search(".//w:instrText").map(&:content) }.join
+        end
+
+        def valid?
+          separate_node && expression
         end
 
         def replace(content)
@@ -65,7 +74,7 @@ module Sablon
           elsif node.name == "fldChar" && node["w:fldCharType"] == "begin"
             field = build_complex_field(node)
           end
-          fields << field if field && field.expression
+          fields << field if field && field.valid?
         end
         fields
       end
