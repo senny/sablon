@@ -49,6 +49,20 @@ module Sablon
     end
 
     class Block < Struct.new(:start_field, :end_field)
+
+      def initialize(start_field, end_field)
+        super(start_field, end_field)
+
+        start_field_parent = self.class.parent(start_field).first
+        end_field_parent   = self.class.parent(end_field).first
+
+        @start_node, @end_node = if start_field_parent == end_field_parent
+                                   [start_field.node, end_field.node]
+                                 else
+                                   [start_field_parent, end_field_parent]
+                                 end
+      end
+
       def self.enclosed_by(start_field, end_field)
         @blocks ||= [RowBlock, ParagraphBlock]
         block_class = @blocks.detect { |klass| klass.encloses?(start_field, end_field) }
@@ -56,36 +70,28 @@ module Sablon
       end
 
       def process(context)
-        replaced_node = Nokogiri::XML::Node.new("tmp", start_node.document)
-        replaced_node.children = Nokogiri::XML::NodeSet.new(start_node.document, body.map(&:dup))
+        replaced_node = Nokogiri::XML::Node.new("tmp", @start_node.document)
+        replaced_node.children = Nokogiri::XML::NodeSet.new(@start_node.document, body.map(&:dup))
         Processor.process replaced_node, context
         replaced_node.children
       end
 
       def replace(content)
-        content.each { |n| start_node.add_next_sibling n }
+        content.each { |n| @start_node.add_next_sibling n }
 
         body.each &:remove
-        start_node.remove
-        end_node.remove
+        @start_node.remove
+        @end_node.remove
       end
 
       def body
         return @body if defined?(@body)
         @body = []
-        node = start_node
-        while (node = node.next_element) && node != end_node
+        node = @start_node
+        while (node = node.next_element) && node != @end_node
           @body << node
         end
         @body
-      end
-
-      def start_node
-        @start_node ||= self.class.parent(start_field).first
-      end
-
-      def end_node
-        @end_node ||= self.class.parent(end_field).first
       end
 
       def self.encloses?(start_field, end_field)

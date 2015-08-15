@@ -51,6 +51,9 @@ module Sablon
       end
 
       class SimpleField < MergeField
+
+        attr_reader :node
+
         def initialize(node)
           @node = node
           @raw_expression = @node["w:instr"]

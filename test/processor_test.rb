@@ -341,6 +341,11 @@ class ProcessorTest < Sablon::TestCase
     assert_equal "Anthony Hall", text(result)
   end
 
+  def test_conditional_inline
+    result = process(snippet("conditional_inline"), {"middle_name" => true})
+    assert_equal "Anthony Michael Hall", text(result)
+  end
+
   def test_conditional_with_predicate
     result = process(snippet("conditional_with_predicate"), {"body" => ""})
     assert_equal "some content", text(result)
