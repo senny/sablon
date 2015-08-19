@@ -1,0 +1,71 @@
+<w:p w14:paraId="2CDA5882" w14:textId="37B2B395" w:rsidR="00F16EA4" w:rsidRDefault="00F16EA4">
+   <w:r>
+      <w:t>ParagraphBefore</w:t>
+   </w:r>
+</w:p>
+<w:p w14:paraId="7FA396E2" w14:textId="74DBBC79" w:rsidR="00045676" w:rsidRDefault="00F16EA4">
+   <w:r>
+      <w:t>Before</w:t>
+   </w:r>
+   <w:r w:rsidR="00357C82">
+      <w:fldChar w:fldCharType="begin" />
+   </w:r>
+   <w:r w:rsidR="00357C82">
+      <w:instrText xml:space="preserve"> </w:instrText>
+   </w:r>
+   <w:r w:rsidR="00357C82">
+      <w:instrText>MERGEFIELD boolean:if</w:instrText>
+   </w:r>
+   <w:r w:rsidR="00357C82">
+      <w:instrText xml:space="preserve"> \* MERGEFORMAT </w:instrText>
+   </w:r>
+   <w:r w:rsidR="00357C82">
+      <w:fldChar w:fldCharType="separate" />
+   </w:r>
+   <w:r w:rsidR="00936258">
+      <w:rPr>
+         <w:noProof />
+      </w:rPr>
+      <w:t>«boolean:if»</w:t>
+   </w:r>
+   <w:r w:rsidR="00357C82">
+      <w:fldChar w:fldCharType="end" />
+   </w:r>
+  <w:r>
+    <w:t>Content</w:t>
+  </w:r>
+   <w:r w:rsidR="00357C82">
+      <w:fldChar w:fldCharType="begin" />
+   </w:r>
+   <w:r w:rsidR="00357C82">
+      <w:instrText xml:space="preserve"> MERGEFIELD </w:instrText>
+   </w:r>
+   <w:r w:rsidR="00357C82">
+      <w:instrText>boolean:endIf</w:instrText>
+   </w:r>
+   <w:r w:rsidR="00357C82">
+      <w:instrText xml:space="preserve"> \* MERGEFORMAT </w:instrText>
+   </w:r>
+   <w:r w:rsidR="00357C82">
+      <w:fldChar w:fldCharType="separate" />
+   </w:r>
+   <w:r w:rsidR="00427F41">
+      <w:rPr>
+         <w:noProof />
+      </w:rPr>
+      <w:t>«boolean:endIf»</w:t>
+   </w:r>
+   <w:r w:rsidR="00357C82">
+      <w:fldChar w:fldCharType="end" />
+   </w:r>
+   <w:r>
+      <w:t>After</w:t>
+   </w:r>
+</w:p>
+<w:p w14:paraId="5DA03BEF" w14:textId="672833BC" w:rsidR="00F16EA4" w:rsidRDefault="00F16EA4">
+   <w:r>
+      <w:t>ParagraphAfter</w:t>
+   </w:r>
+   <w:bookmarkStart w:id="0" w:name="_GoBack" />
+   <w:bookmarkEnd w:id="0" />
+</w:p>

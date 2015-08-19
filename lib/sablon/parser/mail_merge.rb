@@ -36,8 +36,20 @@ module Sablon
           (@nodes - [pattern_node]).each(&:remove)
         end
 
+        def remove
+          @nodes.each(&:remove)
+        end
+
         def ancestors(*args)
           @nodes.first.ancestors(*args)
+        end
+
+        def start_node
+          @nodes.first
+        end
+
+        def end_node
+          @nodes.last
         end
 
         private
@@ -61,9 +73,18 @@ module Sablon
           @node.replace(@node.children)
         end
 
+        def remove
+          @node.remove
+        end
+
         def ancestors(*args)
           @node.ancestors(*args)
         end
+
+        def start_node
+          @node
+        end
+        alias_method :end_node, :start_node
       end
 
       def parse_fields(xml)

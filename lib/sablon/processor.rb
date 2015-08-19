@@ -50,7 +50,7 @@ module Sablon
 
     class Block < Struct.new(:start_field, :end_field)
       def self.enclosed_by(start_field, end_field)
-        @blocks ||= [RowBlock, ParagraphBlock]
+        @blocks ||= [RowBlock, ParagraphBlock, InlineParagraphBlock]
         block_class = @blocks.detect { |klass| klass.encloses?(start_field, end_field) }
         block_class.new start_field, end_field
       end
@@ -64,7 +64,10 @@ module Sablon
 
       def replace(content)
         content.each { |n| start_node.add_next_sibling n }
+        remove_control_elements
+      end
 
+      def remove_control_elements
         body.each &:remove
         start_node.remove
         end_node.remove
@@ -99,15 +102,41 @@ module Sablon
       end
 
       def self.encloses?(start_field, end_field)
-        if super
-          parent(start_field) != parent(end_field)
-        end
+        super && parent(start_field) != parent(end_field)
       end
     end
 
     class ParagraphBlock < Block
       def self.parent(node)
         node.ancestors ".//w:p"
+      end
+
+      def self.encloses?(start_field, end_field)
+        super && parent(start_field) != parent(end_field)
+      end
+    end
+
+    class InlineParagraphBlock < Block
+      def self.parent(node)
+        node.ancestors ".//w:p"
+      end
+
+      def remove_control_elements
+        body.each &:remove
+        start_field.remove
+        end_field.remove
+      end
+
+      def start_node
+        @start_node ||= start_field.end_node
+      end
+
+      def end_node
+        @end_node ||= end_field.start_node
+      end
+
+      def self.encloses?(start_field, end_field)
+        super && parent(start_field) == parent(end_field)
       end
     end
 

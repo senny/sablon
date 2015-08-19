@@ -84,3 +84,23 @@ class SablonTest < Sablon::TestCase
     assert_docx_equal @sample_path, @output_path
   end
 end
+
+class SablonTest < Sablon::TestCase
+  include Sablon::Test::Assertions
+  include XMLSnippets
+
+  def setup
+    super
+    @base_path = Pathname.new(File.expand_path("../", __FILE__))
+    @template_path = @base_path + "fixtures/conditionals_template.docx"
+    @output_path = @base_path + "sandbox/conditionals.docx"
+    @sample_path = @base_path + "fixtures/conditionals_sample.docx"
+  end
+
+  def test_generate_document_from_template
+    template = Sablon.template @template_path
+    context = {paragraph: true, inline: true, table: true, table_inline: true, content: "Some Content"}
+    template.render_to_file @output_path, context
+    assert_docx_equal @sample_path, @output_path
+  end
+end

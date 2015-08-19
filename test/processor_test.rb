@@ -341,6 +341,19 @@ class ProcessorTest < Sablon::TestCase
     assert_equal "Anthony Hall", text(result)
   end
 
+  def test_simple_field_conditional_inline
+    result = process(snippet("conditional_inline"), {"middle_name" => true})
+    assert_equal "Anthony Michael Hall", text(result)
+  end
+
+  def test_complex_field_conditional_inline
+    with_false = process(snippet("complex_field_inline_conditional"), {"boolean" => false})
+    assert_equal "ParagraphBefore Before After ParagraphAfter", text(with_false)
+
+    with_true = process(snippet("complex_field_inline_conditional"), {"boolean" => true})
+    assert_equal "ParagraphBefore Before Content After ParagraphAfter", text(with_true)
+  end
+
   def test_conditional_with_predicate
     result = process(snippet("conditional_with_predicate"), {"body" => ""})
     assert_equal "some content", text(result)
