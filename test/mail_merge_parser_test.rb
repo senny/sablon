@@ -146,6 +146,39 @@ xml
     end
   end
 
+  class FldCharWithoutDisplayNodeTest < Sablon::TestCase
+    include SharedBehavior
+
+    def test_is_ignoredd
+      assert_equal [], fields.map(&:class)
+    end
+
+    private
+    def xml
+      xml = <<-xml.strip
+<w:p>
+<w:r w:rsidR="00AE229C">
+<w:rPr></w:rPr>
+<w:fldChar w:fldCharType="begin"/>
+</w:r>
+<w:r w:rsidR="00AE229C">
+<w:rPr></w:rPr>
+<w:instrText xml:space="preserve"> MERGEFIELD  =client.lname  \\* MERGEFORMAT </w:instrText>
+</w:r>
+<w:r w:rsidR="00AE229C">
+<w:rPr></w:rPr>
+<w:fldChar w:fldCharType="separate"/>
+</w:r>
+<w:r w:rsidR="00AE229C">
+<w:rPr></w:rPr>
+<w:fldChar w:fldCharType="end"/>
+</w:r>
+</w:p>
+xml
+      wrap(xml)
+    end
+  end
+
   class NonSablonFieldTest < Sablon::TestCase
     include SharedBehavior
 

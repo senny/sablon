@@ -15,9 +15,13 @@ module Sablon
         private
         def replace_field_display(node, content)
           paragraph = node.ancestors(".//w:p").first
-          display_node = node.search(".//w:t").first
+          display_node = get_display_node(node)
           content.append_to(paragraph, display_node)
           display_node.remove
+        end
+
+        def get_display_node(node)
+          node.search(".//w:t").first
         end
       end
 
@@ -28,7 +32,7 @@ module Sablon
         end
 
         def valid?
-          separate_node && expression
+          separate_node && get_display_node(pattern_node) && expression
         end
 
         def replace(content)
