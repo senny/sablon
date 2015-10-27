@@ -1,4 +1,9 @@
 {
+  "_sablon": {
+    "properties": {
+      "start_page_number": 42
+    }
+  },
   "metadata": {
     "generator": "Sablon",
     "author": {

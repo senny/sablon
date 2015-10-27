@@ -26,9 +26,9 @@ module Sablon
     end
 
     def write_properties(xml_node, properties)
-      if properties.key? :start_page_number
+      if start_page_number = properties[:start_page_number] || properties["start_page_number"]
         section_properties = SectionProperties.from_document(xml_node)
-        section_properties.start_page_number = properties[:start_page_number]
+        section_properties.start_page_number = start_page_number
       end
     end
 
