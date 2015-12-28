@@ -18,6 +18,8 @@ module Sablon
 
     private
     def render(context, properties = {})
+      Sablon::Numbering.instance.reset!
+      Zip.sort_entries = true # required to process document.xml before numbering.xml
       Zip::OutputStream.write_buffer(StringIO.new) do |out|
         Zip::File.open(@path).each do |entry|
           entry_name = entry.name
@@ -27,6 +29,8 @@ module Sablon
             out.write(process(content, context, properties))
           elsif entry_name =~ /word\/header\d*\.xml/ || entry_name =~ /word\/footer\d*\.xml/
             out.write(process(content, context))
+          elsif entry_name == 'word/numbering.xml'
+            out.write(Processor::Numbering.process(Nokogiri::XML(content)).to_xml(indent: 0, save_with: 0))
           else
             out.write(content)
           end

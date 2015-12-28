@@ -1,14 +1,19 @@
+require 'singleton'
+require 'zip'
+require 'nokogiri'
+
 require "sablon/version"
+require "sablon/numbering"
 require "sablon/context"
 require "sablon/template"
 require "sablon/processor"
 require "sablon/processor/section_properties"
+require "sablon/processor/numbering"
 require "sablon/parser/mail_merge"
 require "sablon/operations"
+require "sablon/html/converter"
 require "sablon/content"
 
-require 'zip'
-require 'nokogiri'
 require 'redcarpet'
 require "sablon/redcarpet/render/word_ml"
 
