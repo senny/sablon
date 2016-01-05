@@ -1,5 +1,5 @@
 module Sablon
-  class Processor
+  module Processor
     class Numbering
       LIST_DEFINITION = <<-XML.gsub(/^\s+/, '').tr("\n", '')
         <w:num w:numId="%s">
