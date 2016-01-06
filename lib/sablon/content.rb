@@ -93,8 +93,25 @@ module Sablon
       end
     end
 
+    class HTML < Struct.new(:word_ml)
+      include Sablon::Content
+      def self.id; :html end
+      def self.wraps?(value) false end
+
+      def initialize(html)
+        converter = HTMLConverter.new
+        word_ml = Sablon.content(:word_ml, converter.process(html))
+        super word_ml
+      end
+
+      def append_to(*args)
+        word_ml.append_to(*args)
+      end
+    end
+
     register Sablon::Content::String
     register Sablon::Content::WordML
     register Sablon::Content::Markdown
+    register Sablon::Content::HTML
   end
 end

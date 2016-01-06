@@ -1,5 +1,5 @@
 module Sablon
-  class Processor
+  module Processor
     class SectionProperties
       def self.from_document(document_xml)
         new document_xml.at_xpath(".//w:sectPr")

@@ -3,13 +3,13 @@ require "test_helper"
 require "support/document_xml_helper"
 require "support/xml_snippets"
 
-class ProcessorTest < Sablon::TestCase
+class ProcessorDocumentTest < Sablon::TestCase
   include DocumentXMLHelper
   include XMLSnippets
 
   def setup
     super
-    @processor = Sablon::Processor
+    @processor = Sablon::Processor::Document
   end
 
   def test_simple_field_replacement

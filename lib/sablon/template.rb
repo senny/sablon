@@ -18,15 +18,19 @@ module Sablon
 
     private
     def render(context, properties = {})
+      Sablon::Numbering.instance.reset!
+      Zip.sort_entries = true # required to process document.xml before numbering.xml
       Zip::OutputStream.write_buffer(StringIO.new) do |out|
         Zip::File.open(@path).each do |entry|
           entry_name = entry.name
           out.put_next_entry(entry_name)
           content = entry.get_input_stream.read
           if entry_name == 'word/document.xml'
-            out.write(process(content, context, properties))
+            out.write(process(Processor::Document, content, context, properties))
           elsif entry_name =~ /word\/header\d*\.xml/ || entry_name =~ /word\/footer\d*\.xml/
-            out.write(process(content, context))
+            out.write(process(Processor::Document, content, context))
+          elsif entry_name == 'word/numbering.xml'
+            out.write(process(Processor::Numbering, content))
           else
             out.write(content)
           end
@@ -38,9 +42,9 @@ module Sablon
     #
     # IMPORTANT: Open Office does not ignore whitespace around tags.
     # We need to render the xml without indent and whitespace.
-    def process(content, context, *args)
+    def process(processor, content, *args)
       document = Nokogiri::XML(content)
-      Processor.process(document, context, *args).to_xml(indent: 0, save_with: 0)
+      processor.process(document, *args).to_xml(indent: 0, save_with: 0)
     end
   end
 end
