@@ -11,7 +11,7 @@ class HTMLConverterTest < Sablon::TestCase
     input = '<div>Lorem ipsum dolor sit amet</div>'
     expected_output = <<-DOCX.strip
 <w:p>
-  <w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>
+  <w:pPr><w:pStyle w:val="Normal" /></w:pPr>
   <w:r><w:t xml:space="preserve">Lorem ipsum dolor sit amet</w:t></w:r>
 </w:p>
 DOCX
@@ -33,11 +33,11 @@ DOCX
     input = '<div>Lorem ipsum</div><div>dolor sit amet</div>'
     expected_output = <<-DOCX.strip
 <w:p>
-  <w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>
+  <w:pPr><w:pStyle w:val="Normal" /></w:pPr>
   <w:r><w:t xml:space="preserve">Lorem ipsum</w:t></w:r>
 </w:p>
 <w:p>
-  <w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>
+  <w:pPr><w:pStyle w:val="Normal" /></w:pPr>
   <w:r><w:t xml:space="preserve">dolor sit amet</w:t></w:r>
 </w:p>
 DOCX
@@ -48,7 +48,7 @@ DOCX
     input = '<div>Lorem ipsum<br>dolor sit amet</div>'
     expected_output = <<-DOCX.strip
 <w:p>
-  <w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>
+  <w:pPr><w:pStyle w:val="Normal" /></w:pPr>
   <w:r><w:t xml:space="preserve">Lorem ipsum</w:t></w:r>
   <w:r><w:br/></w:r>
   <w:r><w:t xml:space="preserve">dolor sit amet</w:t></w:r>
@@ -61,7 +61,7 @@ DOCX
     input = '<div>Lorem&nbsp;<strong>ipsum dolor</strong>&nbsp;sit amet</div>'
     expected_output = <<-DOCX.strip
 <w:p>
-  <w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>
+  <w:pPr><w:pStyle w:val="Normal" /></w:pPr>
   <w:r><w:t xml:space="preserve">Lorem </w:t></w:r>
   <w:r><w:rPr><w:b /></w:rPr><w:t xml:space="preserve">ipsum dolor</w:t></w:r>
   <w:r><w:t xml:space="preserve"> sit amet</w:t></w:r>
@@ -74,7 +74,7 @@ DOCX
     input = '<div>Lorem&nbsp;<em>ipsum dolor</em>&nbsp;sit amet</div>'
     expected_output = <<-DOCX.strip
 <w:p>
-  <w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>
+  <w:pPr><w:pStyle w:val="Normal" /></w:pPr>
   <w:r><w:t xml:space="preserve">Lorem </w:t></w:r>
   <w:r><w:rPr><w:i /></w:rPr><w:t xml:space="preserve">ipsum dolor</w:t></w:r>
   <w:r><w:t xml:space="preserve"> sit amet</w:t></w:r>
@@ -265,9 +265,15 @@ class HTMLConverterASTTest < Sablon::TestCase
     input = '<div>Lorem ipsum dolor sit amet</div>'
     ast = @converter.processed_ast(input).to_a
     assert_equal [Sablon::HTMLConverter::Paragraph], ast.map(&:class)
-    assert_equal ['Paragraph'], ast.map(&:style)
+    assert_equal ['Normal'], ast.map(&:style)
   end
 
+  def test_p
+    input = '<p>Lorem ipsum dolor sit amet</p>'
+    ast = @converter.processed_ast(input).to_a
+    assert_equal [Sablon::HTMLConverter::Paragraph], ast.map(&:class)
+    assert_equal ['Paragraph'], ast.map(&:style)
+  end
 
   def test_ul
     input = '<ul><li>Lorem</li><li>ipsum</li></ul>'

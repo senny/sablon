@@ -85,7 +85,10 @@ module Sablon
     private
     def ast_next_paragraph
       node = @builder.next
-      if node.name == 'div' || node.name == 'p'
+      if node.name == 'div'
+        @builder.new_layer
+        @builder.emit Paragraph.new('Normal', text(node.children))
+      elsif node.name == 'p'
         @builder.new_layer
         @builder.emit Paragraph.new('Paragraph', text(node.children))
       elsif node.name == 'ul'
