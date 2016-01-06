@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sablon (0.0.18)
+    sablon (0.0.19.beta1)
       nokogiri (>= 1.6.0)
       redcarpet (>= 3.2)
       rubyzip (>= 1.1)
@@ -9,12 +9,12 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    mini_portile (0.6.2)
+    mini_portile2 (2.0.0)
     minitest (5.8.0)
-    nokogiri (1.6.6.2)
-      mini_portile (~> 0.6.0)
+    nokogiri (1.6.7.1)
+      mini_portile2 (~> 2.0.0.rc2)
     rake (10.4.2)
-    redcarpet (3.3.2)
+    redcarpet (3.3.3)
     rubyzip (1.1.7)
     xml-simple (1.1.5)
 
