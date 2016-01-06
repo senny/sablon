@@ -22,5 +22,13 @@ module Sablon
         end
       end
     end
+
+    class LastNewlineRemoverVisitor < Visitor
+      def visit_Paragraph(par)
+        if HTMLConverter::Newline === par.runs.nodes.last
+          par.runs.nodes.pop
+        end
+      end
+    end
   end
 end

@@ -275,6 +275,18 @@ class HTMLConverterASTTest < Sablon::TestCase
     assert_equal ['Paragraph'], ast.map(&:style)
   end
 
+  def test_ignore_last_br_in_div
+    input = '<div>Lorem ipsum dolor sit amet<br /></div>'
+    par = @converter.processed_ast(input).to_a.first
+    assert_equal [Sablon::HTMLConverter::Text], par.runs.nodes.map(&:class)
+  end
+
+  def test_ignore_br_in_blank_div
+    input = '<div><br /></div>'
+    par = @converter.processed_ast(input).to_a.first
+    assert_equal [], par.runs.nodes.map(&:class)
+  end
+
   def test_ul
     input = '<ul><li>Lorem</li><li>ipsum</li></ul>'
     ast = @converter.processed_ast(input).to_a

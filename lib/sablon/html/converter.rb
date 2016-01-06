@@ -69,6 +69,7 @@ module Sablon
 
     def processed_ast(input)
       ast = build_ast(input)
+      ast.accept LastNewlineRemoverVisitor.new
       ast
     end
 
