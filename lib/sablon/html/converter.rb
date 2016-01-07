@@ -88,10 +88,10 @@ module Sablon
       node = @builder.next
       if node.name == 'div'
         @builder.new_layer
-        @builder.emit Paragraph.new('Normal', text(node.children))
+        @builder.emit Paragraph.new('Normal', ast_text(node.children))
       elsif node.name == 'p'
         @builder.new_layer
-        @builder.emit Paragraph.new('Paragraph', text(node.children))
+        @builder.emit Paragraph.new('Paragraph', ast_text(node.children))
       elsif node.name == 'ul'
         @builder.new_layer ilvl: true
         unless @builder.nested?
@@ -106,7 +106,7 @@ module Sablon
         @builder.push_all(node.children)
       elsif node.name == 'li'
         @builder.new_layer
-        @builder.emit ListParagraph.new(@definition.style, text(node.children), @definition.numid, @builder.ilvl)
+        @builder.emit ListParagraph.new(@definition.style, ast_text(node.children), @definition.numid, @builder.ilvl)
       elsif node.text?
         # SKIP?
       else
@@ -114,16 +114,16 @@ module Sablon
       end
     end
 
-    def text(nodes, text_klass: Text)
+    def ast_text(nodes, text_klass: Text)
       runs = nodes.flat_map do |node|
         if node.text?
           text_klass.new(node.text)
         elsif node.name == 'br'
           Newline.new
         elsif node.name == 'strong'
-          text(node.children, text_klass: Bold).nodes
+          ast_text(node.children, text_klass: Bold).nodes
         elsif node.name == 'em'
-          text(node.children, text_klass: Italic).nodes
+          ast_text(node.children, text_klass: Italic).nodes
         elsif ['ul', 'ol', 'p', 'div'].include?(node.name)
           @builder.push(node)
           nil
