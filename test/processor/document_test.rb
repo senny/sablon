@@ -28,6 +28,18 @@ class ProcessorDocumentTest < Sablon::TestCase
     document
   end
 
+  def test_simple_field_replacement_with_nil
+    result = process(snippet("simple_field"), {"first_name" => nil})
+
+    assert_equal "Hello! My Name is , nice to meet you.", text(result)
+    assert_xml_equal <<-document, result
+    <w:p>
+      <w:r><w:t xml:space="preserve">Hello! My Name is </w:t></w:r>
+      <w:r w:rsidR="00BE47B1"><w:t xml:space="preserve">, nice to meet you.</w:t></w:r>
+    </w:p>
+    document
+  end
+
   def test_context_can_contain_string_and_symbol_keys
     result = process(snippet("simple_fields"), {"first_name" => "Jack", last_name: "Davis"})
     assert_equal "Jack Davis", text(result)

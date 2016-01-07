@@ -3,7 +3,11 @@ module Sablon
   module Statement
     class Insertion < Struct.new(:expr, :field)
       def evaluate(context)
-        field.replace(Sablon::Content.wrap(expr.evaluate(context)))
+        if content = expr.evaluate(context)
+          field.replace(Sablon::Content.wrap(expr.evaluate(context)))
+        else
+          field.remove
+        end
       end
     end
 
