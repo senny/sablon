@@ -98,46 +98,61 @@ XML
       end
     end
 
-    class Text < Node
-      attr_reader :string
-      def initialize(string)
-        @string = string
+    class TextFormat
+      def initialize(bold, italic)
+        @bold = bold
+        @italic = italic
+      end
+
+      def inspect
+        parts = []
+        parts << 'bold' if @bold
+        parts << 'italic' if @italic
+        parts.join('|')
       end
 
       def to_docx
-        "<w:r>#{style_docx}<w:t xml:space=\"preserve\">#{normalized_string}</w:t></w:r>"
+        styles = []
+        styles << '<w:b />' if @bold
+        styles << '<w:i />' if @italic
+        if styles.any?
+          "<w:rPr>#{styles.join}</w:rPr>"
+        else
+          ''
+        end
+      end
+
+      def self.default
+        @default ||= new(false, false)
+      end
+
+      def with_bold
+        TextFormat.new(true, @italic)
+      end
+
+      def with_italic
+        TextFormat.new(@bold, true)
+      end
+    end
+
+    class Text < Node
+      attr_reader :string
+      def initialize(string, format)
+        @string = string
+        @format = format
+      end
+
+      def to_docx
+        "<w:r>#{@format.to_docx}<w:t xml:space=\"preserve\">#{normalized_string}</w:t></w:r>"
       end
 
       def inspect
-        "<Text: #{string}>"
+        "<Text{#{@format.inspect}}: #{string}>"
       end
 
       private
-      def style_docx
-      end
-
       def normalized_string
         string.tr("\u00A0", ' ')
-      end
-    end
-
-    class Bold < Text
-      def style_docx
-        '<w:rPr><w:b /></w:rPr>'
-      end
-
-      def inspect
-        "<Bold: #{string}>"
-      end
-    end
-
-    class Italic < Text
-      def style_docx
-        '<w:rPr><w:i /></w:rPr>'
-      end
-
-      def inspect
-        "<Italic: #{string}>"
       end
     end
 

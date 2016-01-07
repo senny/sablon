@@ -114,16 +114,16 @@ module Sablon
       end
     end
 
-    def ast_text(nodes, text_klass: Text)
+    def ast_text(nodes, format: TextFormat.default)
       runs = nodes.flat_map do |node|
         if node.text?
-          text_klass.new(node.text)
+          Text.new(node.text, format)
         elsif node.name == 'br'
           Newline.new
         elsif node.name == 'strong'
-          ast_text(node.children, text_klass: Bold).nodes
+          ast_text(node.children, format: format.with_bold).nodes
         elsif node.name == 'em'
-          ast_text(node.children, text_klass: Italic).nodes
+          ast_text(node.children, format: format.with_italic).nodes
         elsif ['ul', 'ol', 'p', 'div'].include?(node.name)
           @builder.push(node)
           nil
