@@ -26,17 +26,21 @@ module Sablon
       def to_docx
         nodes.map(&:to_docx).join
       end
+
+      def inspect
+        "[#{nodes.map(&:inspect).join(', ')}]"
+      end
     end
 
     class Root < Collection
-      def to_a
-        nodes
-      end
-
       def grep(pattern)
         visitor = GrepVisitor.new(pattern)
         accept(visitor)
         visitor.result
+      end
+
+      def inspect
+        "<Root: #{super}>"
       end
     end
 
@@ -63,6 +67,10 @@ XML
       def accept(visitor)
         super
         runs.accept(visitor)
+      end
+
+      def inspect
+        "<Paragraph{#{style}}: #{runs.inspect}>"
       end
 
       private
@@ -100,6 +108,10 @@ XML
         "<w:r>#{style_docx}<w:t xml:space=\"preserve\">#{normalized_string}</w:t></w:r>"
       end
 
+      def inspect
+        "<Text: #{string}>"
+      end
+
       private
       def style_docx
       end
@@ -113,17 +125,29 @@ XML
       def style_docx
         '<w:rPr><w:b /></w:rPr>'
       end
+
+      def inspect
+        "<Bold: #{string}>"
+      end
     end
 
     class Italic < Text
       def style_docx
         '<w:rPr><w:i /></w:rPr>'
       end
+
+      def inspect
+        "<Italic: #{string}>"
+      end
     end
 
     class Newline < Node
       def to_docx
         "<w:r><w:br/></w:r>"
+      end
+
+      def inspect
+        "<Newline>"
       end
     end
   end

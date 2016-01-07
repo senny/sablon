@@ -282,62 +282,50 @@ class HTMLConverterASTTest < Sablon::TestCase
 
   def test_div
     input = '<div>Lorem ipsum dolor sit amet</div>'
-    ast = @converter.processed_ast(input).to_a
-    assert_equal [Sablon::HTMLConverter::Paragraph], ast.map(&:class)
-    assert_equal ['Normal'], ast.map(&:style)
+    ast = @converter.processed_ast(input)
+    assert_equal '<Root: [<Paragraph{Normal}: [<Text: Lorem ipsum dolor sit amet>]>]>', ast.inspect
   end
 
   def test_p
     input = '<p>Lorem ipsum dolor sit amet</p>'
-    ast = @converter.processed_ast(input).to_a
-    assert_equal [Sablon::HTMLConverter::Paragraph], ast.map(&:class)
-    assert_equal ['Paragraph'], ast.map(&:style)
+    ast = @converter.processed_ast(input)
+    assert_equal '<Root: [<Paragraph{Paragraph}: [<Text: Lorem ipsum dolor sit amet>]>]>', ast.inspect
   end
 
   def test_br_in_strong
     input = '<div><strong>Lorem<br />ipsum<br />dolor</strong></div>'
-    par = @converter.processed_ast(input).to_a.first
-    assert_equal [Sablon::HTMLConverter::Bold,
-                  Sablon::HTMLConverter::Newline,
-                  Sablon::HTMLConverter::Bold,
-                  Sablon::HTMLConverter::Newline,
-                  Sablon::HTMLConverter::Bold], par.runs.nodes.map(&:class)
+    par = @converter.processed_ast(input).grep(Sablon::HTMLConverter::Paragraph).first
+    assert_equal "[<Bold: Lorem>, <Newline>, <Bold: ipsum>, <Newline>, <Bold: dolor>]", par.runs.inspect
   end
 
-  def test_br_in_strong
+  def test_br_in_em
     input = '<div><em>Lorem<br />ipsum<br />dolor</em></div>'
-    par = @converter.processed_ast(input).to_a.first
-    assert_equal [Sablon::HTMLConverter::Italic,
-                  Sablon::HTMLConverter::Newline,
-                  Sablon::HTMLConverter::Italic,
-                  Sablon::HTMLConverter::Newline,
-                  Sablon::HTMLConverter::Italic], par.runs.nodes.map(&:class)
+    par = @converter.processed_ast(input).grep(Sablon::HTMLConverter::Paragraph).first
+    assert_equal "[<Italic: Lorem>, <Newline>, <Italic: ipsum>, <Newline>, <Italic: dolor>]", par.runs.inspect
   end
 
   def test_ignore_last_br_in_div
     input = '<div>Lorem ipsum dolor sit amet<br /></div>'
-    par = @converter.processed_ast(input).to_a.first
-    assert_equal [Sablon::HTMLConverter::Text], par.runs.nodes.map(&:class)
+    par = @converter.processed_ast(input).grep(Sablon::HTMLConverter::Paragraph).first
+    assert_equal "[<Text: Lorem ipsum dolor sit amet>]", par.runs.inspect
   end
 
   def test_ignore_br_in_blank_div
     input = '<div><br /></div>'
-    par = @converter.processed_ast(input).to_a.first
-    assert_equal [], par.runs.nodes.map(&:class)
+    par = @converter.processed_ast(input).grep(Sablon::HTMLConverter::Paragraph).first
+    assert_equal "[]", par.runs.inspect
   end
 
   def test_ul
     input = '<ul><li>Lorem</li><li>ipsum</li></ul>'
-    ast = @converter.processed_ast(input).to_a
-    assert_equal [Sablon::HTMLConverter::ListParagraph, Sablon::HTMLConverter::ListParagraph], ast.map(&:class)
-    assert_equal ["ListBullet", "ListBullet"], ast.map(&:style)
+    ast = @converter.processed_ast(input)
+    assert_equal "<Root: [<Paragraph{ListBullet}: [<Text: Lorem>]>, <Paragraph{ListBullet}: [<Text: ipsum>]>]>", ast.inspect
   end
 
   def test_ol
     input = '<ol><li>Lorem</li><li>ipsum</li></ol>'
-    ast = @converter.processed_ast(input).to_a
-    assert_equal [Sablon::HTMLConverter::ListParagraph, Sablon::HTMLConverter::ListParagraph], ast.map(&:class)
-    assert_equal ["ListNumber", "ListNumber"], ast.map(&:style)
+    ast = @converter.processed_ast(input)
+    assert_equal "<Root: [<Paragraph{ListNumber}: [<Text: Lorem>]>, <Paragraph{ListNumber}: [<Text: ipsum>]>]>", ast.inspect
   end
 
   def test_num_id
