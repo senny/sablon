@@ -1,3 +1,3 @@
 module Sablon
-  VERSION = "0.0.19.beta3"
+  VERSION = "0.0.19.beta4"
 end
