@@ -83,6 +83,25 @@ DOCX
     assert_equal normalize_wordml(expected_output), @converter.process(input)
   end
 
+  def test_convert_br_tags_inside_strong
+    input = '<div><strong><br />Lorem ipsum<br />dolor sit amet</strong></div>'
+    expected_output = <<-DOCX
+<w:p>
+  <w:pPr><w:pStyle w:val="Normal" /></w:pPr>
+  <w:r><w:br/></w:r>
+  <w:r>
+    <w:rPr><w:b /></w:rPr>
+    <w:t xml:space="preserve">Lorem ipsum</w:t></w:r>
+    <w:r><w:br/></w:r>
+    <w:r>
+      <w:rPr><w:b /></w:rPr>
+      <w:t xml:space="preserve">dolor sit amet</w:t>
+    </w:r>
+</w:p>
+DOCX
+    assert_equal normalize_wordml(expected_output), @converter.process(input)
+  end
+
   def test_unorderd_lists
     input = '<ul><li>Lorem</li><li>ipsum</li><li>dolor</li></ul>'
     expected_output = <<-DOCX.strip
@@ -273,6 +292,26 @@ class HTMLConverterASTTest < Sablon::TestCase
     ast = @converter.processed_ast(input).to_a
     assert_equal [Sablon::HTMLConverter::Paragraph], ast.map(&:class)
     assert_equal ['Paragraph'], ast.map(&:style)
+  end
+
+  def test_br_in_strong
+    input = '<div><strong>Lorem<br />ipsum<br />dolor</strong></div>'
+    par = @converter.processed_ast(input).to_a.first
+    assert_equal [Sablon::HTMLConverter::Bold,
+                  Sablon::HTMLConverter::Newline,
+                  Sablon::HTMLConverter::Bold,
+                  Sablon::HTMLConverter::Newline,
+                  Sablon::HTMLConverter::Bold], par.runs.nodes.map(&:class)
+  end
+
+  def test_br_in_strong
+    input = '<div><em>Lorem<br />ipsum<br />dolor</em></div>'
+    par = @converter.processed_ast(input).to_a.first
+    assert_equal [Sablon::HTMLConverter::Italic,
+                  Sablon::HTMLConverter::Newline,
+                  Sablon::HTMLConverter::Italic,
+                  Sablon::HTMLConverter::Newline,
+                  Sablon::HTMLConverter::Italic], par.runs.nodes.map(&:class)
   end
 
   def test_ignore_last_br_in_div

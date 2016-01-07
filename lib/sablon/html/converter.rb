@@ -114,16 +114,16 @@ module Sablon
       end
     end
 
-    def text(nodes)
-      runs = nodes.map do |node|
+    def text(nodes, text_klass: Text)
+      runs = nodes.flat_map do |node|
         if node.text?
-          Text.new(node.text)
+          text_klass.new(node.text)
         elsif node.name == 'br'
           Newline.new
         elsif node.name == 'strong'
-          Bold.new(node.text)
+          text(node.children, text_klass: Bold).nodes
         elsif node.name == 'em'
-          Italic.new(node.text)
+          text(node.children, text_klass: Italic).nodes
         elsif ['ul', 'ol', 'p', 'div'].include?(node.name)
           @builder.push(node)
           nil
