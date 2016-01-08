@@ -163,6 +163,14 @@ end
 class ContentMarkdownTest < Sablon::TestCase
   include ContentTestSetup
 
+  def test_is_deprecated
+    previous_stderr, $stderr = $stderr, StringIO.new
+    Sablon.content(:markdown, "")
+    assert_equal "[DEPRECATION] `Sablon::Content::Markdown` is deprecated.  Please use `Sablon::Content::HTML` instead.\n", $stderr.string
+  ensure
+    $stderr = previous_stderr
+  end
+
   def test_blank_markdown
     Sablon.content(:markdown, "").append_to @paragraph, @node
 
