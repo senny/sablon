@@ -158,7 +158,7 @@ To use HTML insertion prepare the context like so:
 ```ruby
 html_body = <<-HTML
 <div>This text can contain <em>additional formatting</em>
-according to the <strong>Markdown</strongstrong> specification.</div>
+according to the <strong>HTML</strong> specification.</div>
 HTML
 context = {
   article: { html_body: Sablon.content(:html, html_body) }
