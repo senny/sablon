@@ -100,7 +100,12 @@ IMPORTANT: This feature is very much *experimental*. Currently, the insertion
     will replace the containing paragraph. This means that other content in the same
     paragraph is discarded.
 
-##### Markdown [experimental]
+##### Markdown [deprecated]
+
+IMPORTANT: Markdown insertion has been deprecated in favor of HTML
+    insertion. For now the behavior is still packaged with sablon. Note that the
+    implementation of `Sablon::Content::Markdown` is already based on
+    `Sablon::Content::HTML`. Markdown insertion will be removed in the future.
 
 Similar to WordProcessingML it's possible to use markdown while processing the
 tempalte. You don't need to modify your templates, a simple insertion operation

@@ -83,6 +83,7 @@ module Sablon
       def self.wraps?(value) false end
 
       def initialize(markdown)
+        warn "[DEPRECATION] `Sablon::Content::Markdown` is deprecated.  Please use `Sablon::Content::HTML` instead."
         redcarpet = ::Redcarpet::Markdown.new(::Redcarpet::Render::HTML.new)
         word_ml = Sablon.content(:html, redcarpet.render(markdown))
         super word_ml
