@@ -15,7 +15,6 @@ require "sablon/html/converter"
 require "sablon/content"
 
 require 'redcarpet'
-require "sablon/redcarpet/render/word_ml"
 
 module Sablon
   class TemplateError < ArgumentError; end
