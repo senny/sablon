@@ -120,9 +120,9 @@ module Sablon
           Text.new(node.text, format)
         elsif node.name == 'br'
           Newline.new
-        elsif node.name == 'strong'
+        elsif node.name == 'strong' || node.name == 'b'
           ast_text(node.children, format: format.with_bold).nodes
-        elsif node.name == 'em'
+        elsif node.name == 'em' || node.name == 'i'
           ast_text(node.children, format: format.with_italic).nodes
         elsif ['ul', 'ol', 'p', 'div'].include?(node.name)
           @builder.push(node)

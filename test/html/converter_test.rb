@@ -292,6 +292,18 @@ class HTMLConverterASTTest < Sablon::TestCase
     assert_equal '<Root: [<Paragraph{Paragraph}: [<Text{}: Lorem ipsum dolor sit amet>]>]>', ast.inspect
   end
 
+  def test_b
+    input = '<p>Lorem <b>ipsum dolor sit amet</b></p>'
+    ast = @converter.processed_ast(input)
+    assert_equal '<Root: [<Paragraph{Paragraph}: [<Text{}: Lorem >, <Text{bold}: ipsum dolor sit amet>]>]>', ast.inspect
+  end
+
+  def test_i
+    input = '<p>Lorem <i>ipsum dolor sit amet</i></p>'
+    ast = @converter.processed_ast(input)
+    assert_equal '<Root: [<Paragraph{Paragraph}: [<Text{}: Lorem >, <Text{italic}: ipsum dolor sit amet>]>]>', ast.inspect
+  end
+
   def test_br_in_strong
     input = '<div><strong>Lorem<br />ipsum<br />dolor</strong></div>'
     par = @converter.processed_ast(input).grep(Sablon::HTMLConverter::Paragraph).first
