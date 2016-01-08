@@ -223,6 +223,17 @@ to repeat. Have a look at the
 
 It is possible to nest loops and conditionals.
 
+#### Comments
+
+Sometimes it's necessary to include markup in the template that should not be
+visible in the rendered output. For example when defining sample numbering
+styles for HTML insertion.
+
+```
+«comment»
+    ... arbitrary document markup ...
+«endComment»
+```
 
 ### Executable
 

@@ -44,6 +44,12 @@ module Sablon
         end
       end
     end
+
+    class Comment < Struct.new(:block)
+      def evaluate(context)
+        block.replace []
+      end
+    end
   end
 
   module Expression

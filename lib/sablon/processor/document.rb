@@ -171,6 +171,9 @@ module Sablon
           when /([^ ]+):if/
             block = consume_block("#{$1}:endIf")
             Statement::Condition.new(Expression.parse($1), block)
+          when /comment/
+            block = consume_block("endComment")
+            Statement::Comment.new(block)
           end
         end
 

@@ -374,6 +374,11 @@ class ProcessorDocumentTest < Sablon::TestCase
     assert_equal "", text(result)
   end
 
+  def test_comment
+    result = process(snippet("comment"), {})
+    assert_equal "Before After", text(result)
+  end
+
   private
   def process(document, context)
     @processor.process(wrap(document), context).to_xml
