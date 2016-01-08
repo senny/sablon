@@ -92,6 +92,9 @@ module Sablon
       elsif node.name == 'p'
         @builder.new_layer
         @builder.emit Paragraph.new('Paragraph', ast_text(node.children))
+      elsif node.name =~ /h(\d+)/
+        @builder.new_layer
+        @builder.emit Paragraph.new("Heading#{$1}", ast_text(node.children))
       elsif node.name == 'ul'
         @builder.new_layer ilvl: true
         unless @builder.nested?

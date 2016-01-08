@@ -118,6 +118,17 @@ DOCX
     assert_equal normalize_wordml(expected_output), @converter.process(input)
   end
 
+  def test_convert_h1
+    input = '<h1>Lorem ipsum dolor</h1>'
+    expected_output = <<-DOCX.strip
+<w:p>
+  <w:pPr><w:pStyle w:val="Heading1" /></w:pPr>
+  <w:r><w:t xml:space="preserve">Lorem ipsum dolor</w:t></w:r>
+</w:p>
+DOCX
+    assert_equal normalize_wordml(expected_output), @converter.process(input)
+  end
+
   def test_unorderd_lists
     input = '<ul><li>Lorem</li><li>ipsum</li><li>dolor</li></ul>'
     expected_output = <<-DOCX.strip
@@ -348,6 +359,18 @@ class HTMLConverterASTTest < Sablon::TestCase
     input = '<div><br /></div>'
     par = @converter.processed_ast(input).grep(Sablon::HTMLConverter::Paragraph).first
     assert_equal "[]", par.runs.inspect
+  end
+
+  def test_headings
+    input = '<h1>First</h1><h2>Second</h2><h3>Third</h3>'
+    ast = @converter.processed_ast(input)
+    assert_equal "<Root: [<Paragraph{Heading1}: [<Text{}: First>]>, <Paragraph{Heading2}: [<Text{}: Second>]>, <Paragraph{Heading3}: [<Text{}: Third>]>]>", ast.inspect
+  end
+
+  def test_h_with_formatting
+    input = '<h1><strong>Lorem</strong> ipsum dolor <em>sit <u>amet</u></em></h1>'
+    ast = @converter.processed_ast(input)
+    assert_equal "<Root: [<Paragraph{Heading1}: [<Text{bold}: Lorem>, <Text{}:  ipsum dolor >, <Text{italic}: sit >, <Text{italic|underline}: amet>]>]>", ast.inspect
   end
 
   def test_ul
