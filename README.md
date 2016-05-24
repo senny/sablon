@@ -100,6 +100,14 @@ IMPORTANT: This feature is very much *experimental*. Currently, the insertion
     will replace the containing paragraph. This means that other content in the same
     paragraph is discarded.
 
+##### Images [experimental]
+
+Add images to a document, the images data will be attach in the document.
+
+For an example see the test file: "image_test.rb"
+
+This funcionality was inspired in the kubido fork for this project - kubido/sablon
+
 ##### HTML [experimental]
 
 Similar to WordProcessingML it's possible to use html as input while processing the
