@@ -4,11 +4,13 @@ require 'nokogiri'
 
 require "sablon/version"
 require "sablon/numbering"
+require "sablon/image"
 require "sablon/context"
 require "sablon/template"
 require "sablon/processor/document"
 require "sablon/processor/section_properties"
 require "sablon/processor/numbering"
+require "sablon/processor/image"
 require "sablon/parser/mail_merge"
 require "sablon/operations"
 require "sablon/html/converter"

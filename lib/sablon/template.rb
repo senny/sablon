@@ -1,5 +1,7 @@
 module Sablon
   class Template
+    SYMBOL_FOR_IMAGES = :images
+
     def initialize(path)
       @path = path
     end
@@ -22,15 +24,20 @@ module Sablon
       Zip.sort_entries = true # required to process document.xml before numbering.xml
       Zip::OutputStream.write_buffer(StringIO.new) do |out|
         Zip::File.open(@path).each do |entry|
+          Sablon::Processor::Image.add_images_to_zip!(properties[SYMBOL_FOR_IMAGES], out)
+
           entry_name = entry.name
           out.put_next_entry(entry_name)
           content = entry.get_input_stream.read
+
           if entry_name == 'word/document.xml'
             out.write(process(Processor::Document, content, context, properties))
           elsif entry_name =~ /word\/header\d*\.xml/ || entry_name =~ /word\/footer\d*\.xml/
             out.write(process(Processor::Document, content, context))
           elsif entry_name == 'word/numbering.xml'
             out.write(process(Processor::Numbering, content))
+          elsif entry_name == 'word/_rels/document.xml.rels'
+            out.write(process(Processor::Image, content, properties, out))
           else
             out.write(content)
           end
