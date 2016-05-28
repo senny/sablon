@@ -4,6 +4,7 @@ require "support/xml_snippets"
 
 class SablonImageTest < Sablon::TestCase
   include Sablon::Test::Assertions
+
   def setup
     super
     @base_path = Pathname.new(File.expand_path("../", __FILE__))
@@ -32,9 +33,53 @@ class SablonImageTest < Sablon::TestCase
       ]
     }
 
-    # Important Note: Images should have same order in the properties and in the ocurrence in the document (Sux, I known)
-    template.render_to_file output_path, context, {images: @images}
+    template.render_to_file output_path, context
 
     assert_docx_equal @sample_path, output_path
+  end
+
+  def test_get_all_images_simple_image
+    image = Sablon::Image.create_by_path(@base_path + "fixtures/images/c-3po.jpg")
+
+    context = {
+      test: 'result',
+      image: image
+    }
+
+    result = Sablon::Processor::Image.get_all_images(context)
+
+    assert_equal [image], result
+  end
+
+  def test_get_all_images_nested
+    image = Sablon::Image.create_by_path(@base_path + "fixtures/images/c-3po.jpg")
+
+    context = {
+      image: image,
+      nested: {
+        item: {
+          id: 10,
+          image: image
+        }
+      },
+      other: [
+        image,
+        image
+      ]
+    }
+
+    result = Sablon::Processor::Image.get_all_images(context)
+
+    assert_equal [image, image, image, image], result
+  end
+
+  def test_get_all_images_empty
+    context = {
+      test: "result"
+    }
+
+    result = Sablon::Processor::Image.get_all_images(context)
+
+    assert_empty result
   end
 end

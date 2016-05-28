@@ -24,7 +24,7 @@ module Sablon
         @@images_rids = {}
         relationships = @doc.at_xpath('r:Relationships', r: RELATIONSHIPS_NS_URI)
 
-        @properties[Sablon::Template::SYMBOL_FOR_IMAGES].to_a.each do |image|
+        @@images.to_a.each do |image|
           relationships.add_child("<Relationship Id='rId#{next_id}' Type='#{IMAGE_TYPE}' Target='media/#{image.name}'/>")
           image.rid = next_id
           @@images_rids[image.name.match(/(.*)\.[^.]+$/)[1]] = next_id
@@ -34,8 +34,8 @@ module Sablon
         @doc
       end
 
-      def self.add_images_to_zip!(images, zip_out)
-        images.to_a.each do |image|
+      def self.add_images_to_zip!(content, zip_out)
+        (@@images = get_all_images(content)).each do |image|
           zip_out.put_next_entry(File.join('word', 'media', image.name))
           zip_out.write(image.data)
         end
@@ -43,7 +43,25 @@ module Sablon
 
       def self.list_ids
         @@images_rids
-      end      
+      end
+
+      def self.get_all_images(content)
+        result = []
+
+        if content.is_a?(Sablon::Image::Definition)
+          result << content
+        elsif content.is_a?(Enumerable)
+          result += content.collect do |key, value|
+            if value
+              get_all_images(value)
+            else
+              get_all_images(key)
+            end
+          end.compact
+        end
+
+        result.flatten.compact
+      end
 
       private
 
