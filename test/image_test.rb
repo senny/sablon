@@ -56,12 +56,12 @@ class SablonImageTest < Sablon::TestCase
 
     context = {
       image: image,
-      nested: {
+      nested: OpenStruct.new(
         item: {
           id: 10,
           image: image
         }
-      },
+      ),
       other: [
         image,
         image
