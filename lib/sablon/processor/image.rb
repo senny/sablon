@@ -50,7 +50,8 @@ module Sablon
 
         if content.is_a?(Sablon::Image::Definition)
           result << content
-        elsif content.is_a?(Enumerable)
+        elsif content && (content.is_a?(Enumerable) || content.is_a?(OpenStruct))
+          content = content.to_h if content.is_a?(OpenStruct)
           result += content.collect do |key, value|
             if value
               get_all_images(value)
