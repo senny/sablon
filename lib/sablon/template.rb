@@ -24,9 +24,8 @@ module Sablon
       env = Sablon::Environment.new(self, context)
       Zip.sort_entries = true # required to process document.xml before numbering.xml
       Zip::OutputStream.write_buffer(StringIO.new) do |out|
+        Sablon::Processor::Image.add_images_to_zip!(context, out)
         Zip::File.open(@path).each do |entry|
-          Sablon::Processor::Image.add_images_to_zip!(context, out)
-
           entry_name = entry.name
           out.put_next_entry(entry_name)
           content = entry.get_input_stream.read
