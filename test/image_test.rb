@@ -12,8 +12,8 @@ class SablonImageTest < Sablon::TestCase
     @template_path = @base_path + "fixtures/image_template.docx"
     @sample_path = @base_path + "fixtures/image_sample.docx"
     @images = [
-      Sablon::Image.create_by_path(@base_path + "fixtures/images/c-3po.jpg"),
-      Sablon::Image.create_by_path(@base_path + "fixtures/images/r2-d2.png")
+      Sablon::Image.create_by_path(@base_path + "fixtures/images/c-3po.jpg", 1),
+      Sablon::Image.create_by_path(@base_path + "fixtures/images/r2-d2.png", 2)
     ]
   end
 
@@ -39,7 +39,7 @@ class SablonImageTest < Sablon::TestCase
   end
 
   def test_get_all_images_simple_image
-    image = Sablon::Image.create_by_path(@base_path + "fixtures/images/c-3po.jpg")
+    image = Sablon::Image.create_by_path(@base_path + "fixtures/images/c-3po.jpg", 1)
 
     context = {
       test: 'result',
@@ -52,7 +52,7 @@ class SablonImageTest < Sablon::TestCase
   end
 
   def test_get_all_images_nested
-    image = Sablon::Image.create_by_path(@base_path + "fixtures/images/c-3po.jpg")
+    image = Sablon::Image.create_by_path(@base_path + "fixtures/images/c-3po.jpg", 2)
 
     context = {
       image: image,

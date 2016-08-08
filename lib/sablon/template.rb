@@ -38,6 +38,10 @@ module Sablon
             out.write(process(Processor::Numbering, content, env))
           elsif entry_name == 'word/_rels/document.xml.rels'
             out.write(process(Processor::Image, content, properties, out))
+          elsif entry_name == 'word/_rels/document.xml.rels'
+            out.write(process(Processor::Image, content, properties, out))
+          elsif entry_name == '[Content_Types].xml'
+            out.write(process(Processor::ContentType, content, properties, out))
           else
             out.write(content)
           end
