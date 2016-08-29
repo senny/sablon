@@ -1,7 +1,5 @@
 module Sablon
   class Template
-    SYMBOL_FOR_IMAGES = :images
-
     def initialize(path)
       @path = path
     end
@@ -28,7 +26,6 @@ module Sablon
           entry_name = entry.name
           out.put_next_entry(entry_name)
           content = entry.get_input_stream.read
-
           if entry_name == 'word/document.xml'
             out.write(process(Processor::Document, content, context, properties))
           elsif entry_name =~ /word\/header\d*\.xml/ || entry_name =~ /word\/footer\d*\.xml/

@@ -106,7 +106,7 @@ Add images to a document, the images data will be attach in the document.
 
 For an example see the test file: "image_test.rb"
 
-This funcionality was inspired in the kubido fork for this project - kubido/sablon
+This functionality was inspired in the [kubido fork](https://github.com/kubido/sablon) for this project - kubido/sablon
 
 ##### HTML [experimental]
 
