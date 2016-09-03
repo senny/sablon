@@ -73,6 +73,7 @@ module Sablon
         end
 
         def replace(content)
+          remove_extra_runs!
           replace_field_display(@node, content)
           @node.replace(@node.children)
         end
@@ -89,6 +90,11 @@ module Sablon
           @node
         end
         alias_method :end_node, :start_node
+
+        private
+        def remove_extra_runs!
+          @node.search(".//w:r")[1..-1].each(&:remove)
+        end
       end
 
       def parse_fields(xml)
