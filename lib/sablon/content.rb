@@ -77,23 +77,6 @@ module Sablon
       end
     end
 
-    class Markdown < Struct.new(:word_ml)
-      include Sablon::Content
-      def self.id; :markdown end
-      def self.wraps?(value) false end
-
-      def initialize(markdown)
-        warn "[DEPRECATION] `Sablon::Content::Markdown` is deprecated.  Please use `Sablon::Content::HTML` instead."
-        redcarpet = ::Redcarpet::Markdown.new(::Redcarpet::Render::HTML.new)
-        word_ml = Sablon.content(:html, redcarpet.render(markdown))
-        super word_ml
-      end
-
-      def append_to(*args)
-        word_ml.append_to(*args)
-      end
-    end
-
     class HTML < Struct.new(:word_ml)
       include Sablon::Content
       def self.id; :html end
@@ -112,7 +95,6 @@ module Sablon
 
     register Sablon::Content::String
     register Sablon::Content::WordML
-    register Sablon::Content::Markdown
     register Sablon::Content::HTML
   end
 end

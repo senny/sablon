@@ -3,19 +3,19 @@ PATH
   specs:
     sablon (0.0.19)
       nokogiri (>= 1.6.0)
-      redcarpet (>= 3.2)
       rubyzip (>= 1.1)
 
 GEM
   remote: https://rubygems.org/
   specs:
-    mini_portile2 (2.0.0)
+    mini_portile2 (2.1.0)
     minitest (5.8.0)
-    nokogiri (1.6.7.1)
-      mini_portile2 (~> 2.0.0.rc2)
+    nokogiri (1.6.8)
+      mini_portile2 (~> 2.1.0)
+      pkg-config (~> 1.1.7)
+    pkg-config (1.1.7)
     rake (10.4.2)
-    redcarpet (3.3.3)
-    rubyzip (1.1.7)
+    rubyzip (1.2.0)
     xml-simple (1.1.5)
 
 PLATFORMS
@@ -29,4 +29,4 @@ DEPENDENCIES
   xml-simple
 
 BUNDLED WITH
-   1.10.6
+   1.12.5

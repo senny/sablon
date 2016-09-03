@@ -24,7 +24,7 @@ require "sablon"
 template = Sablon.template(File.expand_path("~/Desktop/template.docx"))
 context = {
   title: "Fabulous Document",
-  technologies: ["Ruby", "Markdown", "ODF"]
+  technologies: ["Ruby", "HTML", "ODF"]
 }
 template.render_to_file File.expand_path("~/Desktop/output.docx"), context
 ```
@@ -99,54 +99,6 @@ template.render_to_file File.expand_path("~/Desktop/output.docx"), context
 IMPORTANT: This feature is very much *experimental*. Currently, the insertion
     will replace the containing paragraph. This means that other content in the same
     paragraph is discarded.
-
-##### Markdown [deprecated]
-
-IMPORTANT: Markdown insertion has been deprecated in favor of HTML
-    insertion. For now the behavior is still packaged with sablon. Note that the
-    implementation of `Sablon::Content::Markdown` is already based on
-    `Sablon::Content::HTML`. Markdown insertion will be removed in the future.
-
-Similar to WordProcessingML it's possible to use markdown while processing the
-tempalte. You don't need to modify your templates, a simple insertion operation
-is sufficient:
-
-```
-«=article.body»
-```
-
-To use Markdown insertion prepare the context like so:
-
-```ruby
-markdown_body = <<-MD
-This text can contain *additional formatting*
-according to the **Markdown** specification.
-MD
-context = {
-  article: { body: Sablon.content(:markdown, markdown_body) }
-}
-template.render_to_file File.expand_path("~/Desktop/output.docx"), context
-```
-
-Markdown insertion has built-in support for:
-
-* [Headers](http://spec.commonmark.org/0.17/#atx-header)
-* [Paragraphs](http://spec.commonmark.org/0.17/#paragraphs)
-* [Emphasis and strong emphasis](http://spec.commonmark.org/0.17/#emphasis-and-strong-emphasis)
-* [Hard line breaks](http://spec.commonmark.org/0.17/#hard-line-breaks)
-* [Lists](http://spec.commonmark.org/0.17/#lists)
-
-For headings and lists to function properly it is necessary that the template
-defines specific styles. Headings use styles called `Heading1`, `Heading2`,
-etc. according to the header level. Ordered lists will use the style
-`ListNumber` and unordered lists use `ListBullet`. Nested lists are not
-supported. Normal text paragraphs use the style `Paragraph`. It's not necessary
-to have that style in the template. Word will fall back to using the `Normal` style.
-
-IMPORTANT: This feature is very much *experimental*. Currently, the insertion
-    will replace the containing paragraph. This means that other content in the same
-    paragraph is discarded. In the near future this feature will most likely be
-    implemented on top of HTML insertion.
 
 ##### HTML [experimental]
 

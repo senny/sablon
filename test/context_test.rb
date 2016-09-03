@@ -13,14 +13,14 @@ class ContextTest < Sablon::TestCase
                    "otherkey"=>"<nope>"}, transformed)
   end
 
-  def test_recognizes_markdown_keys
-    transformed = Sablon::Context.transform({"markdown:mykey" => "**yay**", "otherkey" => "<nope>"})
-    assert_equal({ "mykey"=>Sablon.content(:markdown, "**yay**"),
+  def test_recognizes_html_keys
+    transformed = Sablon::Context.transform({"html:mykey" => "**yay**", "otherkey" => "<nope>"})
+    assert_equal({ "mykey"=>Sablon.content(:html, "**yay**"),
                    "otherkey"=>"<nope>"}, transformed)
   end
 
-  def test_does_not_wrap_markdown_and_wordml_with_nil_value
-    transformed = Sablon::Context.transform({"markdown:mykey" => nil, "word_ml:otherkey" => nil, "normalkey" => nil})
+  def test_does_not_wrap_html_and_wordml_with_nil_value
+    transformed = Sablon::Context.transform({"html:mykey" => nil, "word_ml:otherkey" => nil, "normalkey" => nil})
     assert_equal({ "mykey" => nil,
                    "otherkey" => nil,
                    "normalkey" => nil}, transformed)
