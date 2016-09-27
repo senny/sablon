@@ -119,7 +119,7 @@ module Sablon
 
       class ImageBlock < ParagraphBlock
         def self.encloses?(start_field, end_field)
-          start_field.expression =~ /^@/
+          start_field.expression.start_with?('@')
         end
 
         def replace(content)

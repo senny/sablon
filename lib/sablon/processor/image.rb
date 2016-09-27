@@ -34,8 +34,8 @@ module Sablon
         @doc
       end
 
-      def self.add_images_to_zip!(content, zip_out)
-        (@@images = get_all_images(content)).each do |image|
+      def self.add_images_to_zip!(context, zip_out)
+        (@@images = Sablon::Context.values_of(context, Sablon::Image::Definition)).each do |image|
           zip_out.put_next_entry(File.join('word', 'media', image.name))
           zip_out.write(image.data)
         end
@@ -43,25 +43,6 @@ module Sablon
 
       def self.list_ids
         @@images_rids
-      end
-
-      def self.get_all_images(content)
-        result = []
-
-        if content.is_a?(Sablon::Image::Definition)
-          result << content
-        elsif content && (content.is_a?(Enumerable) || content.is_a?(OpenStruct))
-          content = content.to_h if content.is_a?(OpenStruct)
-          result += content.collect do |key, value|
-            if value
-              get_all_images(value)
-            else
-              get_all_images(key)
-            end
-          end.compact
-        end
-
-        result.flatten.compact
       end
 
       private

@@ -37,49 +37,4 @@ class SablonImageTest < Sablon::TestCase
 
     assert_docx_equal @sample_path, output_path
   end
-
-  def test_get_all_images_simple_image
-    image = Sablon::Image.create_by_path(@base_path + "fixtures/images/c-3po.jpg", 1)
-
-    context = {
-      test: 'result',
-      image: image
-    }
-
-    result = Sablon::Processor::Image.get_all_images(context)
-
-    assert_equal [image], result
-  end
-
-  def test_get_all_images_nested
-    image = Sablon::Image.create_by_path(@base_path + "fixtures/images/c-3po.jpg", 2)
-
-    context = {
-      image: image,
-      nested: OpenStruct.new(
-        item: {
-          id: 10,
-          image: image
-        }
-      ),
-      other: [
-        image,
-        image
-      ]
-    }
-
-    result = Sablon::Processor::Image.get_all_images(context)
-
-    assert_equal [image, image, image, image], result
-  end
-
-  def test_get_all_images_empty
-    context = {
-      test: "result"
-    }
-
-    result = Sablon::Processor::Image.get_all_images(context)
-
-    assert_empty result
-  end
 end
