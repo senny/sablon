@@ -25,4 +25,52 @@ class ContextTest < Sablon::TestCase
                    "otherkey" => nil,
                    "normalkey" => nil}, transformed)
   end
+
+
+  def test_values_of_single_element
+    base_path = Pathname.new(File.expand_path("../", __FILE__))
+    image = Sablon::Image.create_by_path(base_path + "fixtures/images/c-3po.jpg", 1)
+
+    context = {
+      test: 'result',
+      image: image
+    }
+
+    result = Sablon::Context.values_of(context, Sablon::Image::Definition)
+
+    assert_equal [image], result
+  end
+
+  def test_values_of_nested
+    base_path = Pathname.new(File.expand_path("../", __FILE__))
+    image = Sablon::Image.create_by_path(base_path + "fixtures/images/c-3po.jpg", 2)
+
+    context = {
+      image: image,
+      nested: OpenStruct.new(
+        item: {
+          id: 10,
+          image: image
+        }
+      ),
+      other: [
+        image,
+        image
+      ]
+    }
+
+    result = Sablon::Context.values_of(context, Sablon::Image::Definition)
+
+    assert_equal [image, image, image, image], result
+  end
+
+  def test_values_of_empty
+    context = {
+      test: "result"
+    }
+
+    result = Sablon::Context.values_of(context, Sablon::Image::Definition)
+
+    assert_empty result
+  end  
 end
