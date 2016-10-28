@@ -10,7 +10,7 @@ module Sablon
     end
 
     def self.create_by_path(path, random = nil)
-      image_name = "#{random || Random.new_seed}-#{Pathname.new(path).basename.to_s}"
+      image_name = "#{random || Random.new_seed}-#{File.extname(path)}"
       Sablon::Image::Definition.new(image_name, IO.binread(path))
     end
   end
