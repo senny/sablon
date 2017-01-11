@@ -5,7 +5,7 @@ module Sablon
 
     Definition = Struct.new(:name, :data, :rid) do
       def inspect
-        "#<Image #{name}:#{data}:#{rid}"
+        "#<Image #{name}:#{rid}"
       end
     end
 
