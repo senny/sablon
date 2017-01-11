@@ -36,6 +36,31 @@ Sablon templates are normal Word documents (`.docx`) sprinkled with MailMerge fi
 to perform operations. The following section uses the notation `«=title»` to
 refer to [Word MailMerge](http://en.wikipedia.org/wiki/Mail_merge) fields.
 
+### Creating a Simple Template
+Creating a template is as easy as creating a normal Word document (`.docx`). Yet it could be confusing to people who haven't used the [Mail Merge](https://support.office.com/en-us/article/Use-mail-merge-to-send-bulk-email-messages-0f123521-20ce-4aa8-8b62-ac211dedefa4) feature in Microsoft Word. The steps are as follows:
+1. Create a new word document
+![step_1.png](C:\Users\Larry\Desktop\step_1.png)
+2. Create your template
+![step_2.png](C:\Users\Larry\Desktop\step_2.png)
+3. Add mail merge fields
+ - Click the `Insert` tab on the ribbon
+![step_3_1.png](C:\Users\Larry\Desktop\step_3_1.png)
+ - Click the `Quick Parts` dropdown and select `Field...`
+![step_3_2.png](C:\Users\Larry\Desktop\step_3_2.png)
+ - On the dialog, scroll down and select `MergeField`
+![step_3_3_a.png](C:\Users\Larry\Desktop\step_3_3_a.png)
+ - Select `Field Codes` 
+![step_3_3_b.png](C:\Users\Larry\Desktop\step_3_3_b.png)
+![step_4.png](C:\Users\Larry\Desktop\step_4.png)
+ - In the `Field codes` input box, enter your variable in front of the `MERGEFIELD`. Notice the space between the `MERGEFIELD` and the variable
+![step_5.png](C:\Users\Larry\Desktop\step_5.png)
+ - You should then have something like this: 
+![step_6.png](C:\Users\Larry\Desktop\step_6.png)
+4. A complete template might look like this:
+![step_7.png](C:\Users\Larry\Desktop\step_7.png)
+
+NOTE: When adding variables, those that display a value are preceded with an equals sign `=`. Those that just perform logics, such as loops and conditionals, do not need a preceding equals sign.
+
 #### Content Insertion
 
 The most basic operation is to insert content. The contents of a context
