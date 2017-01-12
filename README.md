@@ -36,6 +36,87 @@ Sablon templates are normal Word documents (`.docx`) sprinkled with MailMerge fi
 to perform operations. The following section uses the notation `«=title»` to
 refer to [Word MailMerge](http://en.wikipedia.org/wiki/Mail_merge) fields.
 
+### Creating a Simple Template
+Creating a template is as easy as creating a normal Word document (`.docx`). Yet it could be confusing to people who haven't used the [Mail Merge](https://support.office.com/en-us/article/Use-mail-merge-to-send-bulk-email-messages-0f123521-20ce-4aa8-8b62-ac211dedefa4) feature in Microsoft Word. The steps are as follows:
+
+- Create a new word document
+
+<p align="center">
+  <img
+  src="https://raw.githubusercontent.com/OdujokoD/sablon/creating_a_template/test/images/step_1.png"
+  alt="Step 1"/>
+</p>
+
+- Create your template
+
+<p align="center">
+  <img
+  src="https://raw.githubusercontent.com/OdujokoD/sablon/creating_a_template/test/images/step_2.png"
+  alt="Step 2"/>
+</p>
+
+- Add mail merge fields
+ - Click the `Insert` tab on the ribbon
+ 
+ <p align="center">
+  <img
+  src="https://raw.githubusercontent.com/OdujokoD/sablon/creating_a_template/test/images/step_3_1.png"
+  alt="Step 3.1"/>
+ </p>
+
+ - Click the `Quick Parts` dropdown and select `Field...`
+ 
+ <p align="center">
+  <img
+  src="https://raw.githubusercontent.com/OdujokoD/sablon/creating_a_template/test/images/step_3_2.png"
+  alt="Step 3.2"/>
+ </p>
+ 
+ - On the dialog, scroll down and select `MergeField`
+ 
+ <p align="center">
+  <img
+  src="https://raw.githubusercontent.com/OdujokoD/sablon/creating_a_template/test/images/step_3_3_a.png"
+  alt="Step 3.3a"/>
+ </p>
+ 
+ - Select `Field Codes`
+ 
+ <p align="center">
+  <img
+  src="https://raw.githubusercontent.com/OdujokoD/sablon/creating_a_template/test/images/step_3_3_b.png"
+  alt="Step 3.3b"/>
+ </p>
+ 
+ <p align="center">
+  <img
+  src="https://raw.githubusercontent.com/OdujokoD/sablon/creating_a_template/test/images/step_4.png"
+  alt="Step 4"/>
+ </p>
+ 
+ - In the `Field codes` input box, enter your variable in front of the `MERGEFIELD`. Notice the space between the `MERGEFIELD` and the variable
+ 
+ <p align="center">
+  <img
+  src="https://raw.githubusercontent.com/OdujokoD/sablon/creating_a_template/test/images/step_5.png"
+  alt="Step 5"/>
+ </p>
+ - You should then have something like this: 
+ <p align="center">
+  <img
+  src="https://raw.githubusercontent.com/OdujokoD/sablon/creating_a_template/test/images/step_6.png"
+  alt="Step 6"/>
+ </p>
+ 
+- A complete template might look like this:
+<p align="center">
+  <img
+  src="https://raw.githubusercontent.com/OdujokoD/sablon/creating_a_template/test/images/step_7.png"
+  alt="Step 7"/>
+ </p>
+
+NOTE: When adding variables, those that display a value are preceded with an equals sign `=`. Those that just perform logics, such as loops and conditionals, do not need a preceding equals sign.
+
 #### Content Insertion
 
 The most basic operation is to insert content. The contents of a context
