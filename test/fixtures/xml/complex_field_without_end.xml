@@ -1,0 +1,35 @@
+<w:p w14:paraId="2A8BFD66" w14:textId="77777777" w:rsidR="006F0A69" w:rsidRDefault="00E40CBA" w:rsidP="00670731">
+  <w:r>
+    <w:fldChar w:fldCharType="begin"/>
+  </w:r>
+  <w:r>
+    <w:instrText xml:space="preserve"> AUTOTEXT  Header:Date  \* MERGEFORMAT </w:instrText>
+  </w:r>
+  <w:r>
+    <w:fldChar w:fldCharType="separate"/>
+  </w:r>
+  <w:r w:rsidR="006F0A69" w:rsidRPr="009A09E3">
+    <w:t>Day Month Year</w:t>
+  </w:r>
+</w:p>
+
+<w:p w14:paraId="71B65E52" w14:textId="613138CB" w:rsidR="001D1AF8" w:rsidRDefault="00E40CBA" w:rsidP="006C34C3">
+  <w:pPr>
+    <w:pStyle w:val="Address"/>
+  </w:pPr>
+  <w:r>
+    <w:fldChar w:fldCharType="end"/>
+  </w:r>
+  <w:bookmarkEnd w:id="0"/>
+</w:p>
+
+<w:p w14:paraId="7C3EB778" w14:textId="78AB4714" w:rsidR="001D1AF8" w:rsidRPr="000C6261" w:rsidRDefault="00A35B65" w:rsidP="001D1AF8">
+  <w:fldSimple w:instr=" MERGEFIELD =current_time \* MERGEFORMAT ">
+    <w:r>
+      <w:rPr>
+        <w:noProof/>
+      </w:rPr>
+      <w:t>«=current_time»</w:t>
+    </w:r>
+  </w:fldSimple>
+</w:p>
