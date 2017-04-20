@@ -120,8 +120,7 @@ module Sablon
           field_nodes << possible_field_node
         end
         # skip instantiation if no end tag
-        return if field_nodes.last.nil?
-        ComplexField.new(field_nodes)
+        ComplexField.new(field_nodes) if field_nodes.last
       end
     end
   end
