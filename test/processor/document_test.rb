@@ -384,7 +384,7 @@ class ProcessorDocumentTest < Sablon::TestCase
     assert_equal "ParagraphBefore Before Content After ParagraphAfter", text(with_true)
   end
 
-  def test_complex_field_without_end
+  def test_ignore_complex_field_spanning_multiple_paragraphs
     result = process(snippet("complex_field_without_end"), {"current_time" => '14:53'})
 
     assert_equal "AUTOTEXT Header:Date \\* MERGEFORMAT Day Month Year 14:53", text(result)
