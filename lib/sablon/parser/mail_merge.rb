@@ -119,8 +119,8 @@ module Sablon
           possible_field_node = possible_field_node.next_element
           field_nodes << possible_field_node
         end
-        # removing the nil value that gets appended if no end node is found
-        field_nodes.pop if field_nodes.last.nil?
+        # skip instantiation if no end tag
+        return if field_nodes.last.nil?
         ComplexField.new(field_nodes)
       end
     end
