@@ -111,6 +111,7 @@ module Sablon
       end
 
       private
+
       def build_complex_field(node)
         possible_field_node = node.parent
         field_nodes = [possible_field_node]
@@ -118,7 +119,8 @@ module Sablon
           possible_field_node = possible_field_node.next_element
           field_nodes << possible_field_node
         end
-        ComplexField.new(field_nodes)
+        # skip instantiation if no end tag
+        ComplexField.new(field_nodes) if field_nodes.last
       end
     end
   end
