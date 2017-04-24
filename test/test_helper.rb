@@ -10,9 +10,10 @@ $: << File.expand_path('../../lib', __FILE__)
 require "sablon"
 require "sablon/test"
 
-class Sablon::TestCase < MiniTest::Test
-  def teardown
-    super
-    Sablon::Numbering.instance.reset!
+module Sabalon
+  class TestCase < MiniTest::Test
+    def teardown
+      super
+    end
   end
 end
