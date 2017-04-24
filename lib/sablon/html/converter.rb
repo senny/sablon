@@ -84,6 +84,7 @@ module Sablon
     end
 
     private
+
     def ast_next_paragraph
       node = @builder.next
       if node.name == 'div'
