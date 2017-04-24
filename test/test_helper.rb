@@ -10,10 +10,8 @@ $: << File.expand_path('../../lib', __FILE__)
 require "sablon"
 require "sablon/test"
 
-module Sabalon
-  class TestCase < MiniTest::Test
-    def teardown
-      super
-    end
+class Sablon::TestCase < MiniTest::Test
+  def teardown
+    super
   end
 end
