@@ -1,11 +1,13 @@
 module Sablon
   class Context < Hash
     attr_reader :template
+    attr_reader :numbering
 
     private
 
     def initialize(template, hash = {})
       @template = template
+      @numbering = Sablon::Numbering.new
       hash.each do |key, value|
         key, value = transform_pair(key.to_s, value)
         self[key] = value
