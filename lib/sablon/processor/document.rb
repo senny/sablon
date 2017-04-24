@@ -4,7 +4,7 @@ module Sablon
     class Document
       def self.process(xml_node, context, properties = {})
         processor = new(parser)
-        processor.manipulate xml_node, Sablon::Context.transform(context)
+        processor.manipulate xml_node, context
         processor.write_properties xml_node, properties if properties.any?
         xml_node
       end

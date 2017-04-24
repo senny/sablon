@@ -19,6 +19,7 @@ module Sablon
     private
     def render(context, properties = {})
       Sablon::Numbering.instance.reset!
+      context = Sablon::Context.transform(context)
       Zip.sort_entries = true # required to process document.xml before numbering.xml
       Zip::OutputStream.write_buffer(StringIO.new) do |out|
         Zip::File.open(@path).each do |entry|
