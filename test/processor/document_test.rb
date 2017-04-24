@@ -60,7 +60,7 @@ class ProcessorDocumentTest < Sablon::TestCase
 
   def test_context_can_contain_string_and_symbol_keys
     context = {"first_name" => "Jack", last_name: "Davis"}
-    context = Sablon::Context.transform(context)
+    context = Sablon::Context.new(nil, context)
     result = process(snippet("simple_fields"), context)
     assert_equal "Jack Davis", text(result)
   end
