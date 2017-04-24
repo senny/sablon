@@ -1,31 +1,40 @@
 module Sablon
-  class Context
-    def self.transform(hash)
-      transform_hash(hash)
-    end
+  class Context < Hash
+    attr_reader :template
 
-    def self.transform_hash(hash)
-      Hash[hash.map{|k,v| transform_pair(k.to_s, v) }]
-    end
+    private
 
-    def self.transform_pair(key, value)
-      if key =~ /\A([^:]+):(.+)\z/
-        if value.nil?
-          [$2, value]
-        else
-          [$2, Sablon.content($1.to_sym, value)]
-        end
-      else
-        transform_standard_key(key, value)
+    def initialize(template, hash = {})
+      @template = template
+      hash.each do |key, value|
+        key, value = transform_pair(key.to_s, value)
+        self[key] = value
       end
     end
 
-    def self.transform_standard_key(key, value)
+    def transform_hash(hash)
+      Hash[hash.map { |k, v| transform_pair(k.to_s, v) }]
+    end
+
+    def transform_standard_key(key, value)
       case value
       when Hash
         [key, transform_hash(value)]
       else
         [key, value]
+      end
+    end
+
+    def transform_pair(key, value)
+      if key =~ /\A([^:]+):(.+)\z/
+        if value.nil?
+          [Regexp.last_match[2], value]
+        else
+          key_sym = Regexp.last_match[1].to_sym
+          [Regexp.last_match[2], Sablon.content(key_sym, value)]
+        end
+      else
+        transform_standard_key(key, value)
       end
     end
   end
