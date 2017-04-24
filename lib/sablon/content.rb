@@ -101,7 +101,8 @@ module Sablon
 
       def initialize(html, context)
         converter = HTMLConverter.new
-        word_ml = Sablon.content(:word_ml, converter.process(html, context))
+        numbering = context.numbering
+        word_ml = Sablon.content(:word_ml, converter.process(html, numbering))
         super word_ml
       end
 
