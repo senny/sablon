@@ -4,6 +4,7 @@ require "test_helper"
 class HTMLConverterTest < Sablon::TestCase
   def setup
     super
+    @context = Sablon::Context.new(nil)
     @converter = Sablon::HTMLConverter.new
   end
 
@@ -15,7 +16,7 @@ class HTMLConverterTest < Sablon::TestCase
   <w:r><w:t xml:space="preserve">Lorem ipsum dolor sit amet</w:t></w:r>
 </w:p>
 DOCX
-    assert_equal normalize_wordml(expected_output), @converter.process(input)
+    assert_equal normalize_wordml(expected_output), @converter.process(input, @context)
   end
 
   def test_convert_text_inside_p
@@ -26,7 +27,7 @@ DOCX
   <w:r><w:t xml:space="preserve">Lorem ipsum dolor sit amet</w:t></w:r>
 </w:p>
 DOCX
-    assert_equal normalize_wordml(expected_output), @converter.process(input)
+    assert_equal normalize_wordml(expected_output), @converter.process(input, @context)
   end
 
   def test_convert_text_inside_multiple_divs
@@ -41,7 +42,7 @@ DOCX
   <w:r><w:t xml:space="preserve">dolor sit amet</w:t></w:r>
 </w:p>
 DOCX
-    assert_equal normalize_wordml(expected_output), @converter.process(input)
+    assert_equal normalize_wordml(expected_output), @converter.process(input, @context)
   end
 
   def test_convert_newline_inside_div
@@ -54,7 +55,7 @@ DOCX
   <w:r><w:t xml:space="preserve">dolor sit amet</w:t></w:r>
 </w:p>
 DOCX
-    assert_equal normalize_wordml(expected_output), @converter.process(input)
+    assert_equal normalize_wordml(expected_output), @converter.process(input, @context)
   end
 
   def test_convert_strong_tags_inside_div
@@ -67,7 +68,7 @@ DOCX
   <w:r><w:t xml:space="preserve"> sit amet</w:t></w:r>
 </w:p>
 DOCX
-    assert_equal normalize_wordml(expected_output), @converter.process(input)
+    assert_equal normalize_wordml(expected_output), @converter.process(input, @context)
   end
 
   def test_convert_u_tags_inside_p
@@ -83,7 +84,7 @@ DOCX
   <w:r><w:t xml:space="preserve"> sit amet</w:t></w:r>
 </w:p>
 DOCX
-    assert_equal normalize_wordml(expected_output), @converter.process(input)
+    assert_equal normalize_wordml(expected_output), @converter.process(input, @context)
   end
 
   def test_convert_em_tags_inside_div
@@ -96,7 +97,7 @@ DOCX
   <w:r><w:t xml:space="preserve"> sit amet</w:t></w:r>
 </w:p>
 DOCX
-    assert_equal normalize_wordml(expected_output), @converter.process(input)
+    assert_equal normalize_wordml(expected_output), @converter.process(input, @context)
   end
 
   def test_convert_br_tags_inside_strong
@@ -115,7 +116,7 @@ DOCX
     </w:r>
 </w:p>
 DOCX
-    assert_equal normalize_wordml(expected_output), @converter.process(input)
+    assert_equal normalize_wordml(expected_output), @converter.process(input, @context)
   end
 
   def test_convert_h1
@@ -126,7 +127,7 @@ DOCX
   <w:r><w:t xml:space="preserve">Lorem ipsum dolor</w:t></w:r>
 </w:p>
 DOCX
-    assert_equal normalize_wordml(expected_output), @converter.process(input)
+    assert_equal normalize_wordml(expected_output), @converter.process(input, @context)
   end
 
   def test_unorderd_lists
@@ -165,9 +166,9 @@ DOCX
   <w:r><w:t xml:space="preserve">dolor</w:t></w:r>
 </w:p>
 DOCX
-    assert_equal normalize_wordml(expected_output), @converter.process(input)
+    assert_equal normalize_wordml(expected_output), @converter.process(input, @context)
 
-    assert_equal [Sablon::Numbering::Definition.new(1001, 'ListBullet')], Sablon::Numbering.instance.definitions
+    assert_equal [Sablon::Numbering::Definition.new(1001, 'ListBullet')], @context.numbering.definitions
   end
 
   def test_ordered_lists
@@ -206,9 +207,9 @@ DOCX
   <w:r><w:t xml:space="preserve">dolor</w:t></w:r>
 </w:p>
 DOCX
-    assert_equal normalize_wordml(expected_output), @converter.process(input)
+    assert_equal normalize_wordml(expected_output), @converter.process(input, @context)
 
-    assert_equal [Sablon::Numbering::Definition.new(1001, 'ListNumber')], Sablon::Numbering.instance.definitions
+    assert_equal [Sablon::Numbering::Definition.new(1001, 'ListNumber')], @context.numbering.definitions
   end
 
   def test_mixed_lists
@@ -247,11 +248,11 @@ DOCX
   <w:r><w:t xml:space="preserve">dolor</w:t></w:r>
 </w:p>
 DOCX
-    assert_equal normalize_wordml(expected_output), @converter.process(input)
+    assert_equal normalize_wordml(expected_output), @converter.process(input, @context)
 
     assert_equal [Sablon::Numbering::Definition.new(1001, 'ListNumber'),
                   Sablon::Numbering::Definition.new(1002, 'ListBullet'),
-                  Sablon::Numbering::Definition.new(1003, 'ListNumber')], Sablon::Numbering.instance.definitions
+                  Sablon::Numbering::Definition.new(1003, 'ListNumber')], @context.numbering.definitions
   end
 
   def test_nested_unordered_lists
@@ -292,7 +293,7 @@ DOCX
 DOCX
     assert_equal normalize_wordml(expected_output), @converter.process(input)
 
-    assert_equal [Sablon::Numbering::Definition.new(1001, 'ListBullet')], Sablon::Numbering.instance.definitions
+    assert_equal [Sablon::Numbering::Definition.new(1001, 'ListBullet')], @context.numbering.definitions
   end
 
   private
