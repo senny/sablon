@@ -1,5 +1,5 @@
 module Sablon
-  module Context
+  class Context
     def self.transform(hash)
       transform_hash(hash)
     end
