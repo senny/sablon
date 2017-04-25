@@ -31,7 +31,7 @@ module Sablon
           elsif entry_name =~ /word\/header\d*\.xml/ || entry_name =~ /word\/footer\d*\.xml/
             out.write(process(Processor::Document, content, env))
           elsif entry_name == 'word/numbering.xml'
-            out.write(process(Processor::Numbering, content, context))
+            out.write(process(Processor::Numbering, content, env))
           else
             out.write(content)
           end

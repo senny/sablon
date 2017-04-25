@@ -9,8 +9,8 @@ module Sablon
         xml_node
       end
 
-      def self.parser(context)
-        @parser ||= Sablon::Parser::MailMerge.new(context)
+      def self.parser(env)
+        @parser ||= Sablon::Parser::MailMerge.new(env)
       end
 
       def initialize(parser)

@@ -52,7 +52,7 @@ module Sablon
         super value.to_s
       end
 
-      def append_to(paragraph, display_node, _context)
+      def append_to(paragraph, display_node, _env)
         string.scan(/[^\n]+|\n/).reverse.each do |part|
           if part == "\n"
             display_node.add_next_sibling Nokogiri::XML::Node.new "w:br", display_node.document
@@ -76,7 +76,7 @@ module Sablon
         false
       end
 
-      def append_to(paragraph, _display_node, _context)
+      def append_to(paragraph, _display_node, _env)
         Nokogiri::XML.fragment(xml).children.reverse.each do |child|
           paragraph.add_next_sibling child
         end
@@ -99,10 +99,10 @@ module Sablon
         super value
       end
 
-      def append_to(paragraph, display_node, context)
+      def append_to(paragraph, display_node, env)
         converter = HTMLConverter.new
-        word_ml = WordML.new(converter.process(@html_content, context))
-        word_ml.append_to(paragraph, display_node, context)
+        word_ml = WordML.new(converter.process(@html_content, env))
+        word_ml.append_to(paragraph, display_node, env)
       end
     end
 

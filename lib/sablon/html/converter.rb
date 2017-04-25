@@ -64,9 +64,8 @@ module Sablon
       end
     end
 
-    def process(input, context)
-      @context = context
-      @numbering = @context.numbering
+    def process(input, env)
+      @numbering = @env.numbering
       processed_ast(input).to_docx
     end
 
@@ -89,7 +88,6 @@ module Sablon
     private
 
     def initialize
-      @context = nil
       @numbering = nil
     end
 

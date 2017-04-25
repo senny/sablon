@@ -14,10 +14,10 @@ module Sablon
 
         private
 
-        def replace_field_display(node, content, context)
+        def replace_field_display(node, content, env)
           paragraph = node.ancestors(".//w:p").first
           display_node = get_display_node(node)
-          content.append_to(paragraph, display_node, context)
+          content.append_to(paragraph, display_node, env)
           display_node.remove
         end
 
@@ -27,8 +27,8 @@ module Sablon
       end
 
       class ComplexField < MergeField
-        def initialize(nodes, context)
-          @context = context
+        def initialize(nodes, env)
+          @env = env
           @nodes = nodes
           @raw_expression = @nodes.flat_map {|n| n.search(".//w:instrText").map(&:content) }.join
         end
@@ -38,7 +38,7 @@ module Sablon
         end
 
         def replace(content)
-          replace_field_display(pattern_node, content, @context)
+          replace_field_display(pattern_node, content, @env)
           (@nodes - [pattern_node]).each(&:remove)
         end
 
@@ -69,15 +69,15 @@ module Sablon
       end
 
       class SimpleField < MergeField
-        def initialize(node, context)
-          @context = context
+        def initialize(node, env)
+          @env = env
           @node = node
           @raw_expression = @node["w:instr"]
         end
 
         def replace(content)
           remove_extra_runs!
-          replace_field_display(@node, content, @context)
+          replace_field_display(@node, content, @env)
           @node.replace(@node.children)
         end
 
@@ -104,7 +104,7 @@ module Sablon
         fields = []
         xml.traverse do |node|
           if node.name == "fldSimple"
-            field = SimpleField.new(node, @context)
+            field = SimpleField.new(node, @env)
           elsif node.name == "fldChar" && node["w:fldCharType"] == "begin"
             field = build_complex_field(node)
           end
@@ -115,8 +115,8 @@ module Sablon
 
       private
 
-      def initialize(context)
-        @context = context
+      def initialize(env)
+        @env = env
       end
 
       def build_complex_field(node)
@@ -127,7 +127,7 @@ module Sablon
           field_nodes << possible_field_node
         end
         # skip instantiation if no end tag
-        ComplexField.new(field_nodes, @context) if field_nodes.last
+        ComplexField.new(field_nodes, @env) if field_nodes.last
       end
     end
   end
