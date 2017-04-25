@@ -26,7 +26,8 @@ module Sablon
       end
 
       class ComplexField < MergeField
-        def initialize(nodes)
+        def initialize(nodes, context)
+          @context = context
           @nodes = nodes
           @raw_expression = @nodes.flat_map {|n| n.search(".//w:instrText").map(&:content) }.join
         end
@@ -68,6 +69,7 @@ module Sablon
 
       class SimpleField < MergeField
         def initialize(node)
+          @context = context
           @node = node
           @raw_expression = @node["w:instr"]
         end
@@ -101,7 +103,7 @@ module Sablon
         fields = []
         xml.traverse do |node|
           if node.name == "fldSimple"
-            field = SimpleField.new(node)
+            field = SimpleField.new(node, @context)
           elsif node.name == "fldChar" && node["w:fldCharType"] == "begin"
             field = build_complex_field(node)
           end
@@ -124,7 +126,7 @@ module Sablon
           field_nodes << possible_field_node
         end
         # skip instantiation if no end tag
-        ComplexField.new(field_nodes) if field_nodes.last
+        ComplexField.new(field_nodes, @context) if field_nodes.last
       end
     end
   end
