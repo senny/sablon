@@ -100,8 +100,8 @@ module Sablon
       end
 
       def append_to(paragraph, display_node, context)
-        converter = HTMLConverter.new(context)
-        word_ml = WordML.new(converter.process(@html_content))
+        converter = HTMLConverter.new
+        word_ml = WordML.new(converter.process(@html_content, context))
         word_ml.append_to(paragraph, display_node, context)
       end
     end
