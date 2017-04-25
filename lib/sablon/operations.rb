@@ -4,7 +4,7 @@ module Sablon
     class Insertion < Struct.new(:expr, :field)
       def evaluate(env)
         if content = expr.evaluate(env.context)
-          field.replace(Sablon::Content.wrap(content))
+          field.replace(Sablon::Content.wrap(content), env)
         else
           field.remove
         end

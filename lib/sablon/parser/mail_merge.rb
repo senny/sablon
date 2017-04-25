@@ -27,8 +27,7 @@ module Sablon
       end
 
       class ComplexField < MergeField
-        def initialize(nodes, env)
-          @env = env
+        def initialize(nodes)
           @nodes = nodes
           @raw_expression = @nodes.flat_map {|n| n.search(".//w:instrText").map(&:content) }.join
         end
@@ -37,8 +36,8 @@ module Sablon
           separate_node && get_display_node(pattern_node) && expression
         end
 
-        def replace(content)
-          replace_field_display(pattern_node, content, @env)
+        def replace(content, env)
+          replace_field_display(pattern_node, content, env)
           (@nodes - [pattern_node]).each(&:remove)
         end
 
@@ -69,15 +68,14 @@ module Sablon
       end
 
       class SimpleField < MergeField
-        def initialize(node, env)
-          @env = env
+        def initialize(node)
           @node = node
           @raw_expression = @node["w:instr"]
         end
 
-        def replace(content)
+        def replace(content, env)
           remove_extra_runs!
-          replace_field_display(@node, content, @env)
+          replace_field_display(@node, content, env)
           @node.replace(@node.children)
         end
 
@@ -104,7 +102,7 @@ module Sablon
         fields = []
         xml.traverse do |node|
           if node.name == "fldSimple"
-            field = SimpleField.new(node, @env)
+            field = SimpleField.new(node)
           elsif node.name == "fldChar" && node["w:fldCharType"] == "begin"
             field = build_complex_field(node)
           end
@@ -115,10 +113,6 @@ module Sablon
 
       private
 
-      def initialize(env)
-        @env = env
-      end
-
       def build_complex_field(node)
         possible_field_node = node.parent
         field_nodes = [possible_field_node]
@@ -127,7 +121,7 @@ module Sablon
           field_nodes << possible_field_node
         end
         # skip instantiation if no end tag
-        ComplexField.new(field_nodes, @env) if field_nodes.last
+        ComplexField.new(field_nodes) if field_nodes.last
       end
     end
   end
