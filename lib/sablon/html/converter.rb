@@ -65,7 +65,7 @@ module Sablon
     end
 
     def process(input, env)
-      @numbering = @env.numbering
+      @numbering = env.numbering
       processed_ast(input).to_docx
     end
 
