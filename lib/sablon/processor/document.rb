@@ -3,14 +3,14 @@ module Sablon
   module Processor
     class Document
       def self.process(xml_node, context, properties = {})
-        processor = new(parser)
+        processor = new(parser(context))
         processor.manipulate xml_node, context
         processor.write_properties xml_node, properties if properties.any?
         xml_node
       end
 
-      def self.parser
-        @parser ||= Sablon::Parser::MailMerge.new
+      def self.parser(context)
+        @parser ||= Sablon::Parser::MailMerge.new(context)
       end
 
       def initialize(parser)
