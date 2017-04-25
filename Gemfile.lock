@@ -8,12 +8,23 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
+    byebug (9.0.6)
+    coderay (1.1.1)
+    method_source (0.8.2)
     mini_portile2 (2.1.0)
     minitest (5.8.0)
     nokogiri (1.7.1)
       mini_portile2 (~> 2.1.0)
+    pry (0.10.4)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+      slop (~> 3.4)
+    pry-byebug (3.4.2)
+      byebug (~> 9.0)
+      pry (~> 0.10)
     rake (10.4.2)
     rubyzip (1.2.1)
+    slop (3.6.0)
     xml-simple (1.1.5)
 
 PLATFORMS
@@ -22,9 +33,10 @@ PLATFORMS
 DEPENDENCIES
   bundler (>= 1.6)
   minitest (~> 5.4)
+  pry-byebug
   rake (~> 10.0)
   sablon!
   xml-simple
 
 BUNDLED WITH
-   1.14.5
+   1.14.6
