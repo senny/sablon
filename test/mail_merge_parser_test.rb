@@ -7,7 +7,8 @@ module MailMergeParser
     include DocumentXMLHelper
     def setup
       super
-      @parser = Sablon::Parser::MailMerge.new
+      env = Sablon::Environment.new(nil)
+      @parser = Sablon::Parser::MailMerge.new(env)
     end
 
     def field
