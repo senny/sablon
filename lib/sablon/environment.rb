@@ -5,6 +5,12 @@ module Sablon
     attr_reader :template
     attr_reader :context
 
+    # returns a new envionment with merged contents
+    def alter_context(context = {})
+      new_context = @context.merge(context)
+      Environment.new(@template, new_context)
+    end
+
     private
 
     def initialize(template, context = {})
