@@ -1,15 +1,13 @@
 module Sablon
-  class Context < Hash
+  class Environment
     attr_reader :template
+    attr_reader :context
 
     private
 
-    def initialize(template, hash = {})
+    def initialize(template, context = {})
       @template = template
-      hash.each do |key, value|
-        key, value = transform_pair(key.to_s, value)
-        self[key] = value
-      end
+      @context = transform_hash(context)
     end
 
     def transform_hash(hash)
