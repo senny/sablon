@@ -13,10 +13,11 @@ module Sablon
         end
 
         private
-        def replace_field_display(node, content)
+
+        def replace_field_display(node, content, context)
           paragraph = node.ancestors(".//w:p").first
           display_node = get_display_node(node)
-          content.append_to(paragraph, display_node) # XXX pass context through here
+          content.append_to(paragraph, display_node, context)
           display_node.remove
         end
 
@@ -37,7 +38,7 @@ module Sablon
         end
 
         def replace(content)
-          replace_field_display(pattern_node, content)
+          replace_field_display(pattern_node, content, @context)
           (@nodes - [pattern_node]).each(&:remove)
         end
 
@@ -68,7 +69,7 @@ module Sablon
       end
 
       class SimpleField < MergeField
-        def initialize(node)
+        def initialize(node, context)
           @context = context
           @node = node
           @raw_expression = @node["w:instr"]
@@ -76,7 +77,7 @@ module Sablon
 
         def replace(content)
           remove_extra_runs!
-          replace_field_display(@node, content)
+          replace_field_display(@node, content, @context)
           @node.replace(@node.children)
         end
 
