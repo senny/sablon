@@ -19,7 +19,7 @@ module Sablon
     private
 
     def render(context, properties = {})
-      context = Sablon::Context.new(self, context)
+      env = Sablon::Environment.new(self, context)
       Zip.sort_entries = true # required to process document.xml before numbering.xml
       Zip::OutputStream.write_buffer(StringIO.new) do |out|
         Zip::File.open(@path).each do |entry|
@@ -27,9 +27,9 @@ module Sablon
           out.put_next_entry(entry_name)
           content = entry.get_input_stream.read
           if entry_name == 'word/document.xml'
-            out.write(process(Processor::Document, content, context, properties))
+            out.write(process(Processor::Document, content, env, properties))
           elsif entry_name =~ /word\/header\d*\.xml/ || entry_name =~ /word\/footer\d*\.xml/
-            out.write(process(Processor::Document, content, context))
+            out.write(process(Processor::Document, content, env))
           elsif entry_name == 'word/numbering.xml'
             out.write(process(Processor::Numbering, content, context))
           else
