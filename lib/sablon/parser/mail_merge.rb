@@ -16,7 +16,7 @@ module Sablon
         def replace_field_display(node, content)
           paragraph = node.ancestors(".//w:p").first
           display_node = get_display_node(node)
-          content.append_to(paragraph, display_node)
+          content.append_to(paragraph, display_node) # XXX pass context through here
           display_node.remove
         end
 
@@ -111,6 +111,10 @@ module Sablon
       end
 
       private
+
+      def initialize(context)
+        @context = context
+      end
 
       def build_complex_field(node)
         possible_field_node = node.parent
