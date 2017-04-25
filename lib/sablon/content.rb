@@ -1,13 +1,13 @@
 module Sablon
   module Content
     class << self
-      def wrap(value, context)
+      def wrap(value)
         case value
         when Sablon::Content
           value
         else
           if type = type_wrapping(value)
-            type.new(value, context)
+            type.new(value)
           else
             raise ArgumentError, "Could not find Sablon content type to wrap #{value.inspect}"
           end
@@ -40,7 +40,6 @@ module Sablon
       end
     end
 
-    # Handles simple text replacement of fields in the template
     class String < Struct.new(:string)
       include Sablon::Content
       def self.id; :string end
@@ -48,7 +47,7 @@ module Sablon
         value.respond_to?(:to_s)
       end
 
-      def initialize(value, _context)
+      def initialize(value)
         super value.to_s
       end
 
@@ -65,22 +64,12 @@ module Sablon
       end
     end
 
-    # handles direct addition of WordML to the document template
     class WordML < Struct.new(:xml)
       include Sablon::Content
-      def self.id
-        :word_ml
-      end
+      def self.id; :word_ml end
+      def self.wraps?(value) false end
 
-      def self.wraps?(_)
-        false
-      end
-
-      def initialize(value, _context)
-        super value
-      end
-
-      def append_to(paragraph, _display_node)
+      def append_to(paragraph, display_node)
         Nokogiri::XML.fragment(xml).children.reverse.each do |child|
           paragraph.add_next_sibling child
         end
@@ -88,21 +77,14 @@ module Sablon
       end
     end
 
-    # Handles conversion of HTML -> WordML and addition into template
     class HTML < Struct.new(:word_ml)
       include Sablon::Content
-      def self.id
-        :html
-      end
+      def self.id; :html end
+      def self.wraps?(value) false end
 
-      def self.wraps?(_)
-        false
-      end
-
-      def initialize(html, context)
+      def initialize(html)
         converter = HTMLConverter.new
-        numbering = context.numbering
-        word_ml = Sablon.content(:word_ml, converter.process(html, numbering))
+        word_ml = Sablon.content(:word_ml, converter.process(html))
         super word_ml
       end
 
