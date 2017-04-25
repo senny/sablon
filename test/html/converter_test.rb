@@ -312,6 +312,7 @@ class HTMLConverterASTTest < Sablon::TestCase
   def setup
     super
     @converter = Sablon::HTMLConverter.new
+    @converter.instance_variable_set(:@numbering, Sablon::Environment.new(nil).numbering)
   end
 
   def test_div
