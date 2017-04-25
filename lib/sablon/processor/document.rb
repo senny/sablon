@@ -2,9 +2,9 @@
 module Sablon
   module Processor
     class Document
-      def self.process(xml_node, context, properties = {})
+      def self.process(xml_node, env, properties = {})
         processor = new(parser)
-        processor.manipulate xml_node, context
+        processor.manipulate xml_node, env
         processor.write_properties xml_node, properties if properties.any?
         xml_node
       end
@@ -17,10 +17,10 @@ module Sablon
         @parser = parser
       end
 
-      def manipulate(xml_node, context)
+      def manipulate(xml_node, env)
         operations = build_operations(@parser.parse_fields(xml_node))
         operations.each do |step|
-          step.evaluate context
+          step.evaluate env
         end
         cleanup(xml_node)
         xml_node
@@ -56,10 +56,10 @@ module Sablon
           block_class.new start_field, end_field
         end
 
-        def process(context)
+        def process(env)
           replaced_node = Nokogiri::XML::Node.new("tmp", start_node.document)
           replaced_node.children = Nokogiri::XML::NodeSet.new(start_node.document, body.map(&:dup))
-          Processor::Document.process replaced_node, context
+          Processor::Document.process replaced_node, env
           replaced_node.children
         end
 
