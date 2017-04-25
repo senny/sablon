@@ -442,7 +442,9 @@ class ProcessorDocumentTest < Sablon::TestCase
   end
 
   private
+
   def process(document, context)
-    @processor.process(wrap(document), context).to_xml
+    env = Sablon::Environment.new(nil, context)
+    @processor.process(wrap(document), env).to_xml
   end
 end
