@@ -7,8 +7,8 @@ module MailMergeParser
     include DocumentXMLHelper
     def setup
       super
-      env = Sablon::Environment.new(nil)
-      @parser = Sablon::Parser::MailMerge.new(env)
+      @env = Sablon::Environment.new(nil)
+      @parser = Sablon::Parser::MailMerge.new
     end
 
     def field
@@ -36,7 +36,7 @@ module MailMergeParser
     end
 
     def test_replace
-      field.replace(Sablon.content(:string, "Hello"))
+      field.replace(Sablon.content(:string, "Hello"), @env)
       xml = <<-xml.strip
 <w:p>
 <w:r w:rsidR=\"004B49F0\">
@@ -71,7 +71,7 @@ xml
     end
 
     def test_replace
-      field.replace(Sablon.content(:string, "Hello"))
+      field.replace(Sablon.content(:string, "Hello"), @env)
       xml = <<-xml.strip
 <w:p>
 
