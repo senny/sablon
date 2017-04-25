@@ -54,8 +54,8 @@ module Sablon
 
   module Expression
     class Variable < Struct.new(:name)
-      def evaluate(env)
-        env.context[name]
+      def evaluate(context)
+        context[name]
       end
 
       def inspect
@@ -64,8 +64,8 @@ module Sablon
     end
 
     class LookupOrMethodCall < Struct.new(:receiver_expr, :expression)
-      def evaluate(env)
-        if receiver = receiver_expr.evaluate(env.context)
+      def evaluate(context)
+        if receiver = receiver_expr.evaluate(context)
           expression.split(".").inject(receiver) do |local, m|
             case local
             when Hash
