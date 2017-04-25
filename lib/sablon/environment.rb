@@ -1,15 +1,21 @@
 module Sablon
-  class Context < Hash
+  # Combines the user supplied context and template into a single object
+  # to manage data during template processing.
+  class Environment
     attr_reader :template
+    attr_reader :context
+
+    # returns a new envionment with merged contents
+    def alter_context(context = {})
+      new_context = @context.merge(context)
+      Environment.new(@template, new_context)
+    end
 
     private
 
-    def initialize(template, hash = {})
+    def initialize(template, context = {})
       @template = template
-      hash.each do |key, value|
-        key, value = transform_pair(key.to_s, value)
-        self[key] = value
-      end
+      @context = transform_hash(context)
     end
 
     def transform_hash(hash)
