@@ -18,7 +18,7 @@ module Sablon
         raise ContextError, "The expression #{list_expr.inspect} should evaluate to an enumerable but was: #{value.inspect}" unless value.is_a?(Enumerable)
 
         content = value.flat_map do |item|
-          iter_env = env.alter_context({iterator_name => item})
+          iter_env = env.alter_context(iterator_name => item)
           block.process(iter_env)
         end
         block.replace(content.reverse)
