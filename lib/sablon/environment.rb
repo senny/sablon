@@ -24,7 +24,7 @@ module Sablon
             [Regexp.last_match[2], value]
           else
             key_sym = Regexp.last_match[1].to_sym
-            [Regexp.last_match[2], Sablon.content(key_sym, value)]
+            [Regexp.last_match[2], Content.make(key_sym, value)]
           end
         else
           transform_standard_key(key, value)
