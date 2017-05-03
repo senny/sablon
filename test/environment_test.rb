@@ -2,27 +2,19 @@
 require "test_helper"
 
 class EnvironmentTest < Sablon::TestCase
-  def test_converts_symbol_keys_to_string_keys
-    env = Sablon::Environment.new(nil, {a: 1, b: {c: 2, "d" => 3}})
-    assert_equal({"a"=>1, "b"=>{"c" =>2, "d"=>3}}, env.context)
+  def test_transforms_internal_hash
+    context = Sablon::Context.transform_hash(a: 1, b: { c: 2, "d" => 3 })
+    env = Sablon::Environment.new(nil, a: 1, b: { c: 2, "d" => 3 })
+    #
+    assert_equal(env.template, nil)
+    assert_equal(context, env.context)
   end
 
-  def test_recognizes_wordml_keys
-    env = Sablon::Environment.new(nil, {"word_ml:mykey" => "<w:p><w:p>", "otherkey" => "<nope>"})
-    assert_equal({ "mykey"=>Sablon.content(:word_ml, "<w:p><w:p>"),
-                   "otherkey"=>"<nope>"}, env.context)
-  end
-
-  def test_recognizes_html_keys
-    env = Sablon::Environment.new(nil, {"html:mykey" => "**yay**", "otherkey" => "<nope>"})
-    assert_equal({ "mykey"=>Sablon.content(:html, "**yay**"),
-                   "otherkey"=>"<nope>"}, env.context)
-  end
-
-  def test_does_not_wrap_html_and_wordml_with_nil_value
-    env = Sablon::Environment.new(nil, {"html:mykey" => nil, "word_ml:otherkey" => nil, "normalkey" => nil})
-    assert_equal({ "mykey" => nil,
-                   "otherkey" => nil,
-                   "normalkey" => nil}, env.context)
+  def test_alter_context
+    # set initial context
+    env = Sablon::Environment.new(nil, a: 1, b: { c: 2, "d" => 3 })
+    # alter context to change a single key and set a new one
+    env2 = env.alter_context(a: "a", e: "new-key")
+    assert_equal({ "a" => "a", "b" => { "c" => 2, "d" => 3 }, "e" => "new-key" }, env2.context)
   end
 end
