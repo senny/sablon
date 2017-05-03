@@ -49,7 +49,7 @@ module Sablon
 
     def initialize(template, context = {})
       @template = template
-      @context = Context::transform_hash(context)
+      @context = Context.transform_hash(context)
     end
   end
 end
