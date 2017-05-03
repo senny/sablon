@@ -2,8 +2,8 @@
 module Sablon
   module Statement
     class Insertion < Struct.new(:expr, :field)
-      def evaluate(context)
-        if content = expr.evaluate(context)
+      def evaluate(env)
+        if content = expr.evaluate(env.context)
           field.replace(Sablon::Content.wrap(content))
         else
           field.remove
@@ -12,24 +12,24 @@ module Sablon
     end
 
     class Loop < Struct.new(:list_expr, :iterator_name, :block)
-      def evaluate(context)
-        value = list_expr.evaluate(context)
+      def evaluate(env)
+        value = list_expr.evaluate(env.context)
         value = value.to_ary if value.respond_to?(:to_ary)
         raise ContextError, "The expression #{list_expr.inspect} should evaluate to an enumerable but was: #{value.inspect}" unless value.is_a?(Enumerable)
 
         content = value.flat_map do |item|
-          iteration_context = context.merge(iterator_name => item)
-          block.process(iteration_context)
+          iter_env = env.alter_context(iterator_name => item)
+          block.process(iter_env)
         end
         block.replace(content.reverse)
       end
     end
 
     class Condition < Struct.new(:conditon_expr, :block, :predicate)
-      def evaluate(context)
-        value = conditon_expr.evaluate(context)
+      def evaluate(env)
+        value = conditon_expr.evaluate(env.context)
         if truthy?(predicate ? value.public_send(predicate) : value)
-          block.replace(block.process(context).reverse)
+          block.replace(block.process(env).reverse)
         else
           block.replace([])
         end
@@ -46,7 +46,7 @@ module Sablon
     end
 
     class Comment < Struct.new(:block)
-      def evaluate(context)
+      def evaluate(_env)
         block.replace []
       end
     end

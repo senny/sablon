@@ -59,7 +59,8 @@ class ProcessorDocumentTest < Sablon::TestCase
   end
 
   def test_context_can_contain_string_and_symbol_keys
-    result = process(snippet("simple_fields"), {"first_name" => "Jack", last_name: "Davis"})
+    context = {"first_name" => "Jack", last_name: "Davis"}
+    result = process(snippet("simple_fields"), context)
     assert_equal "Jack Davis", text(result)
   end
 
@@ -440,7 +441,9 @@ class ProcessorDocumentTest < Sablon::TestCase
   end
 
   private
+
   def process(document, context)
-    @processor.process(wrap(document), context).to_xml
+    env = Sablon::Environment.new(nil, context)
+    @processor.process(wrap(document), env).to_xml
   end
 end
