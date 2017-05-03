@@ -4,6 +4,7 @@ require 'nokogiri'
 
 require "sablon/version"
 require "sablon/numbering"
+require "sablon/context"
 require "sablon/environment"
 require "sablon/template"
 require "sablon/processor/document"
