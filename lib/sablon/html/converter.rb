@@ -120,7 +120,7 @@ module Sablon
         @builder.push_all(node.children)
         return
       elsif node.name == 'li'
-        #node['numPr'] = "numId: #{@definition.numid}; ilvl: #{@builder.ilvl};"
+        node['numPr'] = "[ilvl: #{@builder.ilvl}; numId: #{@definition.numid};]"
         @builder.new_layer
         @builder.emit ListParagraph.new(node, ast_text(node.children), @definition.numid, @builder.ilvl)
       elsif node.name =~ /div|p|h/

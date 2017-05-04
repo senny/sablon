@@ -14,10 +14,22 @@ module Sablon
       # processes attributs defined on the node into wordML property syntax
       def process_attributes
         properties = []
-        @attributes.each do |key, array|
-          properties.push('<w:%s w:val="%s" />' % [key, array])
+        @attributes.each do |key, node_attr|
+          properties.push transform_attr(key, node_attr.value)
         end
         properties.join
+      end
+
+      def transform_attr(key, value)
+        # atrributes that have quoted values get nested in tags
+        if value =~ /^\[(.+)\]$/
+          value = Regexp.last_match[1]
+          sub_attrs = value.split(';').map { |pair| pair.split(':') }
+          sub_attrs.map! { |k, v| transform_attr(k.strip, v.strip) }
+          "<w:#{key}>#{sub_attrs.join}</w:#{key}>"
+        else
+          '<w:%s w:val="%s" />' % [key, value]
+        end
       end
     end
 
@@ -92,22 +104,11 @@ XML
     end
 
     class ListParagraph < Paragraph
-      LIST_STYLE = <<-XML.gsub("\n", "")
-<w:numPr>
-<w:ilvl w:val="%s" />
-<w:numId w:val="%s" />
-</w:numPr>
-XML
       attr_accessor :numid, :ilvl
       def initialize(node, runs, numid, ilvl)
         super node, runs
         @numid = numid
         @ilvl = ilvl
-      end
-
-      private
-      def ppr_docx
-        super + LIST_STYLE % [@ilvl, numid]
       end
     end
 
