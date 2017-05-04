@@ -89,38 +89,40 @@ module Sablon
 
     def initialize
       @numbering = nil
+
+    # Adds the appropriate style class to the node
+    def prepare_node(node)
+      return if node.text?
+
+      # set default styles based on node name
+      styles = { 'div' => 'Normal', 'p' => 'Paragraph', 'h' => 'Heading',
+                 'ul' => 'ListBullet', 'ol' => 'ListNumber' }
+      styles['li'] = @definition.style if @definition
+
+      # set the node class attribute based on the style, num allows h1,h2,..
+      tag, num = node.name.match(/([a-z]+)(\d*)/)[1..2]
+      unless styles[tag]
+        raise ArgumentError, "Don't know how to handle node: #{node.inspect}"
+      end
+      #
+      node['class'] = styles[tag] + num
     end
 
     def ast_next_paragraph
       node = @builder.next
-      if node.name == 'div'
+      prepare_node(node)
+      if node.name =~ /div|p|h/
         @builder.new_layer
-        @builder.emit Paragraph.new(node, ast_text(node.children), 'Normal')
-      elsif node.name == 'p'
-        @builder.new_layer
-        @builder.emit Paragraph.new(node, ast_text(node.children), 'Paragraph')
-      elsif node.name =~ /h(\d+)/
-        @builder.new_layer
-        @builder.emit Paragraph.new(node, ast_text(node.children), "Heading#{$1}")
-      elsif node.name == 'ul'
+        @builder.emit Paragraph.new(node, ast_text(node.children), node['class'])
+      elsif node.name =~ /ul|ol/
         @builder.new_layer ilvl: true
         unless @builder.nested?
-          @definition = @numbering.register('ListBullet')
-        end
-        @builder.push_all(node.children)
-      elsif node.name == 'ol'
-        @builder.new_layer ilvl: true
-        unless @builder.nested?
-          @definition = @numbering.register('ListNumber')
+          @definition = @numbering.register(node['class'])
         end
         @builder.push_all(node.children)
       elsif node.name == 'li'
         @builder.new_layer
         @builder.emit ListParagraph.new(node, ast_text(node.children),  @definition, @builder.ilvl)
-      elsif node.text?
-        # SKIP?
-      else
-        raise ArgumentError, "Don't know how to handle node: #{node.inspect}"
       end
     end
 
