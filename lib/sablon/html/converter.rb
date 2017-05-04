@@ -116,7 +116,7 @@ module Sablon
         @builder.push_all(node.children)
       elsif node.name == 'li'
         @builder.new_layer
-        @builder.emit ListParagraph.new(node, @definition.style, ast_text(node.children), @definition.numid, @builder.ilvl)
+        @builder.emit ListParagraph.new(node, @definition, ast_text(node.children), @builder.ilvl)
       elsif node.text?
         # SKIP?
       else

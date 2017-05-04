@@ -86,9 +86,9 @@ XML
 </w:numPr>
 XML
       attr_accessor :numid, :ilvl
-      def initialize(node, style, runs, numid, ilvl)
-        super node, style, runs
-        @numid = numid
+      def initialize(node, definition, runs, ilvl)
+        super node, definition.style, runs
+        @numid = definition.numid
         @ilvl = ilvl
       end
 
