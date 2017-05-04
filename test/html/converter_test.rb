@@ -70,8 +70,21 @@ DOCX
     assert_equal normalize_wordml(expected_output), @converter.process(input)
   end
 
+  def test_convert_span_tags_inside_p
+    input = '<p>Lorem&nbsp;<span>ipsum dolor</span>&nbsp;sit amet</p>'
+    expected_output = <<-DOCX.strip
+<w:p>
+  <w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>
+  <w:r><w:t xml:space="preserve">Lorem </w:t></w:r>
+  <w:r><w:t xml:space="preserve">ipsum dolor</w:t></w:r>
+  <w:r><w:t xml:space="preserve"> sit amet</w:t></w:r></w:p>
+DOCX
+
+    assert_equal normalize_wordml(expected_output), @converter.process(input)
+  end
+
   def test_convert_u_tags_inside_p
-    input = '<p>Lorem&nbsp;<u>ipsum dolor</u>&nbsp;sit amet</div>'
+    input = '<p>Lorem&nbsp;<u>ipsum dolor</u>&nbsp;sit amet</p>'
     expected_output = <<-DOCX.strip
 <w:p>
   <w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>
