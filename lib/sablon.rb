@@ -1,4 +1,3 @@
-require 'singleton'
 require 'zip'
 require 'nokogiri'
 
