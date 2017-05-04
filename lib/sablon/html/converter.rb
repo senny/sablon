@@ -48,6 +48,7 @@ module Sablon
       end
 
       private
+
       def current_layer
         if @layers.any?
           last_layer = @layers.last
@@ -63,7 +64,8 @@ module Sablon
       end
     end
 
-    def process(input)
+    def process(input, env)
+      @numbering = env.numbering
       processed_ast(input).to_docx
     end
 
@@ -85,6 +87,10 @@ module Sablon
 
     private
 
+    def initialize
+      @numbering = nil
+    end
+
     def ast_next_paragraph
       node = @builder.next
       if node.name == 'div'
@@ -99,13 +105,13 @@ module Sablon
       elsif node.name == 'ul'
         @builder.new_layer ilvl: true
         unless @builder.nested?
-          @definition = Sablon::Numbering.instance.register('ListBullet')
+          @definition = @numbering.register('ListBullet')
         end
         @builder.push_all(node.children)
       elsif node.name == 'ol'
         @builder.new_layer ilvl: true
         unless @builder.nested?
-          @definition = Sablon::Numbering.instance.register('ListNumber')
+          @definition = @numbering.register('ListNumber')
         end
         @builder.push_all(node.children)
       elsif node.name == 'li'
