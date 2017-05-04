@@ -92,8 +92,6 @@ module Sablon
 
     # Adds the appropriate style class to the node
     def prepare_node(node)
-      return if node.text?
-
       # set default styles based on node name
       styles = { 'div' => 'Normal', 'p' => 'Paragraph', 'h' => 'Heading',
                  'ul' => 'ListBullet', 'ol' => 'ListNumber' }
@@ -110,8 +108,11 @@ module Sablon
 
     def ast_next_paragraph
       node = @builder.next
+      return if node.text?
+
       prepare_node(node)
 
+      # handle special cases
       if node.name =~ /ul|ol/
         @builder.new_layer ilvl: true
         unless @builder.nested?
@@ -121,12 +122,11 @@ module Sablon
         return
       elsif node.name == 'li'
         node['numPr'] = "[ilvl: #{@builder.ilvl}; numId: #{@definition.numid};]"
-        @builder.new_layer
-        @builder.emit ListParagraph.new(node, ast_text(node.children), @definition.numid, @builder.ilvl)
-      elsif node.name =~ /div|p|h/
-        @builder.new_layer
-        @builder.emit Paragraph.new(node, ast_text(node.children))
       end
+
+      # create word_ml node
+      @builder.new_layer
+      @builder.emit Paragraph.new(node, ast_text(node.children))
     end
 
     def ast_text(nodes, format: TextFormat.default)

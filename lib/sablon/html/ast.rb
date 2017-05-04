@@ -103,15 +103,6 @@ XML
       end
     end
 
-    class ListParagraph < Paragraph
-      attr_accessor :numid, :ilvl
-      def initialize(node, runs, numid, ilvl)
-        super node, runs
-        @numid = numid
-        @ilvl = ilvl
-      end
-    end
-
     class TextFormat
       def initialize(bold, italic, underline)
         @bold = bold
