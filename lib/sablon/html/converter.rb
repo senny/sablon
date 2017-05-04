@@ -113,7 +113,7 @@ module Sablon
       prepare_node(node)
       if node.name =~ /div|p|h/
         @builder.new_layer
-        @builder.emit Paragraph.new(node, ast_text(node.children), node['class'])
+        @builder.emit Paragraph.new(node, ast_text(node.children))
       elsif node.name =~ /ul|ol/
         @builder.new_layer ilvl: true
         unless @builder.nested?
@@ -122,7 +122,7 @@ module Sablon
         @builder.push_all(node.children)
       elsif node.name == 'li'
         @builder.new_layer
-        @builder.emit ListParagraph.new(node, ast_text(node.children),  @definition, @builder.ilvl)
+        @builder.emit ListParagraph.new(node, ast_text(node.children), @definition.numid, @builder.ilvl)
       end
     end
 
