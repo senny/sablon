@@ -8,6 +8,17 @@ module Sablon
       def self.node_name
         @node_name ||= name.split('::').last
       end
+
+      private
+
+      # processes attributs defined on the node into wordML property syntax
+      def process_attributes
+        properties = []
+        @attributes.each do |key, array|
+          properties.push('<w:%s w:val="%s" />' % [key, array])
+        end
+        properties.join
+      end
     end
 
     class Collection < Node
@@ -45,16 +56,15 @@ module Sablon
     end
 
     class Paragraph < Node
-      attr_accessor :style, :runs
+      attr_accessor :runs
       def initialize(node, runs)
-        @style = node['class']
+        @attributes = node.attributes
         @runs = runs
       end
 
       PATTERN = <<-XML.gsub("\n", "")
 <w:p>
 <w:pPr>
-<w:pStyle w:val="%s" />
 %s
 </w:pPr>
 %s
@@ -62,7 +72,7 @@ module Sablon
 XML
 
       def to_docx
-        PATTERN % [style, ppr_docx, runs.to_docx]
+        PATTERN % [ppr_docx, runs.to_docx]
       end
 
       def accept(visitor)
@@ -71,11 +81,13 @@ XML
       end
 
       def inspect
-        "<Paragraph{#{style}}: #{runs.inspect}>"
+        "<Paragraph{#{@attributes['pStyle']}}: #{runs.inspect}>"
       end
 
       private
+
       def ppr_docx
+        process_attributes
       end
     end
 
@@ -95,7 +107,7 @@ XML
 
       private
       def ppr_docx
-        LIST_STYLE % [@ilvl, numid]
+        super + LIST_STYLE % [@ilvl, numid]
       end
     end
 
