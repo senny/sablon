@@ -95,13 +95,13 @@ module Sablon
       node = @builder.next
       if node.name == 'div'
         @builder.new_layer
-        @builder.emit Paragraph.new(node, 'Normal', ast_text(node.children))
+        @builder.emit Paragraph.new(node, ast_text(node.children), 'Normal')
       elsif node.name == 'p'
         @builder.new_layer
-        @builder.emit Paragraph.new(node, 'Paragraph', ast_text(node.children))
+        @builder.emit Paragraph.new(node, ast_text(node.children), 'Paragraph')
       elsif node.name =~ /h(\d+)/
         @builder.new_layer
-        @builder.emit Paragraph.new(node, "Heading#{$1}", ast_text(node.children))
+        @builder.emit Paragraph.new(node, ast_text(node.children), "Heading#{$1}")
       elsif node.name == 'ul'
         @builder.new_layer ilvl: true
         unless @builder.nested?
@@ -116,7 +116,7 @@ module Sablon
         @builder.push_all(node.children)
       elsif node.name == 'li'
         @builder.new_layer
-        @builder.emit ListParagraph.new(node, @definition, ast_text(node.children), @builder.ilvl)
+        @builder.emit ListParagraph.new(node, ast_text(node.children),  @definition, @builder.ilvl)
       elsif node.text?
         # SKIP?
       else
