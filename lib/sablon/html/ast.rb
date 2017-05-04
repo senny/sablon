@@ -46,7 +46,7 @@ module Sablon
 
     class Paragraph < Node
       attr_accessor :style, :runs
-      def initialize(style, runs)
+      def initialize(node, style, runs)
         @style, @runs = style, runs
       end
 
@@ -86,8 +86,8 @@ XML
 </w:numPr>
 XML
       attr_accessor :numid, :ilvl
-      def initialize(style, runs, numid, ilvl)
-        super style, runs
+      def initialize(node, style, runs, numid, ilvl)
+        super node, style, runs
         @numid = numid
         @ilvl = ilvl
       end
