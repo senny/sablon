@@ -11,7 +11,7 @@ module Sablon
 
       private
 
-      # processes attributs defined on the node into wordML property syntax
+      # processes attributes defined on the node into wordML property syntax
       def process_attributes
         properties = []
         @attributes.each do |key, node_attr|
@@ -21,7 +21,7 @@ module Sablon
       end
 
       def transform_attr(key, value)
-        # atrributes that have quoted values get nested in tags
+        # attributes that have bracketed values get nested in tags
         if value =~ /^\[(.+)\]$/
           value = Regexp.last_match[1]
           sub_attrs = value.split(';').map { |pair| pair.split(':') }
