@@ -102,6 +102,32 @@ IMPORTANT: This feature is very much *experimental*. Currently, the insertion
     will replace the containing paragraph. This means that other content in the same
     paragraph is discarded.
 
+##### Images [experimental]
+
+Add images to a document, the images data will be attach in the document.
+
+For use you need to create a Sablon::Image with Sablon::Image.create_by_path, for example:
+```
+Sablon::Image.create_by_path(@base_path + "fixtures/images/r2-d2.png")
+```
+
+Example:
+```
+  context = {
+    items: [
+      {
+        title: "C-3PO",
+        image: Sablon::Image.create_by_path(@base_path + "fixtures/images/c-3po.jpg")
+      }
+    ]
+  }
+  template.render_to_file output_path, context
+```
+
+For a complete example see the test file: "image_test.rb"
+
+This functionality was inspired in the [kubido fork](https://github.com/kubido/sablon) for this project - kubido/sablon
+
 ##### HTML [experimental]
 
 Similar to WordProcessingML it's possible to use html as input while processing the

@@ -51,7 +51,7 @@ module Sablon
 
       class Block < Struct.new(:start_field, :end_field)
         def self.enclosed_by(start_field, end_field)
-          @blocks ||= [RowBlock, ParagraphBlock, InlineParagraphBlock]
+          @blocks ||= [ImageBlock, RowBlock, ParagraphBlock, InlineParagraphBlock]
           block_class = @blocks.detect { |klass| klass.encloses?(start_field, end_field) }
           block_class.new start_field, end_field
         end
@@ -117,6 +117,23 @@ module Sablon
         end
       end
 
+      class ImageBlock < ParagraphBlock
+        def self.encloses?(start_field, end_field)
+          start_field.expression.start_with?('@')
+        end
+
+        def replace(content)
+          name = content.first.name
+          pic_prop = self.class.parent(start_field).at_xpath('.//pic:cNvPr', pic: Sablon::Processor::Image::PICTURE_NS_URI)
+          pic_prop.attributes['name'].value = name
+          blip = self.class.parent(start_field).at_xpath('.//a:blip', a: Sablon::Processor::Image::MAIN_NS_URI)
+          new_rid = Sablon::Processor::Image.list_ids[name.match(/(.*)\.[^.]+$/)[1]]
+          blip.attributes['embed'].value = "rId#{new_rid}"
+          start_field.remove
+          end_field.remove
+        end
+      end
+
       class InlineParagraphBlock < Block
         def self.parent(node)
           node.ancestors ".//w:p"
@@ -174,6 +191,9 @@ module Sablon
           when /comment/
             block = consume_block("endComment")
             Statement::Comment.new(block)
+          when /^@([^ ]+):start/
+            block = consume_block("@#{$1}:end")
+            Statement::Image.new(Expression.parse($1), block)
           end
         end
 
