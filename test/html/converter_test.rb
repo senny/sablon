@@ -408,19 +408,40 @@ class HTMLConverterASTTest < Sablon::TestCase
 
   def test_num_id
     ast = @converter.processed_ast('<ol><li>Some</li><li>Lorem</li></ol><ul><li>ipsum</li></ul><ol><li>dolor</li><li>sit</li></ol>')
-    assert_equal [1001, 1001, 1002, 1003, 1003], ast.grep(Sablon::HTMLConverter::ListParagraph).map(&:numid)
+    assert_equal %w[1001 1001 1002 1003 1003], get_numid_from_ast(ast)
   end
 
   def test_nested_lists_have_the_same_numid
     ast = @converter.processed_ast('<ul><li>Lorem<ul><li>ipsum<ul><li>dolor</li></ul></li></ul></li></ul>')
-    assert_equal [1001, 1001, 1001], ast.grep(Sablon::HTMLConverter::ListParagraph).map(&:numid)
+    assert_equal %w[1001 1001 1001], get_numid_from_ast(ast)
   end
 
   def test_keep_nested_list_order
     input = '<ul><li>1<ul><li>1.1<ul><li>1.1.1</li></ul></li><li>1.2</li></ul></li><li>2<ul><li>1.3<ul><li>1.3.1</li></ul></li></ul></li></ul>'
     ast = @converter.processed_ast(input)
-    list_p = ast.grep(Sablon::HTMLConverter::ListParagraph)
-    assert_equal [1001], list_p.map(&:numid).uniq
-    assert_equal [0, 1, 2, 1, 0, 1, 2], list_p.map(&:ilvl)
+    assert_equal %w[1001], get_numid_from_ast(ast).uniq
+    assert_equal %w[0 1 2 1 0 1 2], get_ilvl_from_ast(ast)
+  end
+
+  private
+
+  # returns the numid attribute from paragraphs
+  def get_numid_from_ast(ast)
+    numids = []
+    ast.grep(Sablon::HTMLConverter::Paragraph).each do |para|
+      numpr = para.instance_variable_get('@attributes')['numPr'].value
+      numids.push(numpr.match(/numId: (\d+);/)[1])
+    end
+    numids
+  end
+
+  # returns the ilvl attribute from paragraphs
+  def get_ilvl_from_ast(ast)
+    numids = []
+    ast.grep(Sablon::HTMLConverter::Paragraph).each do |para|
+      numpr = para.instance_variable_get('@attributes')['numPr'].value
+      numids.push(numpr.match(/ilvl: (\d+);/)[1])
+    end
+    numids
   end
 end
