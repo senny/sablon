@@ -74,17 +74,8 @@ module Sablon
         @runs = runs
       end
 
-      PATTERN = <<-XML.gsub("\n", "")
-<w:p>
-<w:pPr>
-%s
-</w:pPr>
-%s
-</w:p>
-XML
-
       def to_docx
-        PATTERN % [ppr_docx, runs.to_docx]
+        "<w:p><w:pPr>#{ppr_docx}</w:pPr>#{runs.to_docx}</w:p>"
       end
 
       def accept(visitor)
