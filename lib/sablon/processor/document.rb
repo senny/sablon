@@ -123,6 +123,12 @@ module Sablon
         end
 
         def replace(content)
+          if !content.first
+            start_field.remove
+            end_field.remove
+            return
+          end
+
           name = content.first.name
           pic_prop = self.class.parent(start_field).at_xpath('.//pic:cNvPr', pic: Sablon::Processor::Image::PICTURE_NS_URI)
           pic_prop.attributes['name'].value = name
