@@ -118,6 +118,10 @@ module Sablon
       end
 
       class ImageBlock < ParagraphBlock
+        def self.parent(node)
+          node.ancestors
+        end
+
         def self.encloses?(start_field, end_field)
           start_field.expression.start_with?('@')
         end
@@ -129,8 +133,8 @@ module Sablon
             return
           end
 
-          name = content.first.name
           pic_prop = self.class.parent(start_field).at_xpath('.//pic:cNvPr', pic: Sablon::Processor::Image::PICTURE_NS_URI)
+          name = content.first.name
           pic_prop.attributes['name'].value = name
           blip = self.class.parent(start_field).at_xpath('.//a:blip', a: Sablon::Processor::Image::MAIN_NS_URI)
           new_rid = Sablon::Processor::Image.list_ids[name.match(/(.*)\.[^.]+$/)[1]]
