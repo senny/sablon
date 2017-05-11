@@ -91,7 +91,7 @@ module Sablon
       @numbering = nil
 
     # Adds the appropriate style class to the node
-    def prepare_node(node)
+    def prepare_paragraph(node)
       # set default styles based on node name
       styles = { 'div' => 'Normal', 'p' => 'Paragraph', 'h' => 'Heading',
                  'ul' => 'ListBullet', 'ol' => 'ListNumber' }
@@ -110,7 +110,7 @@ module Sablon
       node = @builder.next
       return if node.text?
 
-      prepare_node(node)
+      prepare_paragraph(node)
 
       # handle special cases
       if node.name =~ /ul|ol/
