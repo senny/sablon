@@ -12,10 +12,10 @@ module Sablon
       private
 
       # processes attributes defined on the node into wordML property syntax
-      def process_attributes
+      def process_properties
         properties = []
-        @attributes.each do |key, node_attr|
-          properties.push transform_attr(key, node_attr.value)
+        @properties.each do |key, value|
+          properties.push transform_attr(key, value)
         end
         properties.join
       end
@@ -90,7 +90,7 @@ module Sablon
       private
 
       def ppr_docx
-        process_attributes
+        process_properties
       end
     end
 
