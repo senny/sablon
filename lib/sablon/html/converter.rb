@@ -123,7 +123,9 @@ module Sablon
         @builder.push_all(node.children)
         return
       elsif node.name == 'li'
-        properties['numPr'] = "[ilvl: #{@builder.ilvl}; numId: #{@definition.numid};]"
+        properties['numPr'] = [
+          { 'ilvl' => @builder.ilvl }, { 'numId' => @definition.numid }
+        ]
       end
 
       # create word_ml node
