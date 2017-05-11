@@ -104,27 +104,23 @@ IMPORTANT: This feature is very much *experimental*. Currently, the insertion
 
 ##### Images [experimental]
 
-Add images to a document, the images data will be attach in the document.
+For inserting images into a document, you have to follow some rules within the `.docx` template:
 
-For use you need to create a Sablon::Image with Sablon::Image.create_by_path, for example:
-```
-Sablon::Image.create_by_path(@base_path + "fixtures/images/r2-d2.png")
-```
+* Create a MERGEFIELD called `@image:start`
+* Create an image placeholder
+* Create a MERGEFIELD called `@image:end`
 
-Example:
-```
-  context = {
-    items: [
-      {
-        title: "C-3PO",
-        image: Sablon::Image.create_by_path(@base_path + "fixtures/images/c-3po.jpg")
-      }
-    ]
-  }
-  template.render_to_file output_path, context
-```
+Note that the context variable name is arbitrary, we can use any name like `@profile.photo:start` and so on.
 
-For a complete example see the test file: "image_test.rb"
+
+Then while building the context, you have to create a `Sablon::Image`, for instance:
+
+```
+{ image: Sablon::Image.create_by_path("/path/to/image.jpg") }
+
+template.render_to_file()output_path, context)
+```
+For a complete example see the test file located on `test/image_test.rb`.
 
 This functionality was inspired in the [kubido fork](https://github.com/kubido/sablon) for this project - kubido/sablon
 

@@ -29,7 +29,7 @@ class EnvironmentTest < Sablon::TestCase
 
   def test_values_of_single_element
     base_path = Pathname.new(File.expand_path("../", __FILE__))
-    image = Sablon::Image.create_by_path(base_path + "fixtures/images/c-3po.jpg", 1)
+    image = Sablon::Image.create_by_path(base_path + "fixtures/images/c3pO.jpg", 1)
 
     context = {
       test: 'result',
@@ -43,7 +43,7 @@ class EnvironmentTest < Sablon::TestCase
 
   def test_values_of_nested
     base_path = Pathname.new(File.expand_path("../", __FILE__))
-    image = Sablon::Image.create_by_path(base_path + "fixtures/images/c-3po.jpg", 2)
+    image = Sablon::Image.create_by_path(base_path + "fixtures/images/c3pO.jpg", 2)
 
     context = {
       image: image,
@@ -72,5 +72,5 @@ class EnvironmentTest < Sablon::TestCase
     result = Sablon::Context.values_of(context, Sablon::Image::Definition)
 
     assert_empty result
-  end  
+  end
 end

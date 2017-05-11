@@ -12,8 +12,8 @@ class SablonImageTest < Sablon::TestCase
     @template_path = @base_path + "fixtures/image_template.docx"
     @sample_path = @base_path + "fixtures/image_sample.docx"
     @images = [
-      Sablon::Image.create_by_path(@base_path + "fixtures/images/c-3po.jpg", 1),
-      Sablon::Image.create_by_path(@base_path + "fixtures/images/r2-d2.png", 2)
+      Sablon::Image.create_by_path(@base_path + "fixtures/images/c3pO.jpg", 1),
+      Sablon::Image.create_by_path(@base_path + "fixtures/images/r2d2.jpg", 2)
     ]
   end
 
