@@ -13,6 +13,11 @@ module Sablon
         processor.manipulate
       end
 
+      def self.init!
+        @@images      ||= {}
+        @@images_rids ||= {}
+      end
+
       def initialize(doc, properties)
         @doc = doc
         @properties = properties

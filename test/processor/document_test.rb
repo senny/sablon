@@ -441,10 +441,11 @@ class ProcessorDocumentTest < Sablon::TestCase
   end
 
   def test_image_replacement
+    Sablon::Processor::Image.init!
+
     base_path = Pathname.new(File.expand_path("../../", __FILE__))
     image     = Sablon::Image.create_by_path(base_path + "fixtures/images/r2d2.jpg", 1)
     result    = process_image(snippet("image"), {"item" => { "image" => image }})
-    doc2 = XmlSimple.xml_in(result)
 
     assert_xml_equal <<-document, result
     <w:p w14:paraId="0B614653" w14:textId="77777777" w:rsidR="00157A94" w:rsidRDefault="00157A94" w:rsidP="00441396">
