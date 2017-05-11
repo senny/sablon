@@ -429,7 +429,7 @@ class HTMLConverterASTTest < Sablon::TestCase
   def get_numid_from_ast(ast)
     numids = []
     ast.grep(Sablon::HTMLConverter::Paragraph).each do |para|
-      numpr = para.instance_variable_get('@attributes')['numPr'].value
+      numpr = para.instance_variable_get('@properties')['numPr']
       numids.push(numpr.match(/numId: (\d+);/)[1])
     end
     numids
@@ -439,7 +439,7 @@ class HTMLConverterASTTest < Sablon::TestCase
   def get_ilvl_from_ast(ast)
     numids = []
     ast.grep(Sablon::HTMLConverter::Paragraph).each do |para|
-      numpr = para.instance_variable_get('@attributes')['numPr'].value
+      numpr = para.instance_variable_get('@properties')['numPr']
       numids.push(numpr.match(/ilvl: (\d+);/)[1])
     end
     numids
