@@ -8,15 +8,14 @@ module Sablon
       RELATIONSHIPS_NS_URI = 'http://schemas.openxmlformats.org/package/2006/relationships'
       IMAGE_TYPE = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'
 
-      def self.process(doc, properties, out)
-        processor = new(doc, properties, out)
+      def self.process(doc, properties)
+        processor = new(doc, properties)
         processor.manipulate
       end
 
-      def initialize(doc, properties, out)
+      def initialize(doc, properties)
         @doc = doc
         @properties = properties
-        @out = out
       end
 
       def manipulate
@@ -25,7 +24,9 @@ module Sablon
         relationships = @doc.at_xpath('r:Relationships', r: RELATIONSHIPS_NS_URI)
 
         @@images.to_a.each do |image|
-          relationships.add_child("<Relationship Id='rId#{next_id}' Type='#{IMAGE_TYPE}' Target='media/#{image.name}'/>")
+          if relationships
+            relationships.add_child("<Relationship Id='rId#{next_id}' Type='#{IMAGE_TYPE}' Target='media/#{image.name}'/>")
+          end
           image.rid = next_id
           @@images_rids[image.name.match(/(.*)\.*[^.]+$/)[1]] = next_id
           next_id += 1

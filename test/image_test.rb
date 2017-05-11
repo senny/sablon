@@ -10,6 +10,7 @@ class SablonImageTest < Sablon::TestCase
     @base_path = Pathname.new(File.expand_path("../", __FILE__))
 
     @template_path = @base_path + "fixtures/image_template.docx"
+
     @sample_path = @base_path + "fixtures/image_sample.docx"
     @images = [
       Sablon::Image.create_by_path(@base_path + "fixtures/images/c3pO.jpg", 1),

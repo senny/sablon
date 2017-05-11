@@ -1,0 +1,91 @@
+<w:p w14:paraId="0B614653" w14:textId="77777777" w:rsidR="00157A94" w:rsidRDefault="00157A94" w:rsidP="00441396">
+  <w:r>
+    <w:fldChar w:fldCharType="begin"/>
+  </w:r>
+  <w:r>
+    <w:instrText xml:space="preserve"> MERGEFIELD @item.image:start \* MERGEFORMAT </w:instrText>
+  </w:r>
+  <w:r>
+    <w:fldChar w:fldCharType="separate"/>
+  </w:r>
+  <w:r>
+    <w:rPr>
+      <w:noProof/>
+    </w:rPr>
+    <w:t>«@item.image:start»</w:t>
+  </w:r>
+  <w:r>
+    <w:fldChar w:fldCharType="end"/>
+  </w:r>
+</w:p>
+<w:p w14:paraId="2DD3A410" w14:textId="77777777" w:rsidR="00157A94" w:rsidRDefault="00157A94" w:rsidP="00441396">
+  <w:r>
+    <w:rPr>
+      <w:noProof/>
+    </w:rPr>
+    <w:drawing>
+      <wp:inline distT="0" distB="0" distL="0" distR="0" wp14:anchorId="4664B6F7" wp14:editId="20CBF9B3">
+        <wp:extent cx="1875155" cy="1249045"/>
+        <wp:effectExtent l="0" t="0" r="0" b="0"/>
+        <wp:docPr id="2" name="Picture 2"/>
+        <wp:cNvGraphicFramePr>
+          <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
+        </wp:cNvGraphicFramePr>
+        <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+          <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+            <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+              <pic:nvPicPr>
+                <pic:cNvPr id="2" name="placeholder.png"/>
+                <pic:cNvPicPr/>
+              </pic:nvPicPr>
+              <pic:blipFill>
+                <a:blip r:embed="rId4">
+                  <a:extLst>
+                    <a:ext uri="{28A0092B-C50C-407E-A947-70E740481C1C}">
+                      <a14:useLocalDpi xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" val="0"/>
+                    </a:ext>
+                  </a:extLst>
+                </a:blip>
+                <a:stretch>
+                  <a:fillRect/>
+                </a:stretch>
+              </pic:blipFill>
+              <pic:spPr>
+                <a:xfrm>
+                  <a:off x="0" y="0"/>
+                  <a:ext cx="1875155" cy="1249045"/>
+                </a:xfrm>
+                <a:prstGeom prst="rect">
+                  <a:avLst/>
+                </a:prstGeom>
+              </pic:spPr>
+            </pic:pic>
+          </a:graphicData>
+        </a:graphic>
+      </wp:inline>
+    </w:drawing>
+  </w:r>
+</w:p>
+<w:p w14:paraId="2B49BF59" w14:textId="77777777" w:rsidR="00157A94" w:rsidRPr="007F5CDE" w:rsidRDefault="00157A94" w:rsidP="00441396">
+  <w:r>
+    <w:fldChar w:fldCharType="begin"/>
+  </w:r>
+  <w:r>
+    <w:instrText xml:space="preserve"> MERGEFIELD @item.image:end \* MERGEFORMAT </w:instrText>
+  </w:r>
+  <w:r>
+    <w:fldChar w:fldCharType="separate"/>
+  </w:r>
+  <w:r>
+    <w:rPr>
+      <w:noProof/>
+    </w:rPr>
+    <w:t>«@item.image:end»</w:t>
+  </w:r>
+  <w:r>
+    <w:rPr>
+      <w:noProof/>
+    </w:rPr>
+    <w:fldChar w:fldCharType="end"/>
+  </w:r>
+</w:p>
