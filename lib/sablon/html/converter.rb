@@ -103,30 +103,32 @@ module Sablon
         raise ArgumentError, "Don't know how to handle node: #{node.inspect}"
       end
       #
-      node['pStyle'] = styles[tag] + num
+      properties = {}
+      properties['pStyle'] = styles[tag] + num
+      properties
     end
 
     def ast_next_paragraph
       node = @builder.next
       return if node.text?
 
-      prepare_paragraph(node)
+      properties = prepare_paragraph(node)
 
       # handle special cases
       if node.name =~ /ul|ol/
         @builder.new_layer ilvl: true
         unless @builder.nested?
-          @definition = @numbering.register(node['pStyle'])
+          @definition = @numbering.register(properties['pStyle'])
         end
         @builder.push_all(node.children)
         return
       elsif node.name == 'li'
-        node['numPr'] = "[ilvl: #{@builder.ilvl}; numId: #{@definition.numid};]"
+        properties['numPr'] = "[ilvl: #{@builder.ilvl}; numId: #{@definition.numid};]"
       end
 
       # create word_ml node
       @builder.new_layer
-      @builder.emit Paragraph.new(node, ast_text(node.children))
+      @builder.emit Paragraph.new(node, properties, ast_text(node.children))
     end
 
     def ast_text(nodes, format: TextFormat.default)
