@@ -22,13 +22,13 @@ module Sablon
 
       def transform_attr(key, value)
         # attributes that have bracketed values get nested in tags
-        if value =~ /^\[(.+)\]$/
-          value = Regexp.last_match[1]
-          sub_attrs = value.split(';').map { |pair| pair.split(':') }
-          sub_attrs.map! { |k, v| transform_attr(k.strip, v.strip) }
+        if value.is_a? Array
+          sub_attrs = value.map do |sub_prop|
+            sub_prop.map { |k, v| transform_attr(k, v)}
+          end
           "<w:#{key}>#{sub_attrs.join}</w:#{key}>"
         else
-          '<w:%s w:val="%s" />' % [key, value]
+          format('<w:%s w:val="%s" />', key, value)
         end
       end
     end
