@@ -128,7 +128,7 @@ module Sablon
 
       # create word_ml node
       @builder.new_layer
-      @builder.emit Paragraph.new(node, properties, ast_text(node.children))
+      @builder.emit Paragraph.new(properties, ast_text(node.children))
     end
 
     def ast_text(nodes, format: TextFormat.default)

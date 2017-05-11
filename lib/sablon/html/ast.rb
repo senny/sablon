@@ -69,8 +69,8 @@ module Sablon
 
     class Paragraph < Node
       attr_accessor :runs
-      def initialize(node, runs)
-        @attributes = node.attributes
+      def initialize(properties, runs)
+        @properties = properties
         @runs = runs
       end
 
@@ -84,7 +84,7 @@ module Sablon
       end
 
       def inspect
-        "<Paragraph{#{@attributes['pStyle']}}: #{runs.inspect}>"
+        "<Paragraph{#{@properties['pStyle']}}: #{runs.inspect}>"
       end
 
       private
