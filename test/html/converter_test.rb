@@ -82,7 +82,7 @@ DOCX
   <w:r><w:t xml:space="preserve"> sit amet</w:t></w:r></w:p>
 DOCX
 
-    assert_equal normalize_wordml(expected_output), @converter.process(input)
+    assert_equal normalize_wordml(expected_output), process(input)
   end
 
   def test_convert_u_tags_inside_p
