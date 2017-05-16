@@ -89,6 +89,7 @@ module Sablon
 
     def initialize
       @numbering = nil
+    end
 
     # Adds the appropriate style class to the node
     def prepare_paragraph(node)
