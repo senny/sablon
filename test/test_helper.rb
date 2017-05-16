@@ -13,6 +13,5 @@ require "sablon/test"
 class Sablon::TestCase < MiniTest::Test
   def teardown
     super
-    Sablon::Numbering.instance.reset!
   end
 end

@@ -3,18 +3,28 @@ module Sablon
   # to manage data during template processing.
   class Environment
     attr_reader :template
+    attr_reader :numbering
     attr_reader :context
 
     # returns a new environment with merged contexts
     def alter_context(context = {})
       new_context = @context.merge(context)
-      Environment.new(@template, new_context)
+      Environment.new(nil, new_context, self)
     end
 
     private
 
-    def initialize(template, context = {})
-      @template = template
+    def initialize(template, context = {}, parent_env = nil)
+      # pass attributes of the supplied environment to the new one or
+      # create new references
+      if parent_env
+        @template = parent_env.template
+        @numbering = parent_env.numbering
+      else
+        @template = template
+        @numbering = Numbering.new
+      end
+      #
       @context = Context.transform_hash(context)
     end
   end

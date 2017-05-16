@@ -40,6 +40,7 @@ module Sablon
       end
     end
 
+    # Handles simple text replacement of fields in the template
     class String < Struct.new(:string)
       include Sablon::Content
       def self.id; :string end
@@ -51,7 +52,7 @@ module Sablon
         super value.to_s
       end
 
-      def append_to(paragraph, display_node)
+      def append_to(paragraph, display_node, env)
         string.scan(/[^\n]+|\n/).reverse.each do |part|
           if part == "\n"
             display_node.add_next_sibling Nokogiri::XML::Node.new "w:br", display_node.document
@@ -64,12 +65,13 @@ module Sablon
       end
     end
 
+    # handles direct addition of WordML to the document template
     class WordML < Struct.new(:xml)
       include Sablon::Content
       def self.id; :word_ml end
       def self.wraps?(value) false end
 
-      def append_to(paragraph, display_node)
+      def append_to(paragraph, display_node, env)
         Nokogiri::XML.fragment(xml).children.reverse.each do |child|
           paragraph.add_next_sibling child
         end
@@ -77,19 +79,20 @@ module Sablon
       end
     end
 
-    class HTML < Struct.new(:word_ml)
+    # Handles conversion of HTML -> WordML and addition into template
+    class HTML < Struct.new(:html_content)
       include Sablon::Content
       def self.id; :html end
       def self.wraps?(value) false end
 
-      def initialize(html)
-        converter = HTMLConverter.new
-        word_ml = Sablon.content(:word_ml, converter.process(html))
-        super word_ml
+      def initialize(value)
+        super value
       end
 
-      def append_to(*args)
-        word_ml.append_to(*args)
+      def append_to(paragraph, display_node, env)
+        converter = HTMLConverter.new
+        word_ml = WordML.new(converter.process(html_content, env))
+        word_ml.append_to(paragraph, display_node, env)
       end
     end
 
