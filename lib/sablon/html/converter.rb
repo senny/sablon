@@ -156,8 +156,8 @@ module Sablon
         'text-decoration' => lambda { |v|
           supported = %w[line-through underline]
           props = v.split
-          return nil unless supported.include? props[0]
-          return 'strike', nil if props[0] == 'line-through'
+          return props[0], 'true' unless supported.include? props[0]
+          return 'strike', 'true' if props[0] == 'line-through'
           return 'u', 'single' if props.length == 1
           return 'u', { val: props[1], color: 'auto' } if props.length == 2
           return 'u', { val: props[1], color: props[2].delete('#') }
