@@ -68,13 +68,8 @@ module Sablon
     # handles direct addition of WordML to the document template
     class WordML < Struct.new(:xml)
       include Sablon::Content
-      def self.id
-        :word_ml
-      end
-
-      def self.wraps?(_)
-        false
-      end
+      def self.id; :word_ml end
+      def self.wraps?(value) false end
 
       def append_to(paragraph, display_node, env)
         Nokogiri::XML.fragment(xml).children.reverse.each do |child|
@@ -87,13 +82,8 @@ module Sablon
     # Handles conversion of HTML -> WordML and addition into template
     class HTML < Struct.new(:html_content)
       include Sablon::Content
-      def self.id
-        :html
-      end
-
-      def self.wraps?(_)
-        false
-      end
+      def self.id; :html end
+      def self.wraps?(value) false end
 
       def initialize(value)
         super value
