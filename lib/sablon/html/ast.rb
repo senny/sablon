@@ -17,14 +17,15 @@ module Sablon
       end
 
       def transform_attr(key, value)
-        # attributes that have bracketed values get nested in tags
+        # properties that have a list as the value get nested in tags
         if value.is_a? Array
           sub_attrs = value.map do |sub_prop|
             sub_prop.map { |k, v| transform_attr(k, v) }
           end
           "<w:#{key}>#{sub_attrs.join}</w:#{key}>"
         else
-          format('<w:%s w:val="%s" />', key, value)
+          value = format('w:val="%s" ', value) if value
+          "<w:#{key} #{value}/>"
         end
       end
     end
