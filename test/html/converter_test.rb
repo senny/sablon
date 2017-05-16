@@ -321,6 +321,182 @@ DOCX
   end
 end
 
+class HTMLConverterStyleTest < Sablon::TestCase
+  def setup
+    super
+    @env = Sablon::Environment.new(nil)
+    @converter = Sablon::HTMLConverter.new
+  end
+
+  # testing direct CSS style -> WordML conversion for paragraphs
+
+  def test_paragraph_with_background_color
+    input = '<p style="background-color: #123456"></p>'
+    expected_output = para_with_ppr('<w:shd w:val="clear" w:fill="123456" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_paragraph_with_text_align
+    input = '<p style="text-align: both"></p>'
+    expected_output = para_with_ppr('<w:jc w:val="both" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_paragraph_with_unsupported_property
+    input = '<p style="unsupported: true"></p>'
+    expected_output = para_with_ppr('')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_run_with_background_color
+    input = '<p><span style="background-color: #123456">test</span></p>'
+    expected_output = run_with_rpr('<w:shd w:val="clear" w:fill="123456" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_run_with_color
+    input = '<p><span style="color: #123456">test</span></p>'
+    expected_output = run_with_rpr('<w:color w:val="123456" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_run_with_font_size
+    input = '<p><span style="font-size: 20">test</span></p>'
+    expected_output = run_with_rpr('<w:sz w:val="40" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+
+    # test that non-numeric are ignored
+    input = '<p><span style="font-size: 20pts">test</span></p>'
+    assert_equal normalize_wordml(expected_output), process(input)
+
+    # test that floats round up
+    input = '<p><span style="font-size: 19.1pts">test</span></p>'
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_run_with_font_style
+    input = '<p><span style="font-style: bold">test</span></p>'
+    expected_output = run_with_rpr('<w:b />')
+    assert_equal normalize_wordml(expected_output), process(input)
+
+    # test that non-numeric are ignored
+    input = '<p><span style="font-style: italic">test</span></p>'
+    expected_output = run_with_rpr('<w:i />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_run_with_font_wieght
+    input = '<p><span style="font-weight: bold">test</span></p>'
+    expected_output = run_with_rpr('<w:b />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_run_with_text_decoration
+    # testing underline configurations
+    input = '<p><span style="text-decoration: underline">test</span></p>'
+    expected_output = run_with_rpr('<w:u w:val="single" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+
+    input = '<p><span style="text-decoration: underline dash">test</span></p>'
+    expected_output = run_with_rpr('<w:u w:val="dash" w:color="auto" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+
+    input = '<p><span style="text-decoration: underline dash #123456">test</span></p>'
+    expected_output = run_with_rpr('<w:u w:val="dash" w:color="123456" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+
+    # testing line-through
+    input = '<p><span style="text-decoration: line-through">test</span></p>'
+    expected_output = run_with_rpr('<w:strike w:val="true" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+
+    # testing that unsupported values are passed through as a toggle
+    input = '<p><span style="text-decoration: strike">test</span></p>'
+    expected_output = run_with_rpr('<w:strike w:val="true" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+
+    input = '<p><span style="text-decoration: emboss">test</span></p>'
+    expected_output = run_with_rpr('<w:emboss w:val="true" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_run_with_vertical_align
+    input = '<p><span style="vertical-align: subscript">test</span></p>'
+    expected_output = run_with_rpr('<w:vertAlign w:val="subscript" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+
+    input = '<p><span style="vertical-align: superscript">test</span></p>'
+    expected_output = run_with_rpr('<w:vertAlign w:val="superscript" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_run_with_unsupported_property
+    input = '<p><span style="unsupported: true">test</span></p>'
+    expected_output = '<w:p><w:pPr><w:pStyle w:val="Paragraph" /></w:pPr><w:r><w:t xml:space="preserve">test</w:t></w:r></w:p>'
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  # tests with nested runs and styles
+
+  def test_paragraph_with_span_and_style
+    input = '<p style="text-align: center; color: #FF0000">Lorem <span style="color: blue; font-weight: bold">ipsum</span></p>'
+    expected_output = <<-DOCX.strip
+<w:p>
+  <w:pPr>
+    <w:jc w:val="center" />
+    <w:pStyle w:val="Paragraph" />
+  </w:pPr>
+  <w:r>
+    <w:rPr>
+      <w:color w:val="FF0000" />
+    </w:rPr>
+    <w:t xml:space="preserve">Lorem </w:t>
+  </w:r>
+  <w:r>
+  <w:rPr>
+    <w:color w:val="blue" />
+    <w:b />
+  </w:rPr>
+  <w:t xml:space="preserve">ipsum</w:t>
+  </w:r>
+</w:p>
+DOCX
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  private
+
+  def process(input)
+    @converter.process(input, @env)
+  end
+
+  def para_with_ppr(ppr_str)
+    para_str = '<w:p><w:pPr>%s<w:pStyle w:val="Paragraph" /></w:pPr></w:p>'
+    format(para_str, ppr_str)
+  end
+
+  def run_with_rpr(rpr_str)
+    para_str = <<-DOCX.strip
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Paragraph" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          %s
+        </w:rPr>
+        <w:t xml:space="preserve">test</w:t>
+      </w:r>
+    </w:p>
+DOCX
+    format(para_str, rpr_str)
+  end
+
+  def normalize_wordml(wordml)
+    wordml.gsub(/^\s+/, '').tr("\n", '')
+  end
+end
+
 class HTMLConverterASTTest < Sablon::TestCase
   def setup
     super
@@ -433,93 +609,5 @@ class HTMLConverterASTTest < Sablon::TestCase
       numpr.each { |val| values.push(val[key]) if val[key] }
     end
     values
-  end
-end
-
-class HTMLConverterStyleTest < Sablon::TestCase
-  def setup
-    super
-    @env = Sablon::Environment.new(nil)
-    @converter = Sablon::HTMLConverter.new
-  end
-
-  # testing direct style => WordML conversion
-
-  def test_paragraph_with_background_color
-    input = '<p style="background-color: #123456"></p>'
-    expected_output = para_with_ppr('<w:shd w:val="clear" w:fill="123456" />')
-    assert_equal normalize_wordml(expected_output), process(input)
-  end
-
-  def test_paragraph_with_text_align
-    input = '<p style="text-align: both"></p>'
-    expected_output = para_with_ppr('<w:jc w:val="both" />')
-    assert_equal normalize_wordml(expected_output), process(input)
-  end
-
-  def test_run_with_background_color
-    input = '<p><span style="background-color: #123456">test</span></p>'
-    expected_output = run_with_rpr('<w:shd w:val="clear" w:fill="123456" />')
-    assert_equal normalize_wordml(expected_output), process(input)
-  end
-
-  # tests with nested runs and styles
-
-  def test_paragraph_with_span_and_style
-    input = '<p style="text-align: center; color: #FF0000">Lorem <span style="color: blue; font-weight: bold">ipsum</span></p>'
-    expected_output = <<-DOCX.strip
-<w:p>
-  <w:pPr>
-    <w:jc w:val="center" />
-    <w:pStyle w:val="Paragraph" />
-  </w:pPr>
-  <w:r>
-    <w:rPr>
-      <w:color w:val="FF0000" />
-    </w:rPr>
-    <w:t xml:space="preserve">Lorem </w:t>
-  </w:r>
-  <w:r>
-  <w:rPr>
-    <w:color w:val="blue" />
-    <w:b />
-  </w:rPr>
-  <w:t xml:space="preserve">ipsum</w:t>
-  </w:r>
-</w:p>
-DOCX
-    assert_equal normalize_wordml(expected_output), process(input)
-  end
-
-  private
-
-  def process(input)
-    @converter.process(input, @env)
-  end
-
-  def para_with_ppr(ppr_str)
-    para_str = '<w:p><w:pPr>%s<w:pStyle w:val="Paragraph" /></w:pPr></w:p>'
-    format(para_str, ppr_str)
-  end
-
-  def run_with_rpr(rpr_str)
-    para_str = <<-DOCX.strip
-    <w:p>
-      <w:pPr>
-        <w:pStyle w:val="Paragraph" />
-      </w:pPr>
-      <w:r>
-        <w:rPr>
-          %s
-        </w:rPr>
-        <w:t xml:space="preserve">test</w:t>
-      </w:r>
-    </w:p>
-DOCX
-    format(para_str, rpr_str)
-  end
-
-  def normalize_wordml(wordml)
-    wordml.gsub(/^\s+/, '').tr("\n", '')
   end
 end
