@@ -438,8 +438,33 @@ class HTMLConverterStyleTest < Sablon::TestCase
 
   # tests with nested runs and styles
 
-  def test_paragraph_with_span_and_style
-    input = '<p style="text-align: center; color: #FF0000">Lorem <span style="color: blue; font-weight: bold">ipsum</span></p>'
+  def test_paragraph_props_passed_to_runs
+    input = '<p style="color: #123456"><b>Lorem</b><span>ipsum</span></p>'
+    expected_output = <<-DOCX.strip
+<w:p>
+  <w:pPr>
+    <w:pStyle w:val="Paragraph" />
+  </w:pPr>
+  <w:r>
+    <w:rPr>
+       <w:color w:val="123456" />
+      <w:b />
+    </w:rPr>
+    <w:t xml:space="preserve">Lorem</w:t>
+  </w:r>
+  <w:r>
+    <w:rPr>
+      <w:color w:val="123456" />
+    </w:rPr>
+    <w:t xml:space="preserve">ipsum</w:t>
+  </w:r>
+</w:p>
+DOCX
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_run_prop_override_paragraph_prop
+    input = '<p style="text-align: center; color: #FF0000">Lorem<span style="color: blue;">ipsum</span></p>'
     expected_output = <<-DOCX.strip
 <w:p>
   <w:pPr>
@@ -450,14 +475,13 @@ class HTMLConverterStyleTest < Sablon::TestCase
     <w:rPr>
       <w:color w:val="FF0000" />
     </w:rPr>
-    <w:t xml:space="preserve">Lorem </w:t>
+    <w:t xml:space="preserve">Lorem</w:t>
   </w:r>
   <w:r>
-  <w:rPr>
-    <w:color w:val="blue" />
-    <w:b />
-  </w:rPr>
-  <w:t xml:space="preserve">ipsum</w:t>
+    <w:rPr>
+      <w:color w:val="blue" />
+    </w:rPr>
+    <w:t xml:space="preserve">ipsum</w:t>
   </w:r>
 </w:p>
 DOCX
