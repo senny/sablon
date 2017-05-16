@@ -443,6 +443,28 @@ class HTMLConverterStyleTest < Sablon::TestCase
     @converter = Sablon::HTMLConverter.new
   end
 
+  # testing direct style => WordML conversion
+
+  def test_paragraph_with_background_color
+    input = '<p style="background-color: #123456"></p>'
+    expected_output = para_with_ppr('<w:shd w:val="clear" w:fill="123456" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_paragraph_with_text_align
+    input = '<p style="text-align: both"></p>'
+    expected_output = para_with_ppr('<w:jc w:val="both" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_run_with_background_color
+    input = '<p><span style="background-color: #123456">test</span></p>'
+    expected_output = run_with_rpr('<w:shd w:val="clear" w:fill="123456" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  # tests with nested runs and styles
+
   def test_paragraph_with_span_and_style
     input = '<p style="text-align: center; color: #FF0000">Lorem <span style="color: blue; font-weight: bold">ipsum</span></p>'
     expected_output = <<-DOCX.strip
@@ -473,6 +495,28 @@ DOCX
 
   def process(input)
     @converter.process(input, @env)
+  end
+
+  def para_with_ppr(ppr_str)
+    para_str = '<w:p><w:pPr>%s<w:pStyle w:val="Paragraph" /></w:pPr></w:p>'
+    format(para_str, ppr_str)
+  end
+
+  def run_with_rpr(rpr_str)
+    para_str = <<-DOCX.strip
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Paragraph" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          %s
+        </w:rPr>
+        <w:t xml:space="preserve">test</w:t>
+      </w:r>
+    </w:p>
+DOCX
+    format(para_str, rpr_str)
   end
 
   def normalize_wordml(wordml)
