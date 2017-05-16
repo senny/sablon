@@ -13,11 +13,7 @@ module Sablon
 
       # processes attributes defined on the node into wordML property syntax
       def process_properties
-        properties = []
-        @properties.each do |key, value|
-          properties.push transform_attr(key, value)
-        end
-        properties.join
+        @properties.map { |k, v| transform_attr(k, v) }.join
       end
 
       def transform_attr(key, value)
