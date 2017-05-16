@@ -72,7 +72,7 @@ module Sablon
       end
 
       def to_docx
-        "<w:p><w:pPr>#{ppr_docx}</w:pPr>#{runs.to_docx}</w:p>"
+        "<w:p>#{ppr_docx}#{runs.to_docx}</w:p>"
       end
 
       def accept(visitor)
@@ -87,7 +87,7 @@ module Sablon
       private
 
       def ppr_docx
-        process_properties
+        "<w:pPr>#{process_properties}</w:pPr>"
       end
     end
 
