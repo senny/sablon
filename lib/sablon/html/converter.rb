@@ -93,7 +93,7 @@ module Sablon
 
     # Adds the appropriate style class to the node
     def prepare_paragraph(node)
-      # set default styles based on node name
+      # set default styles based on HTML element
       styles = { 'div' => 'Normal', 'p' => 'Paragraph', 'h' => 'Heading',
                  'ul' => 'ListBullet', 'ol' => 'ListNumber' }
       styles['li'] = @definition.style if @definition
