@@ -183,9 +183,9 @@ module Sablon
 
     # handles passing all attributes on the parent down to children
     # preappending parent attributes so child can overwrite if present
-    def merge_node_attributes(node)
+    def merge_node_attributes(node, attributes)
       node.children.each do |child|
-        node.attributes.each do |name, atr|
+        attributes.each do |name, atr|
           catr = child[name] ? child[name] : ''
           child[name] = atr.value.split(';').concat(catr.split(';')).join('; ')
         end
@@ -204,7 +204,7 @@ module Sablon
         unless @builder.nested?
           @definition = @numbering.register(properties['pStyle'])
         end
-        merge_node_attributes(node)
+        merge_node_attributes(node, node.attributes)
         @builder.push_all(node.children)
         return
       elsif node.name == 'li'
@@ -230,6 +230,7 @@ module Sablon
             ast_runs(node.children, local_props).nodes
           rescue ArgumentError
             raise unless %w[ul ol p div].include?(node.name)
+            merge_node_attributes(node, node.parent.attributes)
             @builder.push(node)
             nil
           end
