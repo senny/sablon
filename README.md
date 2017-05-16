@@ -137,6 +137,14 @@ Basic conversion of CSS inline styles into matching WordML properties in support
   * http://officeopenxml.com/WPparagraphProperties.php
   * http://officeopenxml.com/WPtextFormatting.php
 
+If you wish to write out your HTML code in an indented human readable fashion, or you are pulling content from the ERB templating engine in rails the following regular expression can help eliminate extraneous whitespace in the final document. 
+```ruby
+# combine all white space
+html_str = html_str.gsub(/\s+/, ' ')
+# clear any white space between block level tags and other content
+html_str.gsub(%r{\s*<(/?(?:h\d|div|p|br|ul|ol|li).*?)>\s*}, '<\1>')
+```
+
 IMPORTANT: Currently, the insertion will replace the containing paragraph. This means that other content in the same paragraph is discarded.
 
 
