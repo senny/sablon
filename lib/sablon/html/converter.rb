@@ -104,9 +104,92 @@ module Sablon
         raise ArgumentError, "Don't know how to handle node: #{node.inspect}"
       end
       #
-      properties = {}
+      properties = process_style(node['style'])
       properties['pStyle'] = styles[tag] + num
       properties
+    end
+
+    # Adds properties to the run, from the parent, the style node attributes
+    # and finally any element specfic properties. A modified properties hash
+    # is returned
+    def prepare_run(node, properties)
+      # HTML element based styles
+      styles = {
+        'span' => {}, 'strong' => { 'b' => nil },
+        'b' => { 'b' => nil }, 'em' => { 'i' => nil },
+        'i' => { 'i' => nil }, 'u' => { 'u' => 'single' }
+      }
+
+      unless styles.key?(node.name)
+        raise ArgumentError, "Don't know how to handle node: #{node.inspect}"
+      end
+      # Process any styles, return the new hash to avoid mutation of original
+      properties = properties.merge(process_style(node['style']))
+
+      # Set the element specific attributes, overriding any other values
+      properties.merge(styles[node.name])
+    end
+
+    # maps the CSS style property to it's OpenXML equivalent. Not all CSS
+    # properties have an equivalent, nor are valid for both a Paragraph and Run.
+    # TODO: When processing a paragraph return the styles that need passed onto
+    # runs within with the added complexity of above it may make more sense to
+    # move this over to the Node class
+    def process_style(style_str)
+      #
+      return {} unless style_str
+      # styles without an entry are passed "as is" to the node attributes
+      attr_map = {
+        'background-color' => lambda { |v|
+          return 'shd', { val: 'clear', fill: v.delete('#') }
+        },
+        'color' => ->(v) { return 'color', v.delete('#') },
+        'font-size' => lambda { |v|
+          return 'sz', (2 * Float(v.gsub(/[^\d.]/, '')).ceil).to_s
+        },
+        'font-style' => lambda { |v|
+          return 'b', nil if v =~ /bold/
+          return 'i', nil if v =~ /italic/
+        },
+        'font-weight' => ->(v) { return 'b', nil if v =~ /bold/ },
+        'text-align' => ->(v) { return 'jc', v },
+        'text-decoration' => lambda { |v|
+          supported = %w[line-through underline]
+          props = v.split
+          return nil unless supported.include? props[0]
+          return 'strike', nil if props[0] == 'line-through'
+          return 'u', 'single' if props.length == 1
+          return 'u', { val: props[1], color: 'auto' } if props.length == 2
+          return 'u', { val: props[1], color: props[2].delete('#') }
+        },
+        'vertical-align' => lambda { |v|
+          return 'vertAlign', 'subscript' if v =~ /sub/
+          return 'vertAlign', 'superscript' if v =~ /super/
+        }
+      }
+      #
+      styles = style_str.split(';').map { |pair| pair.split(':') }
+
+      # process the styles as a hash and store values
+      style_attrs = {}
+      Hash[styles].each do |key, value|
+        key = key.strip
+        value = value.strip
+        key, value = attr_map[key].call(value) if attr_map[key]
+        style_attrs[key] = value if key
+      end
+      style_attrs
+    end
+
+    # handles passing all attributes on the parent down to children
+    # preappending parent attributes so child can overwrite if present
+    def merge_node_attributes(node)
+      node.children.each do |child|
+        node.attributes.each do |name, atr|
+          catr = child[name] ? child[name] : ''
+          child[name] = atr.value.split(';').concat(catr.split(';')).join('; ')
+        end
+      end
     end
 
     def ast_next_paragraph
@@ -121,6 +204,7 @@ module Sablon
         unless @builder.nested?
           @definition = @numbering.register(properties['pStyle'])
         end
+        merge_node_attributes(node)
         @builder.push_all(node.children)
         return
       elsif node.name == 'li'
@@ -131,28 +215,24 @@ module Sablon
 
       # create word_ml node
       @builder.new_layer
-      @builder.emit Paragraph.new(properties, ast_text(node.children))
+      @builder.emit Paragraph.new(properties, ast_runs(node.children, properties))
     end
 
-    def ast_text(nodes, format: TextFormat.default)
+    def ast_runs(nodes, properties)
       runs = nodes.flat_map do |node|
         if node.text?
-          Text.new(node.text, format)
+          Run.new(node.text, properties)
         elsif node.name == 'br'
           Newline.new
-        elsif node.name == 'span'
-          ast_text(node.children).nodes
-        elsif node.name == 'strong' || node.name == 'b'
-          ast_text(node.children, format: format.with_bold).nodes
-        elsif node.name == 'em' || node.name == 'i'
-          ast_text(node.children, format: format.with_italic).nodes
-        elsif node.name == 'u'
-          ast_text(node.children, format: format.with_underline).nodes
-        elsif ['ul', 'ol', 'p', 'div'].include?(node.name)
-          @builder.push(node)
-          nil
         else
-          raise ArgumentError, "Don't know how to handle node: #{node.inspect}"
+          begin
+            local_props = prepare_run(node, properties)
+            ast_runs(node.children, local_props).nodes
+          rescue ArgumentError
+            raise unless %w[ul ol p div].include?(node.name)
+            @builder.push(node)
+            nil
+          end
         end
       end
       Collection.new(runs.compact)

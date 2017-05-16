@@ -1,6 +1,7 @@
 module Sablon
   class HTMLConverter
     class Node
+      PROPERTIES = [].freeze
       def accept(visitor)
         visitor.visit(self)
       end
@@ -11,18 +12,32 @@ module Sablon
 
       private
 
+      def filter_properties(properties)
+        props = properties.map do |key, value|
+          next unless self.class::PROPERTIES.include? key
+          [key, value]
+        end
+        # filter out nils and return hash
+        Hash[props.reject { |pair| pair.nil? }]
+      end
+
       # processes attributes defined on the node into wordML property syntax
       def process_properties
         @properties.map { |k, v| transform_attr(k, v) }.join
       end
 
+      # properties that have a list as the value get nested in tags and
+      # each entry in the list is transformed. When a value is a hash the
+      # keys in the hash are used to explicitly buld the XML tag attributes.
       def transform_attr(key, value)
-        # properties that have a list as the value get nested in tags
         if value.is_a? Array
           sub_attrs = value.map do |sub_prop|
             sub_prop.map { |k, v| transform_attr(k, v) }
           end
           "<w:#{key}>#{sub_attrs.join}</w:#{key}>"
+        elsif value.is_a? Hash
+          props = value.map { |k, v| format('w:%s="%s"', k, v) }
+          "<w:#{key} #{props.join(' ')} />"
         else
           value = format('w:val="%s" ', value) if value
           "<w:#{key} #{value}/>"
@@ -65,9 +80,12 @@ module Sablon
     end
 
     class Paragraph < Node
+      PROPERTIES = %w[framePr ind jc keepLines keepNext numPr
+                      outlineLvl pBdr pStyle rPr sectPr shd spacing
+                      tabs textAlignment].freeze
       attr_accessor :runs
       def initialize(properties, runs)
-        @properties = properties
+        @properties = filter_properties(properties)
         @runs = runs
       end
 
@@ -91,68 +109,34 @@ module Sablon
       end
     end
 
-    class TextFormat
-      def initialize(bold, italic, underline)
-        @bold = bold
-        @italic = italic
-        @underline = underline
-      end
-
-      def inspect
-        parts = []
-        parts << 'bold' if @bold
-        parts << 'italic' if @italic
-        parts << 'underline' if @underline
-        parts.join('|')
-      end
-
-      def to_docx
-        styles = []
-        styles << '<w:b />' if @bold
-        styles << '<w:i />' if @italic
-        styles << '<w:u w:val="single"/>' if @underline
-        if styles.any?
-          "<w:rPr>#{styles.join}</w:rPr>"
-        else
-          ''
-        end
-      end
-
-      def self.default
-        @default ||= new(false, false, false)
-      end
-
-      def with_bold
-        TextFormat.new(true, @italic, @underline)
-      end
-
-      def with_italic
-        TextFormat.new(@bold, true, @underline)
-      end
-
-      def with_underline
-        TextFormat.new(@bold, @italic, true)
-      end
-    end
-
-    class Text < Node
+    class Run < Node
+      PROPERTIES = %w[b i caps color dstrike emboss imprint highlight outline
+                      rStyle shadow shd smallCaps strike sz u vanish
+                      vertAlign].freeze
       attr_reader :string
-      def initialize(string, format)
+      def initialize(string, properties)
+        @properties = filter_properties(properties)
         @string = string
-        @format = format
       end
 
       def to_docx
-        "<w:r>#{@format.to_docx}<w:t xml:space=\"preserve\">#{normalized_string}</w:t></w:r>"
+        "<w:r>#{rpr_docx}#{text}</w:r>"
       end
 
       def inspect
-        "<Text{#{@format.inspect}}: #{string}>"
+        rpr_str = @properties.map { |k, v| v ? "#{k}=#{v}" : k }.join(';')
+        "<Run{#{rpr_str}}: #{string}>"
       end
 
       private
-      def normalized_string
-        string.tr("\u00A0", ' ')
+
+      def rpr_docx
+        "<w:rPr>#{process_properties}</w:rPr>" unless @properties.empty?
+      end
+
+      def text
+        content = @string.tr("\u00A0", ' ')
+        "<w:t xml:space=\"preserve\">#{content}</w:t>"
       end
     end
 

@@ -92,7 +92,7 @@ DOCX
   <w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>
   <w:r><w:t xml:space="preserve">Lorem </w:t></w:r>
   <w:r>
-    <w:rPr><w:u w:val="single"/></w:rPr>
+    <w:rPr><w:u w:val="single" /></w:rPr>
     <w:t xml:space="preserve">ipsum dolor</w:t>
   </w:r>
   <w:r><w:t xml:space="preserve"> sit amet</w:t></w:r>
@@ -331,49 +331,49 @@ class HTMLConverterASTTest < Sablon::TestCase
   def test_div
     input = '<div>Lorem ipsum dolor sit amet</div>'
     ast = @converter.processed_ast(input)
-    assert_equal '<Root: [<Paragraph{Normal}: [<Text{}: Lorem ipsum dolor sit amet>]>]>', ast.inspect
+    assert_equal '<Root: [<Paragraph{Normal}: [<Run{}: Lorem ipsum dolor sit amet>]>]>', ast.inspect
   end
 
   def test_p
     input = '<p>Lorem ipsum dolor sit amet</p>'
     ast = @converter.processed_ast(input)
-    assert_equal '<Root: [<Paragraph{Paragraph}: [<Text{}: Lorem ipsum dolor sit amet>]>]>', ast.inspect
+    assert_equal '<Root: [<Paragraph{Paragraph}: [<Run{}: Lorem ipsum dolor sit amet>]>]>', ast.inspect
   end
 
   def test_b
     input = '<p>Lorem <b>ipsum dolor sit amet</b></p>'
     ast = @converter.processed_ast(input)
-    assert_equal '<Root: [<Paragraph{Paragraph}: [<Text{}: Lorem >, <Text{bold}: ipsum dolor sit amet>]>]>', ast.inspect
+    assert_equal '<Root: [<Paragraph{Paragraph}: [<Run{}: Lorem >, <Run{b=}: ipsum dolor sit amet>]>]>', ast.inspect
   end
 
   def test_i
     input = '<p>Lorem <i>ipsum dolor sit amet</i></p>'
     ast = @converter.processed_ast(input)
-    assert_equal '<Root: [<Paragraph{Paragraph}: [<Text{}: Lorem >, <Text{italic}: ipsum dolor sit amet>]>]>', ast.inspect
+    assert_equal '<Root: [<Paragraph{Paragraph}: [<Run{}: Lorem >, <Run{i=}: ipsum dolor sit amet>]>]>', ast.inspect
   end
 
   def test_br_in_strong
     input = '<div><strong>Lorem<br />ipsum<br />dolor</strong></div>'
     par = @converter.processed_ast(input).grep(Sablon::HTMLConverter::Paragraph).first
-    assert_equal "[<Text{bold}: Lorem>, <Newline>, <Text{bold}: ipsum>, <Newline>, <Text{bold}: dolor>]", par.runs.inspect
+    assert_equal "[<Run{b=}: Lorem>, <Newline>, <Run{b=}: ipsum>, <Newline>, <Run{b=}: dolor>]", par.runs.inspect
   end
 
   def test_br_in_em
     input = '<div><em>Lorem<br />ipsum<br />dolor</em></div>'
     par = @converter.processed_ast(input).grep(Sablon::HTMLConverter::Paragraph).first
-    assert_equal "[<Text{italic}: Lorem>, <Newline>, <Text{italic}: ipsum>, <Newline>, <Text{italic}: dolor>]", par.runs.inspect
+    assert_equal "[<Run{i=}: Lorem>, <Newline>, <Run{i=}: ipsum>, <Newline>, <Run{i=}: dolor>]", par.runs.inspect
   end
 
   def test_nested_strong_and_em
     input = '<div><strong>Lorem <em>ipsum</em> dolor</strong></div>'
     par = @converter.processed_ast(input).grep(Sablon::HTMLConverter::Paragraph).first
-    assert_equal "[<Text{bold}: Lorem >, <Text{bold|italic}: ipsum>, <Text{bold}:  dolor>]", par.runs.inspect
+    assert_equal "[<Run{b=}: Lorem >, <Run{b=;i=}: ipsum>, <Run{b=}:  dolor>]", par.runs.inspect
   end
 
   def test_ignore_last_br_in_div
     input = '<div>Lorem ipsum dolor sit amet<br /></div>'
     par = @converter.processed_ast(input).grep(Sablon::HTMLConverter::Paragraph).first
-    assert_equal "[<Text{}: Lorem ipsum dolor sit amet>]", par.runs.inspect
+    assert_equal "[<Run{}: Lorem ipsum dolor sit amet>]", par.runs.inspect
   end
 
   def test_ignore_br_in_blank_div
@@ -385,25 +385,25 @@ class HTMLConverterASTTest < Sablon::TestCase
   def test_headings
     input = '<h1>First</h1><h2>Second</h2><h3>Third</h3>'
     ast = @converter.processed_ast(input)
-    assert_equal "<Root: [<Paragraph{Heading1}: [<Text{}: First>]>, <Paragraph{Heading2}: [<Text{}: Second>]>, <Paragraph{Heading3}: [<Text{}: Third>]>]>", ast.inspect
+    assert_equal "<Root: [<Paragraph{Heading1}: [<Run{}: First>]>, <Paragraph{Heading2}: [<Run{}: Second>]>, <Paragraph{Heading3}: [<Run{}: Third>]>]>", ast.inspect
   end
 
   def test_h_with_formatting
     input = '<h1><strong>Lorem</strong> ipsum dolor <em>sit <u>amet</u></em></h1>'
     ast = @converter.processed_ast(input)
-    assert_equal "<Root: [<Paragraph{Heading1}: [<Text{bold}: Lorem>, <Text{}:  ipsum dolor >, <Text{italic}: sit >, <Text{italic|underline}: amet>]>]>", ast.inspect
+    assert_equal "<Root: [<Paragraph{Heading1}: [<Run{b=}: Lorem>, <Run{}:  ipsum dolor >, <Run{i=}: sit >, <Run{i=;u=single}: amet>]>]>", ast.inspect
   end
 
   def test_ul
     input = '<ul><li>Lorem</li><li>ipsum</li></ul>'
     ast = @converter.processed_ast(input)
-    assert_equal "<Root: [<Paragraph{ListBullet}: [<Text{}: Lorem>]>, <Paragraph{ListBullet}: [<Text{}: ipsum>]>]>", ast.inspect
+    assert_equal "<Root: [<Paragraph{ListBullet}: [<Run{}: Lorem>]>, <Paragraph{ListBullet}: [<Run{}: ipsum>]>]>", ast.inspect
   end
 
   def test_ol
     input = '<ol><li>Lorem</li><li>ipsum</li></ol>'
     ast = @converter.processed_ast(input)
-    assert_equal "<Root: [<Paragraph{ListNumber}: [<Text{}: Lorem>]>, <Paragraph{ListNumber}: [<Text{}: ipsum>]>]>", ast.inspect
+    assert_equal "<Root: [<Paragraph{ListNumber}: [<Run{}: Lorem>]>, <Paragraph{ListNumber}: [<Run{}: ipsum>]>]>", ast.inspect
   end
 
   def test_num_id
@@ -433,5 +433,44 @@ class HTMLConverterASTTest < Sablon::TestCase
       numpr.each { |val| values.push(val[key]) if val[key] }
     end
     values
+  end
+end
+
+class HTMLConverterStyleTest < Sablon::TestCase
+  def setup
+    super
+    @converter = Sablon::HTMLConverter.new
+  end
+
+  def test_paragraph_with_span_and_style
+    input = '<p style="text-align: center; color: #FF0000">Lorem <span style="color: blue; font-weight: bold">ipsum</span></p>'
+    expected_output = <<-DOCX.strip
+<w:p>
+  <w:pPr>
+    <w:jc w:val="center" />
+    <w:pStyle w:val="Paragraph" />
+  </w:pPr>
+  <w:r>
+    <w:rPr>
+      <w:color w:val="FF0000" />
+    </w:rPr>
+    <w:t xml:space="preserve">Lorem </w:t>
+  </w:r>
+  <w:r>
+  <w:rPr>
+    <w:color w:val="blue" />
+    <w:b />
+  </w:rPr>
+  <w:t xml:space="preserve">ipsum</w:t>
+  </w:r>
+</w:p>
+DOCX
+    assert_equal normalize_wordml(expected_output), @converter.process(input)
+  end
+
+  private
+
+  def normalize_wordml(wordml)
+    wordml.gsub(/^\s+/, '').tr("\n", '')
   end
 end
