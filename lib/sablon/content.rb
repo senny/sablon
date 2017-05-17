@@ -40,6 +40,20 @@ module Sablon
       end
     end
 
+    # Handles reading image data and inserting it into the document
+    class Image < Struct.new(:name, :data)
+      def self.id; :image end
+      def self.wraps?(value) false end
+
+      def initialize(path)
+        super "#{Random.new_seed}-#{File.basename(path)}", IO.binread(path)
+      end
+
+      def append_to(paragraph, display_node, env)
+        env.images.register(@name, @data)
+      end
+    end
+
     # Handles simple text replacement of fields in the template
     class String < Struct.new(:string)
       include Sablon::Content
@@ -96,6 +110,7 @@ module Sablon
       end
     end
 
+    register Sablon::Content::Image
     register Sablon::Content::String
     register Sablon::Content::WordML
     register Sablon::Content::HTML
