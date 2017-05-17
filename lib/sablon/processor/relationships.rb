@@ -20,14 +20,16 @@ module Sablon
       end
 
       def initialize_rids(zip_path)
-        Zip::File.open(zip_path).each do |main_doc|
-          rels_file = Relationships.rels_filename(main_doc)
-          entry = archive.find_entry(rels_file)
-          if entry
-            content = entry.get_input_stream.read
-            @rids[main_doc] = initial_file_rid(content)
-          else
-            @rids[main_doc] = 0
+        Zip::File.open(zip_path) do |archive|
+          archive.each do |main_doc|
+            rels_file = Relationships.rels_filename(main_doc.name)
+            entry = archive.find_entry(rels_file)
+            if entry
+              content = Nokogiri::XML(entry.get_input_stream.read)
+              @rids[main_doc.name] = initial_file_rid(content)
+            else
+              @rids[main_doc.name] = 0
+            end
           end
         end
       end
@@ -49,13 +51,13 @@ module Sablon
         Zip::File.open(zip_path) do |archive|
           @new_rels.each do |main_doc, rels|
             # determine which rels file to open and read it
-            rels_file = Relationships.rels_filename(main_doc)
+            rels_file = Relationships.rels_filename(main_doc.name)
             entry = archive.get_entry(rels_file)
-            content = entry.get_input_stream.read
+            content = Nokogiri::XML(entry.get_input_stream.read)
 
             # process the rels and write out new content
             zip_out.put_next_entry(entry.name)
-            content = process(content, rels)
+            content = process(content, rels).to_xml(indent: 0, save_with: 0)
             zip_out.write(content)
           end
         end
