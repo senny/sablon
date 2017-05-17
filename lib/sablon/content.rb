@@ -49,11 +49,7 @@ module Sablon
         super "#{Integer(rand * 1e9)}-#{File.basename(path)}", IO.binread(path)
       end
 
-      def append_to(paragraph, display_node, env)
-        type_uri = Sablon::Processor::Relationships::IMAGE_TYPE
-        @rid = env.register_relationship(type_uri, "media/#{@name}")
-        env.images.register(@name, @data, @rid)
-      end
+      def append_to(paragraph, display_node, env) end
     end
 
     # Handles simple text replacement of fields in the template
