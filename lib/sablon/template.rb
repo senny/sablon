@@ -25,6 +25,8 @@ module Sablon
         Zip::File.open(@path).each do |entry|
           entry_name = entry.name
           out.put_next_entry(entry_name)
+          #
+          env.current_entry = entry_name
           content = entry.get_input_stream.read
           if entry_name == 'word/document.xml'
             out.write(process(Processor::Document, content, env, properties))

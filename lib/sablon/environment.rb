@@ -8,6 +8,15 @@ module Sablon
     attr_reader :relationships
     attr_reader :context
 
+    # Returns the name of the current zip entry being processed
+    def current_entry
+      @current_document
+    end
+
+    def current_entry=(value)
+      @current_document = value
+    end
+
     # returns a new environment with merged contexts
     def alter_context(context = {})
       new_context = @context.merge(context)
