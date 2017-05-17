@@ -8,13 +8,13 @@ module Sablon
     attr_reader :relationships
     attr_reader :context
 
-    # Returns the name of the current zip entry being processed
-    def current_entry
-      @current_document
-    end
+    attr_reader :current_entry
+    attr_writer :current_entry
 
-    def current_entry=(value)
-      @current_document = value
+    # abstraction of the after Relationships.register_relationship method
+    def register_relationship(type_uri, target)
+      attr_hash = { 'Id' => nil, 'Type' => type_uri, 'Target' => target }
+      @relationships.register_relationship(@current_entry, attr_hash)
     end
 
     # returns a new environment with merged contexts
