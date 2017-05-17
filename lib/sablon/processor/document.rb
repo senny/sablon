@@ -134,9 +134,9 @@ module Sablon
           end
 
           name = content.first.name
-          pic_prop = self.class.parent(start_field).at_xpath('.//pic:cNvPr', pic: Sablon::Processor::Image::PICTURE_NS_URI)
+          pic_prop = self.class.parent(start_field).at_xpath('.//pic:cNvPr', pic: Sablon::Processor::Relationships::PICTURE_NS_URI)
           pic_prop.attributes['name'].value = name
-          blip = self.class.parent(start_field).at_xpath('.//a:blip', a: Sablon::Processor::Image::MAIN_NS_URI)
+          blip = self.class.parent(start_field).at_xpath('.//a:blip', a: Sablon::Processor::Relationships::MAIN_NS_URI)
           new_rid = Sablon::Processor::Image.list_ids[name]
           blip.attributes['embed'].value = "rId#{new_rid}"
           start_field.remove
