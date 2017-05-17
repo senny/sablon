@@ -50,7 +50,9 @@ module Sablon
       end
 
       def append_to(paragraph, display_node, env)
-        env.images.register(@name, @data)
+        type_uri = Sablon::Processor::Relationships::IMAGE_TYPE
+        rid = env.register_relationship(type_uri, "media/#{@name}")
+        env.images.register(@name, @data, rid)
       end
     end
 
