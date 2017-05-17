@@ -33,7 +33,7 @@ module Sablon
             relationships.add_child("<Relationship Id='rId#{next_id}' Type='#{IMAGE_TYPE}' Target='media/#{image.name}'/>")
           end
           image.rid = next_id
-          @@images_rids[image.name.match(/(.*)\.*[^.]+$/)[1]] = next_id
+          @@images_rids[image.name] = next_id
           next_id += 1
         end
 
