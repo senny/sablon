@@ -3,6 +3,7 @@ module Sablon
   # to manage data during template processing.
   class Environment
     attr_reader :template
+    attr_reader :images
     attr_reader :numbering
     attr_reader :relationships
     attr_reader :context
@@ -20,10 +21,12 @@ module Sablon
       # create new references
       if parent_env
         @template = parent_env.template
+        @images = parent_env.images
         @numbering = parent_env.numbering
         @relationships = parent_env.relationships
       else
         @template = template
+        @images = Images.new
         @numbering = Numbering.new
         @relationships = Sablon::Processor::Relationships.new
       end
