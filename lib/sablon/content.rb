@@ -41,18 +41,18 @@ module Sablon
     end
 
     # Handles reading image data and inserting it into the document
-    class Image < Struct.new(:name, :data)
+    class Image < Struct.new(:name, :data, :rid)
       def self.id; :image end
       def self.wraps?(value) false end
 
       def initialize(path)
-        super "#{Random.new_seed}-#{File.basename(path)}", IO.binread(path)
+        super "#{Integer(rand * 1e9)}-#{File.basename(path)}", IO.binread(path)
       end
 
       def append_to(paragraph, display_node, env)
         type_uri = Sablon::Processor::Relationships::IMAGE_TYPE
-        rid = env.register_relationship(type_uri, "media/#{@name}")
-        env.images.register(@name, @data, rid)
+        @rid = env.register_relationship(type_uri, "media/#{@name}")
+        env.images.register(@name, @data, @rid)
       end
     end
 
