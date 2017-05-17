@@ -63,11 +63,7 @@ module Sablon
   module Expression
     class Variable < Struct.new(:name)
       def evaluate(context)
-        if context.is_a?(Hash)
-          context[name]
-        else
-          context.context[name]
-        end
+        context[name]
       end
 
       def inspect
