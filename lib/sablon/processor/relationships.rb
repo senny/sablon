@@ -51,7 +51,7 @@ module Sablon
         Zip::File.open(zip_path) do |archive|
           @new_rels.each do |main_doc, rels|
             # determine which rels file to open and read it
-            rels_file = Relationships.rels_filename(main_doc.name)
+            rels_file = Relationships.rels_filename(main_doc)
             entry = archive.get_entry(rels_file)
             content = Nokogiri::XML(entry.get_input_stream.read)
 
