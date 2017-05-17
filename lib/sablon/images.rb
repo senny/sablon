@@ -17,5 +17,12 @@ module Sablon
       @definitions << definition
       definition
     end
+
+    def add_images_to_zip!(zip_out)
+      @defintions.each do |image|
+        zip_out.put_next_entry(File.join('word', 'media', image.name))
+        zip_out.write(image.data)
+      end
+    end
   end
 end
