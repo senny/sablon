@@ -3,7 +3,7 @@ require 'nokogiri'
 
 require "sablon/version"
 require "sablon/numbering"
-require "sablon/image"
+require "sablon/images"
 require "sablon/context"
 require "sablon/environment"
 require "sablon/template"

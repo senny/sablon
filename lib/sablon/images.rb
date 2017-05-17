@@ -1,5 +1,5 @@
 module Sablon
-  class Image
+  class Images
     attr_reader :definitions
 
     Definition = Struct.new(:name, :data, :rid) do
