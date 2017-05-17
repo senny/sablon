@@ -113,10 +113,12 @@ For inserting images into a document, you have to follow some rules within the `
 Note that the context variable name is arbitrary, we can use any name like `@profile.photo:start` and so on.
 
 
-Then while building the context, you have to create a `Sablon::Image`, for instance:
-
+A special naming convention must be used when defining the context so the gem knows to read the actual content at the path provided. Alternatively you can process the image imediately using `Sablon.content`
 ```
-{ image: Sablon::Image.create_by_path("/path/to/image.jpg") }
+{
+  'image:my_image' => '/path/to/image.jpg',
+  my_image2: Sablon.content(:image, '/path/to/image.jpg')
+}
 
 template.render_to_file()output_path, context)
 ```
