@@ -29,11 +29,13 @@ module Sablon
       # pass attributes of the supplied environment to the new one or
       # create new references
       if parent_env
+        @current_entry = parent_env.current_entry
         @template = parent_env.template
         @images = parent_env.images
         @numbering = parent_env.numbering
         @relationships = parent_env.relationships
       else
+        @current_entry = nil
         @template = template
         @images = Images.new
         @numbering = Numbering.new
