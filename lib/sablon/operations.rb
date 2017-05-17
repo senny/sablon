@@ -54,7 +54,7 @@ module Sablon
 
     class Image < Struct.new(:image_reference, :block)
       def evaluate(env)
-        image = image_reference.evaluate(env)
+        image = image_reference.evaluate(env.context)
         block.replace([image])
       end
     end
