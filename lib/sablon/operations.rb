@@ -55,6 +55,10 @@ module Sablon
     class Image < Struct.new(:image_reference, :block)
       def evaluate(env)
         image = image_reference.evaluate(env.context)
+        unless image
+          block.replace([])
+          return
+        end
         type_uri = Sablon::Processor::Relationships::IMAGE_TYPE
         image.rid = env.register_relationship(type_uri, "media/#{image.name}")
         env.images.register(image.name, image.data, image.rid)
