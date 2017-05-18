@@ -19,17 +19,15 @@ module Sablon
         @rids = {}
       end
 
-      def initialize_rids(zip_path)
-        Zip::File.open(zip_path) do |archive|
-          archive.each do |main_doc|
-            rels_file = Relationships.rels_filename(main_doc.name)
-            entry = archive.find_entry(rels_file)
-            if entry
-              content = Nokogiri::XML(entry.get_input_stream.read)
-              @rids[main_doc.name] = initial_file_rid(content)
-            else
-              @rids[main_doc.name] = 0
-            end
+      def initialize_rids(docx_zip)
+        docx_zip.each do |main_doc|
+          rels_file = Relationships.rels_filename(main_doc.name)
+          entry = docx_zip.find_entry(rels_file)
+          if entry
+            content = Nokogiri::XML(entry.get_input_stream.read)
+            @rids[main_doc.name] = initial_file_rid(content)
+          else
+            @rids[main_doc.name] = 0
           end
         end
       end
@@ -47,19 +45,17 @@ module Sablon
 
       # outputs all of the new rIds to each respective relationships file
       # TODO: Add logic to create a brand new rels file for an entry if needed
-      def output_new_rids(zip_path, zip_out)
-        Zip::File.open(zip_path) do |archive|
-          @new_rels.each do |main_doc, rels|
-            # determine which rels file to open and read it
-            rels_file = Relationships.rels_filename(main_doc)
-            entry = archive.get_entry(rels_file)
-            content = Nokogiri::XML(entry.get_input_stream.read)
+      def output_new_rids(docx_zip, zip_out)
+        @new_rels.each do |main_doc, rels|
+          # determine which rels file to open and read it
+          rels_file = Relationships.rels_filename(main_doc)
+          entry = docx_zip.get_entry(rels_file)
+          xml_node = Nokogiri::XML(entry.get_input_stream.read)
 
-            # process the rels and write out new content
-            zip_out.put_next_entry(entry.name)
-            content = process(content, rels).to_xml(indent: 0, save_with: 0)
-            zip_out.write(content)
-          end
+          # process the rels and write out new content
+          zip_out.put_next_entry(entry.name)
+          process(xml_node, rels)
+          zip_out.write(xml_node.to_xml(indent: 0, save_with: 0))
         end
       end
 
