@@ -127,18 +127,16 @@ module Sablon
         end
 
         def replace(content)
-          if !content.first
+          unless content.first
             start_field.remove
             end_field.remove
             return
           end
 
-          pic_prop = self.class.parent(start_field).at_xpath('.//pic:cNvPr', pic: Sablon::Processor::Image::PICTURE_NS_URI)
-          name = content.first.name
-          pic_prop.attributes['name'].value = name
-          blip = self.class.parent(start_field).at_xpath('.//a:blip', a: Sablon::Processor::Image::MAIN_NS_URI)
-          new_rid = Sablon::Processor::Image.list_ids[name.match(/(.*)\.*[^.]+$/)[1]]
-          blip.attributes['embed'].value = "rId#{new_rid}"
+          pic_prop = self.class.parent(start_field).at_xpath('.//pic:cNvPr', pic: Sablon::Processor::Relationships::PICTURE_NS_URI)
+          pic_prop.attributes['name'].value = content.first.name
+          blip = self.class.parent(start_field).at_xpath('.//a:blip', a: Sablon::Processor::Relationships::MAIN_NS_URI)
+          blip.attributes['embed'].value = content.first.rid
           start_field.remove
           end_field.remove
         end

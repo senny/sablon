@@ -53,8 +53,11 @@ module Sablon
     end
 
     class Image < Struct.new(:image_reference, :block)
-      def evaluate(context)
-        image = image_reference.evaluate(context)
+      def evaluate(env)
+        image = image_reference.evaluate(env.context)
+        type_uri = Sablon::Processor::Relationships::IMAGE_TYPE
+        image.rid = env.register_relationship(type_uri, "media/#{image.name}")
+        env.images.register(image.name, image.data, image.rid)
         block.replace([image])
       end
     end
@@ -63,11 +66,7 @@ module Sablon
   module Expression
     class Variable < Struct.new(:name)
       def evaluate(context)
-        if context.is_a?(Hash)
-          context[name]
-        else
-          context.context[name]
-        end
+        context[name]
       end
 
       def inspect

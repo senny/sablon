@@ -27,50 +27,20 @@ class EnvironmentTest < Sablon::TestCase
   end
 
 
-  def test_values_of_single_element
+  def test_recognizes_image_keys
     base_path = Pathname.new(File.expand_path("../", __FILE__))
-    image = Sablon::Image.create_by_path(base_path + "fixtures/images/c3pO.jpg", 1)
-
+    img_path = "#{base_path}/fixtures/images/c3pO.jpg"
     context = {
       test: 'result',
-      image: image
+      'image:image' =>  img_path
     }
+    # need to fix random number generation to generate identical image names
+    srand 123
+    context = Sablon::Context.transform_hash(context)
 
-    result = Sablon::Context.values_of(context, Sablon::Image::Definition)
-
-    assert_equal [image], result
-  end
-
-  def test_values_of_nested
-    base_path = Pathname.new(File.expand_path("../", __FILE__))
-    image = Sablon::Image.create_by_path(base_path + "fixtures/images/c3pO.jpg", 2)
-
-    context = {
-      image: image,
-      nested: OpenStruct.new(
-        item: {
-          id: 10,
-          image: image
-        }
-      ),
-      other: [
-        image,
-        image
-      ]
-    }
-
-    result = Sablon::Context.values_of(context, Sablon::Image::Definition)
-
-    assert_equal [image, image, image, image], result
-  end
-
-  def test_values_of_empty
-    context = {
-      test: "result"
-    }
-
-    result = Sablon::Context.values_of(context, Sablon::Image::Definition)
-
-    assert_empty result
+    srand 123
+    assert_equal({ "test" => "result",
+                   "image" => Sablon.content(:image, img_path) },
+                 context)
   end
 end
