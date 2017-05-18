@@ -22,7 +22,8 @@ module Sablon
       env = Sablon::Environment.new(self, context)
       Zip.sort_entries = true # required to process document.xml before numbering.xml
       Zip::OutputStream.write_buffer(StringIO.new) do |out|
-        Zip::File.open(@path) do |docx_zip|
+        zip_file = IO.binread(@path)
+        Zip::File.open_buffer(zip_file) do |docx_zip|
           env.relationships.initialize_rids(docx_zip)
           # step through and process each file
           docx_zip.each do |entry|
