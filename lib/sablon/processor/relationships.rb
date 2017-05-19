@@ -1,6 +1,6 @@
-# manages adding relationships to the appropriate word/_rels/*.rels file
 module Sablon
   module Processor
+    # manages adding relationships to the appropriate word/_rels/*.rels file
     class Relationships
       BASE_URL = 'http://schemas.openxmlformats.org'.freeze
       YEAR = '2006'.freeze
