@@ -40,7 +40,7 @@ module Sablon
           elsif entry_name == 'word/numbering.xml'
             zip_contents[entry_name] = process(Processor::Numbering, content, env)
           elsif entry_name == '[Content_Types].xml'
-            zip_contents[entry_name] = process(Processor::ContentType, content, properties, out)
+            zip_contents[entry_name] = process(Processor::ContentType, content)
           end
         end
         # update relationships
