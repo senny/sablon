@@ -1,6 +1,6 @@
-# manages adding relationships to the appropriate word/_rels/*.rels file
 module Sablon
   module Processor
+    # manages adding relationships to the appropriate word/_rels/*.rels file
     class Relationships
       BASE_URL = 'http://schemas.openxmlformats.org'.freeze
       YEAR = '2006'.freeze
@@ -19,15 +19,14 @@ module Sablon
         @rids = {}
       end
 
-      def initialize_rids(docx_zip)
-        docx_zip.each do |main_doc|
-          rels_file = Relationships.rels_filename(main_doc.name)
-          entry = docx_zip.find_entry(rels_file)
-          if entry
-            content = Nokogiri::XML(entry.get_input_stream.read)
-            @rids[main_doc.name] = initial_file_rid(content)
+      def initialize_rids(zip_contents)
+        zip_contents.keys.each do |entry_name|
+          rels_file = Relationships.rels_filename(entry_name)
+          if zip_contents[rels_file]
+            content = Nokogiri::XML(zip_contents[rels_file])
+            @rids[entry_name] = initial_file_rid(content)
           else
-            @rids[main_doc.name] = 0
+            @rids[entry_name] = 0
           end
         end
       end
@@ -45,17 +44,15 @@ module Sablon
 
       # outputs all of the new rIds to each respective relationships file
       # TODO: Add logic to create a brand new rels file for an entry if needed
-      def output_new_rids(docx_zip, zip_out)
+      def output_new_rids(zip_contents)
         @new_rels.each do |main_doc, rels|
           # determine which rels file to open and read it
           rels_file = Relationships.rels_filename(main_doc)
-          entry = docx_zip.get_entry(rels_file)
-          xml_node = Nokogiri::XML(entry.get_input_stream.read)
+          xml_node = Nokogiri::XML(zip_contents[rels_file])
 
           # process the rels and write out new content
-          zip_out.put_next_entry(entry.name)
           process(xml_node, rels)
-          zip_out.write(xml_node.to_xml(indent: 0, save_with: 0))
+          zip_contents[rels_file] = xml_node.to_xml(indent: 0, save_with: 0)
         end
       end
 

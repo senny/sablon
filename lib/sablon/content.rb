@@ -45,6 +45,10 @@ module Sablon
       def self.id; :image end
       def self.wraps?(value) false end
 
+      def inspect
+        "#<Image #{name}:#{rid}"
+      end
+
       def initialize(path)
         super "#{Integer(rand * 1e9)}-#{File.basename(path)}", IO.binread(path)
       end
