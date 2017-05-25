@@ -11,6 +11,15 @@ module Sablon
     end
 
     class NodeProperties
+      def self.paragraph(properties)
+        NodeProperties.new('w:pPr', properties)
+      end
+
+      def initialize(tagname, properties)
+        @tagname = tagname
+        @properties = properties
+      end
+
       def inspect
         @properties.map { |k, v| v ? "#{k}=#{v}" : k }.join(';')
       end
@@ -28,11 +37,6 @@ module Sablon
       end
 
       private
-
-      def initialize(tagname, properties)
-        @tagname = tagname
-        @properties = properties
-      end
 
       # processes attributes defined on the node into wordML property syntax
       def process
@@ -95,7 +99,7 @@ module Sablon
     class Paragraph < Node
       attr_accessor :runs
       def initialize(properties, runs)
-        @properties = NodeProperties.new('w:pPr', properties)
+        @properties = NodeProperties.paragraph(properties)
         @runs = runs
       end
 

@@ -394,6 +394,13 @@ class HTMLConverterASTTest < Sablon::TestCase
     assert props.to_docx == output
   end
 
+  def test_node_properties_paragraph_factory
+    props = { 'pStyle' => 'Paragraph' }
+    props = Sablon::HTMLConverter::NodeProperties.paragraph(props)
+    assert props.inspect == 'pStyle=Paragraph'
+    assert props.to_docx == '<w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>'
+  end
+
   def test_div
     input = '<div>Lorem ipsum dolor sit amet</div>'
     ast = @converter.processed_ast(input)
