@@ -330,29 +330,29 @@ class HTMLConverterASTTest < Sablon::TestCase
 
   def test_node_properties_converison
     # test empty properties
-    props = Sablon::HTMLConverter::NodeProperties.new({})
+    props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', {})
     assert props.inspect == ''
-    assert props.to_docx('w:p').nil?
+    assert props.to_docx.nil?
     # test simple properties
     props = { 'pStyle' => 'Paragraph' }
-    props = Sablon::HTMLConverter::NodeProperties.new(props)
+    props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', props)
     assert props.inspect == 'pStyle=Paragraph'
-    assert props.to_docx('w:p') == '<w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>'
+    assert props.to_docx == '<w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>'
     # test property with nil value
     props = { 'b' => nil }
-    props = Sablon::HTMLConverter::NodeProperties.new(props)
+    props = Sablon::HTMLConverter::NodeProperties.new('w:rPr', props)
     assert props.inspect == 'b'
-    assert props.to_docx('w:r') == '<w:rPr><w:b /></w:rPr>'
+    assert props.to_docx == '<w:rPr><w:b /></w:rPr>'
     # test property with hash value
     props = { 'shd' => { color: 'clear', fill: '123456', test: nil } }
-    props = Sablon::HTMLConverter::NodeProperties.new(props)
+    props = Sablon::HTMLConverter::NodeProperties.new('w:rPr', props)
     assert props.inspect == 'shd={:color=>"clear", :fill=>"123456", :test=>nil}'
-    assert props.to_docx('w:r') == '<w:rPr><w:shd w:color="clear" w:fill="123456" /></w:rPr>'
+    assert props.to_docx == '<w:rPr><w:shd w:color="clear" w:fill="123456" /></w:rPr>'
     # test property with array value
     props = { 'numPr' => [{ 'ilvl' => 1 }, { 'numId' => 34 }] }
-    props = Sablon::HTMLConverter::NodeProperties.new(props)
+    props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', props)
     assert props.inspect == 'numPr=[{"ilvl"=>1}, {"numId"=>34}]'
-    assert props.to_docx('w:p') == '<w:pPr><w:numPr><w:ilvl w:val="1" /><w:numId w:val="34" /></w:numPr></w:pPr>'
+    assert props.to_docx == '<w:pPr><w:numPr><w:ilvl w:val="1" /><w:numId w:val="34" /></w:numPr></w:pPr>'
     # test complex nested properties
     props = {
       'top1' => 'val1',
@@ -380,8 +380,8 @@ class HTMLConverterASTTest < Sablon::TestCase
         <w:top3 w:key1="1" w:key2="2" w:key4="true" />
       </w:pPr>
     DOCX
-    props = Sablon::HTMLConverter::NodeProperties.new(props)
-    assert props.to_docx('w:p') == output
+    props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', props)
+    assert props.to_docx == output
   end
 
   def test_div

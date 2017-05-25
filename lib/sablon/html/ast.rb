@@ -23,14 +23,14 @@ module Sablon
         @properties[key] = value
       end
 
-      def to_docx(parent_tag)
-        tag = parent_tag + 'Pr'
-        "<#{tag}>#{process}</#{tag}>" unless @properties.empty?
+      def to_docx
+        "<#{@tagname}>#{process}</#{@tagname}>" unless @properties.empty?
       end
 
       private
 
-      def initialize(properties)
+      def initialize(tagname, properties)
+        @tagname = tagname
         @properties = properties
       end
 
@@ -95,12 +95,12 @@ module Sablon
     class Paragraph < Node
       attr_accessor :runs
       def initialize(properties, runs)
-        @properties = NodeProperties.new(properties)
+        @properties = NodeProperties.new('w:pPr', properties)
         @runs = runs
       end
 
       def to_docx
-        "<w:p>#{@properties.to_docx('w:p')}#{runs.to_docx}</w:p>"
+        "<w:p>#{@properties.to_docx}#{runs.to_docx}</w:p>"
       end
 
       def accept(visitor)
