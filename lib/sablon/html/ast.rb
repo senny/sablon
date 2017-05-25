@@ -49,8 +49,8 @@ module Sablon
           end
           "<w:#{key}>#{sub_attrs.join}</w:#{key}>"
         elsif value.is_a? Hash
-          props = value.map { |k, v| format('w:%s="%s"', k, v) }
-          "<w:#{key} #{props.join(' ')} />"
+          props = value.map { |k, v| format('w:%s="%s"', k, v) if v }
+          "<w:#{key} #{props.compact.join(' ')} />"
         else
           value = format('w:val="%s" ', value) if value
           "<w:#{key} #{value}/>"
