@@ -328,32 +328,42 @@ class HTMLConverterASTTest < Sablon::TestCase
     @converter.instance_variable_set(:@numbering, Sablon::Environment.new(nil).numbering)
   end
 
-  def test_node_properties_converison
+  def test_empty_node_properties_converison
     # test empty properties
     props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', {})
     assert props.inspect == ''
     assert props.to_docx.nil?
-    # test simple properties
+  end
+
+  def test_simple_node_property_converison
     props = { 'pStyle' => 'Paragraph' }
     props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', props)
     assert props.inspect == 'pStyle=Paragraph'
     assert props.to_docx == '<w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>'
-    # test property with nil value
+  end
+
+  def test_node_property_with_nil_value_converison
     props = { 'b' => nil }
     props = Sablon::HTMLConverter::NodeProperties.new('w:rPr', props)
     assert props.inspect == 'b'
     assert props.to_docx == '<w:rPr><w:b /></w:rPr>'
-    # test property with hash value
+  end
+
+  def test_node_property_with_hash_value_converison
     props = { 'shd' => { color: 'clear', fill: '123456', test: nil } }
     props = Sablon::HTMLConverter::NodeProperties.new('w:rPr', props)
     assert props.inspect == 'shd={:color=>"clear", :fill=>"123456", :test=>nil}'
     assert props.to_docx == '<w:rPr><w:shd w:color="clear" w:fill="123456" /></w:rPr>'
-    # test property with array value
+  end
+
+  def test_node_property_with_array_value_converison
     props = { 'numPr' => [{ 'ilvl' => 1 }, { 'numId' => 34 }] }
     props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', props)
     assert props.inspect == 'numPr=[{"ilvl"=>1}, {"numId"=>34}]'
     assert props.to_docx == '<w:pPr><w:numPr><w:ilvl w:val="1" /><w:numId w:val="34" /></w:numPr></w:pPr>'
-    # test complex nested properties
+  end
+
+  def test_complex_node_properties_conversion
     props = {
       'top1' => 'val1',
       'top2' => [
