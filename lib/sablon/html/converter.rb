@@ -91,37 +91,47 @@ module Sablon
       @numbering = nil
     end
 
-    def ast_next_paragraph
-      node = @builder.next
-      if node.name == 'div'
-        @builder.new_layer
-        @builder.emit Paragraph.new('Normal', ast_text(node.children))
-      elsif node.name == 'p'
-        @builder.new_layer
-        @builder.emit Paragraph.new('Paragraph', ast_text(node.children))
-      elsif node.name =~ /h(\d+)/
-        @builder.new_layer
-        @builder.emit Paragraph.new("Heading#{$1}", ast_text(node.children))
-      elsif node.name == 'ul'
-        @builder.new_layer ilvl: true
-        unless @builder.nested?
-          @definition = @numbering.register('ListBullet')
-        end
-        @builder.push_all(node.children)
-      elsif node.name == 'ol'
-        @builder.new_layer ilvl: true
-        unless @builder.nested?
-          @definition = @numbering.register('ListNumber')
-        end
-        @builder.push_all(node.children)
-      elsif node.name == 'li'
-        @builder.new_layer
-        @builder.emit ListParagraph.new(@definition.style, ast_text(node.children), @definition.numid, @builder.ilvl)
-      elsif node.text?
-        # SKIP?
-      else
+    # Adds the appropriate style class to the node
+    def prepare_paragraph(node)
+      # set default styles based on node name
+      styles = { 'div' => 'Normal', 'p' => 'Paragraph', 'h' => 'Heading',
+                 'ul' => 'ListBullet', 'ol' => 'ListNumber' }
+      styles['li'] = @definition.style if @definition
+
+      # set the node class attribute based on the style, num allows h1,h2,..
+      tag, num = node.name.match(/([a-z]+)(\d*)/)[1..2]
+      unless styles[tag]
         raise ArgumentError, "Don't know how to handle node: #{node.inspect}"
       end
+      #
+      properties = {}
+      properties['pStyle'] = styles[tag] + num
+      properties
+    end
+
+    def ast_next_paragraph
+      node = @builder.next
+      return if node.text?
+
+      properties = prepare_paragraph(node)
+
+      # handle special cases
+      if node.name =~ /ul|ol/
+        @builder.new_layer ilvl: true
+        unless @builder.nested?
+          @definition = @numbering.register(properties['pStyle'])
+        end
+        @builder.push_all(node.children)
+        return
+      elsif node.name == 'li'
+        properties['numPr'] = [
+          { 'ilvl' => @builder.ilvl }, { 'numId' => @definition.numid }
+        ]
+      end
+
+      # create word_ml node
+      @builder.new_layer
+      @builder.emit Paragraph.new(properties, ast_text(node.children))
     end
 
     def ast_text(nodes, format: TextFormat.default)
