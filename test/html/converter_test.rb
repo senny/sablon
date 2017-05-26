@@ -336,9 +336,54 @@ class HTMLConverterStyleTest < Sablon::TestCase
     assert_equal normalize_wordml(expected_output), process(input)
   end
 
+  def test_paragraph_with_borders
+    # Basic single line black border
+    input = '<p style="border: 1px"></p>'
+    ppr = <<-DOCX.strip
+      <w:pBdr>
+        <w:top w:sz="2" w:val="single" w:color="000000" />
+        <w:bottom w:sz="2" w:val="single" w:color="000000" />
+        <w:left w:sz="2" w:val="single" w:color="000000" />
+        <w:right w:sz="2" w:val="single" w:color="000000" />
+      </w:pBdr>
+    DOCX
+    expected_output = para_with_ppr(ppr)
+    assert_equal normalize_wordml(expected_output), process(input)
+    # border with a line style
+    input = '<p style="border: 1px wavy"></p>'
+    ppr = <<-DOCX.strip
+      <w:pBdr>
+        <w:top w:sz="2" w:val="wavy" w:color="000000" />
+        <w:bottom w:sz="2" w:val="wavy" w:color="000000" />
+        <w:left w:sz="2" w:val="wavy" w:color="000000" />
+        <w:right w:sz="2" w:val="wavy" w:color="000000" />
+      </w:pBdr>
+    DOCX
+    expected_output = para_with_ppr(ppr)
+    assert_equal normalize_wordml(expected_output), process(input)
+    # border with line style and color
+    input = '<p style="border: 1px wavy #123456"></p>'
+    ppr = <<-DOCX.strip
+      <w:pBdr>
+        <w:top w:sz="2" w:val="wavy" w:color="123456" />
+        <w:bottom w:sz="2" w:val="wavy" w:color="123456" />
+        <w:left w:sz="2" w:val="wavy" w:color="123456" />
+        <w:right w:sz="2" w:val="wavy" w:color="123456" />
+      </w:pBdr>
+    DOCX
+    expected_output = para_with_ppr(ppr)
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
   def test_paragraph_with_text_align
     input = '<p style="text-align: both"></p>'
     expected_output = para_with_ppr('<w:jc w:val="both" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_paragraph_with_vertical_align
+    input = '<p style="vertical-align: baseline"></p>'
+    expected_output = para_with_ppr('<w:textAlignment w:val="baseline" />')
     assert_equal normalize_wordml(expected_output), process(input)
   end
 
@@ -441,50 +486,50 @@ class HTMLConverterStyleTest < Sablon::TestCase
   def test_paragraph_props_passed_to_runs
     input = '<p style="color: #123456"><b>Lorem</b><span>ipsum</span></p>'
     expected_output = <<-DOCX.strip
-<w:p>
-  <w:pPr>
-    <w:pStyle w:val="Paragraph" />
-  </w:pPr>
-  <w:r>
-    <w:rPr>
-       <w:color w:val="123456" />
-      <w:b />
-    </w:rPr>
-    <w:t xml:space="preserve">Lorem</w:t>
-  </w:r>
-  <w:r>
-    <w:rPr>
-      <w:color w:val="123456" />
-    </w:rPr>
-    <w:t xml:space="preserve">ipsum</w:t>
-  </w:r>
-</w:p>
-DOCX
+      <w:p>
+        <w:pPr>
+          <w:pStyle w:val="Paragraph" />
+        </w:pPr>
+        <w:r>
+          <w:rPr>
+             <w:color w:val="123456" />
+            <w:b />
+          </w:rPr>
+          <w:t xml:space="preserve">Lorem</w:t>
+        </w:r>
+        <w:r>
+          <w:rPr>
+            <w:color w:val="123456" />
+          </w:rPr>
+          <w:t xml:space="preserve">ipsum</w:t>
+        </w:r>
+      </w:p>
+    DOCX
     assert_equal normalize_wordml(expected_output), process(input)
   end
 
   def test_run_prop_override_paragraph_prop
     input = '<p style="text-align: center; color: #FF0000">Lorem<span style="color: blue;">ipsum</span></p>'
     expected_output = <<-DOCX.strip
-<w:p>
-  <w:pPr>
-    <w:jc w:val="center" />
-    <w:pStyle w:val="Paragraph" />
-  </w:pPr>
-  <w:r>
-    <w:rPr>
-      <w:color w:val="FF0000" />
-    </w:rPr>
-    <w:t xml:space="preserve">Lorem</w:t>
-  </w:r>
-  <w:r>
-    <w:rPr>
-      <w:color w:val="blue" />
-    </w:rPr>
-    <w:t xml:space="preserve">ipsum</w:t>
-  </w:r>
-</w:p>
-DOCX
+      <w:p>
+        <w:pPr>
+          <w:jc w:val="center" />
+          <w:pStyle w:val="Paragraph" />
+        </w:pPr>
+        <w:r>
+          <w:rPr>
+            <w:color w:val="FF0000" />
+          </w:rPr>
+          <w:t xml:space="preserve">Lorem</w:t>
+        </w:r>
+        <w:r>
+          <w:rPr>
+            <w:color w:val="blue" />
+          </w:rPr>
+          <w:t xml:space="preserve">ipsum</w:t>
+        </w:r>
+      </w:p>
+    DOCX
     assert_equal normalize_wordml(expected_output), process(input)
   end
 
@@ -501,18 +546,18 @@ DOCX
 
   def run_with_rpr(rpr_str)
     para_str = <<-DOCX.strip
-    <w:p>
-      <w:pPr>
-        <w:pStyle w:val="Paragraph" />
-      </w:pPr>
-      <w:r>
-        <w:rPr>
-          %s
-        </w:rPr>
-        <w:t xml:space="preserve">test</w:t>
-      </w:r>
-    </w:p>
-DOCX
+      <w:p>
+        <w:pPr>
+          <w:pStyle w:val="Paragraph" />
+        </w:pPr>
+        <w:r>
+          <w:rPr>
+            %s
+          </w:rPr>
+          <w:t xml:space="preserve">test</w:t>
+        </w:r>
+      </w:p>
+    DOCX
     format(para_str, rpr_str)
   end
 
