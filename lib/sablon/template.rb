@@ -22,20 +22,35 @@ module Sablon
       env = Sablon::Environment.new(self, context)
       Zip.sort_entries = true # required to process document.xml before numbering.xml
       Zip::OutputStream.write_buffer(StringIO.new) do |out|
+        # reading all entries into a hash to prevent doc corruption
+        # https://github.com/rubyzip/rubyzip/issues/330
+        zip_contents = {}
         Zip::File.open(@path).each do |entry|
-          entry_name = entry.name
-          out.put_next_entry(entry_name)
-          content = entry.get_input_stream.read
+          zip_contents[entry.name] = entry.get_input_stream.read
+        end
+        # get initial rid of all files
+        env.relationships.initialize_rids(zip_contents)
+        # step through and process each file
+        zip_contents.each do |entry_name, content|
+          env.current_entry = entry_name
           if entry_name == 'word/document.xml'
-            out.write(process(Processor::Document, content, env, properties))
+            zip_contents[entry_name] = process(Processor::Document, content, env, properties)
           elsif entry_name =~ /word\/header\d*\.xml/ || entry_name =~ /word\/footer\d*\.xml/
-            out.write(process(Processor::Document, content, env))
+            zip_contents[entry_name] = process(Processor::Document, content, env)
           elsif entry_name == 'word/numbering.xml'
-            out.write(process(Processor::Numbering, content, env))
-          else
-            out.write(content)
+            zip_contents[entry_name] = process(Processor::Numbering, content, env)
+          elsif entry_name == '[Content_Types].xml'
+            zip_contents[entry_name] = process(Processor::ContentType, content)
           end
         end
+        # update relationships
+        env.relationships.output_new_rids(zip_contents)
+        # output updated zip and add images
+        zip_contents.each do |entry_name, content|
+          out.put_next_entry(entry_name)
+          out.write(content)
+        end
+        env.images.add_images_to_zip!(out)
       end
     end
 

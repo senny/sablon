@@ -14,6 +14,7 @@ module Sablon
     class Loop < Struct.new(:list_expr, :iterator_name, :block)
       def evaluate(env)
         value = list_expr.evaluate(env.context)
+        value = [] if value.nil?
         value = value.to_ary if value.respond_to?(:to_ary)
         raise ContextError, "The expression #{list_expr.inspect} should evaluate to an enumerable but was: #{value.inspect}" unless value.is_a?(Enumerable)
 
@@ -21,7 +22,7 @@ module Sablon
           iter_env = env.alter_context(iterator_name => item)
           block.process(iter_env)
         end
-        block.replace(content.reverse)
+        block.replace(content.reverse) if block
       end
     end
 
@@ -48,6 +49,20 @@ module Sablon
     class Comment < Struct.new(:block)
       def evaluate(_env)
         block.replace []
+      end
+    end
+
+    class Image < Struct.new(:image_reference, :block)
+      def evaluate(env)
+        image = image_reference.evaluate(env.context)
+        unless image
+          block.replace([])
+          return
+        end
+        type_uri = Sablon::Processor::Relationships::IMAGE_TYPE
+        image.rid = env.register_relationship(type_uri, "media/#{image.name}")
+        env.images.register(image.name, image.data, image.rid)
+        block.replace([image])
       end
     end
   end

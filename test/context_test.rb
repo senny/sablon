@@ -25,4 +25,22 @@ class EnvironmentTest < Sablon::TestCase
                    "otherkey" => nil,
                    "normalkey" => nil}, context)
   end
+
+
+  def test_recognizes_image_keys
+    base_path = Pathname.new(File.expand_path("../", __FILE__))
+    img_path = "#{base_path}/fixtures/images/c3pO.jpg"
+    context = {
+      test: 'result',
+      'image:image' =>  img_path
+    }
+    # need to fix random number generation to generate identical image names
+    srand 123
+    context = Sablon::Context.transform_hash(context)
+
+    srand 123
+    assert_equal({ "test" => "result",
+                   "image" => Sablon.content(:image, img_path) },
+                 context)
+  end
 end

@@ -334,11 +334,11 @@ class ProcessorDocumentTest < Sablon::TestCase
     end
   end
 
-  def test_loop_with_missing_variable_raises_error
+  def test_loop_with_non_enumerable_value
     e = assert_raises Sablon::ContextError do
-      process(snippet("paragraph_loop"), {})
+      process(snippet("paragraph_loop"), { "technologies" => "string" })
     end
-    assert_equal "The expression «technologies» should evaluate to an enumerable but was: nil", e.message
+    assert_equal "The expression «technologies» should evaluate to an enumerable but was: \"string\"", e.message
   end
 
   def test_loop_with_missing_end_raises_error
@@ -440,10 +440,74 @@ class ProcessorDocumentTest < Sablon::TestCase
     assert_equal "Before After", text(result)
   end
 
+  def test_image_replacement
+    srand 123
+    base_path = Pathname.new(File.expand_path("../../", __FILE__))
+    image     = Sablon.content(:image, base_path + "fixtures/images/r2d2.jpg")
+    result    = process(snippet("image"), {"item" => { "image" => image }})
+
+    assert_xml_equal <<-document.delete("\n").gsub(/\s+/, ' '), result.delete("\n").gsub(/\s+/, ' ')
+    <w:p w14:paraId="0B614653" w14:textId="77777777" w:rsidR="00157A94" w:rsidRDefault="00157A94" w:rsidP="00441396">
+    </w:p>
+    <w:p w14:paraId="2DD3A410" w14:textId="77777777" w:rsidR="00157A94" w:rsidRDefault="00157A94" w:rsidP="00441396">
+    <w:r>
+    <w:rPr>
+      <w:noProof/>
+    </w:rPr>
+    <w:drawing>
+      <wp:inline distT="0" distB="0" distL="0" distR="0" wp14:anchorId="4664B6F7" wp14:editId="20CBF9B3">
+        <wp:extent cx="1875155" cy="1249045"/>
+        <wp:effectExtent l="0" t="0" r="0" b="0"/>
+        <wp:docPr id="2" name="Picture 2"/>
+        <wp:cNvGraphicFramePr>
+          <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
+        </wp:cNvGraphicFramePr>
+        <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+          <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+            <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+              <pic:nvPicPr>
+                <pic:cNvPr id="2" name="696469185-r2d2.jpg"/>
+                <pic:cNvPicPr/>
+              </pic:nvPicPr>
+              <pic:blipFill>
+                <a:blip r:embed="rId7">
+                  <a:extLst>
+                    <a:ext uri="{28A0092B-C50C-407E-A947-70E740481C1C}">
+                      <a14:useLocalDpi xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" val="0"/>
+                    </a:ext>
+                  </a:extLst>
+                </a:blip>
+                <a:stretch>
+                  <a:fillRect/>
+                </a:stretch>
+              </pic:blipFill>
+              <pic:spPr>
+                <a:xfrm>
+                  <a:off x="0" y="0"/>
+                  <a:ext cx="1875155" cy="1249045"/>
+                </a:xfrm>
+                <a:prstGeom prst="rect">
+                  <a:avLst/>
+                </a:prstGeom>
+              </pic:spPr>
+            </pic:pic>
+          </a:graphicData>
+        </a:graphic>
+      </wp:inline>
+    </w:drawing>
+    </w:r>
+    </w:p>
+    <w:p w14:paraId="2B49BF59" w14:textId="77777777" w:rsidR="00157A94" w:rsidRPr="007F5CDE" w:rsidRDefault="00157A94" w:rsidP="00441396">
+    </w:p>
+    document
+  end
+
   private
 
   def process(document, context)
     env = Sablon::Environment.new(nil, context)
+    env.current_entry = 'word/document.xml'
+    env.relationships.instance_variable_set(:@rids, {'word/document.xml' => 6})
     @processor.process(wrap(document), env).to_xml
   end
 end
