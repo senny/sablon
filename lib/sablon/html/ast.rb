@@ -12,7 +12,7 @@ module Sablon
 
     class NodeProperties
       def self.paragraph(properties)
-        NodeProperties.new('w:pPr', properties)
+        new('w:pPr', properties)
       end
 
       def initialize(tagname, properties)
