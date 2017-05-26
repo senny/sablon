@@ -649,36 +649,36 @@ class NodePropertiesTest < Sablon::TestCase
   def test_empty_node_properties_converison
     # test empty properties
     props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', {}, @inc_props.new)
-    assert props.inspect == ''
-    assert props.to_docx.nil?
+    assert_equal props.inspect, ''
+    assert_equal props.to_docx, nil
   end
 
   def test_simple_node_property_converison
     props = { 'pStyle' => 'Paragraph' }
     props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', props, @inc_props.new)
-    assert props.inspect == 'pStyle=Paragraph'
-    assert props.to_docx == '<w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>'
+    assert props.inspect, 'pStyle=Paragraph'
+    assert props.to_docx, '<w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>'
   end
 
   def test_node_property_with_nil_value_converison
     props = { 'b' => nil }
     props = Sablon::HTMLConverter::NodeProperties.new('w:rPr', props, @inc_props.new)
-    assert props.inspect == 'b'
-    assert props.to_docx == '<w:rPr><w:b /></w:rPr>'
+    assert_equal props.inspect, 'b'
+    assert_equal props.to_docx, '<w:rPr><w:b /></w:rPr>'
   end
 
   def test_node_property_with_hash_value_converison
     props = { 'shd' => { color: 'clear', fill: '123456', test: nil } }
     props = Sablon::HTMLConverter::NodeProperties.new('w:rPr', props, @inc_props.new)
-    assert props.inspect == 'shd={:color=>"clear", :fill=>"123456", :test=>nil}'
-    assert props.to_docx == '<w:rPr><w:shd w:color="clear" w:fill="123456" /></w:rPr>'
+    assert_equal props.inspect, 'shd={:color=>"clear", :fill=>"123456", :test=>nil}'
+    assert_equal props.to_docx, '<w:rPr><w:shd w:color="clear" w:fill="123456" /></w:rPr>'
   end
 
   def test_node_property_with_array_value_converison
     props = { 'numPr' => [{ 'ilvl' => 1 }, { 'numId' => 34 }] }
     props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', props, @inc_props.new)
-    assert props.inspect == 'numPr=[{"ilvl"=>1}, {"numId"=>34}]'
-    assert props.to_docx == '<w:pPr><w:numPr><w:ilvl w:val="1" /><w:numId w:val="34" /></w:numPr></w:pPr>'
+    assert_equal props.inspect, 'numPr=[{"ilvl"=>1}, {"numId"=>34}]'
+    assert_equal props.to_docx, '<w:pPr><w:numPr><w:ilvl w:val="1" /><w:numId w:val="34" /></w:numPr></w:pPr>'
   end
 
   def test_complex_node_properties_conversion
@@ -709,7 +709,7 @@ class NodePropertiesTest < Sablon::TestCase
       </w:pPr>
     DOCX
     props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', props, @inc_props.new)
-    assert props.to_docx == output
+    assert_equal props.to_docx, output
   end
 
   def test_node_properties_paragraph_factory
