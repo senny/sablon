@@ -686,7 +686,7 @@ class NodePropertiesTest < Sablon::TestCase
     # struct to simplify prop whitelisting during tests
     @inc_props = Struct.new(:props) do
       def include?(value)
-        props.nil? ? true : props.include?(value)
+        true
       end
     end
   end
@@ -701,8 +701,8 @@ class NodePropertiesTest < Sablon::TestCase
   def test_simple_node_property_converison
     props = { 'pStyle' => 'Paragraph' }
     props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', props, @inc_props.new)
-    assert props.inspect, 'pStyle=Paragraph'
-    assert props.to_docx, '<w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>'
+    assert_equal props.inspect, 'pStyle=Paragraph'
+    assert_equal props.to_docx, '<w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>'
   end
 
   def test_node_property_with_nil_value_converison
@@ -755,6 +755,25 @@ class NodePropertiesTest < Sablon::TestCase
     DOCX
     props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', props, @inc_props.new)
     assert_equal props.to_docx, output
+  end
+
+  def test_setting_property_value
+    props = {}
+    props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', props, @inc_props.new)
+    props['rStyle'] = 'FootnoteText'
+    assert_equal({ 'rStyle' => 'FootnoteText' }, props.instance_variable_get(:@properties))
+  end
+
+  def test_properties_filtered_on_init
+    props = { 'pStyle' => 'Paragraph', 'rStyle' => 'EndnoteText' }
+    props = Sablon::HTMLConverter::NodeProperties.new('w:rPr', props, %[rStyle])
+    assert_equal({ 'rStyle' => 'EndnoteText' }, props.instance_variable_get(:@properties))
+  end
+
+  def test_transferred_properties
+    props = { 'pStyle' => 'Paragraph', 'rStyle' => 'EndnoteText' }
+    trans = Sablon::HTMLConverter::NodeProperties.transferred_properties(props, %[pStyle])
+    assert_equal({ 'rStyle' => 'EndnoteText' }, trans)
   end
 
   def test_node_properties_paragraph_factory
