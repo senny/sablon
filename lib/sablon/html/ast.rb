@@ -2,8 +2,67 @@ module Sablon
   class HTMLConverter
     class Node
       PROPERTIES = [].freeze
+      # styles shared or common logic across all node types go here. Any
+      # undefined styles are passed straight through "as is" to the
+      # properties hash. Keys that are symbols will not get called directly
+      # when processing the style string and are suitable for internal-only
+      # usage across different classes.
+      STYLE_CONVERSION = {
+        'background-color' => lambda { |v|
+          return 'shd', { val: 'clear', fill: v.delete('#') }
+        },
+        border: lambda { |v|
+          props = { sz: 2, val: 'single', color: '000000' }
+          vals = v.split
+          vals[1] = 'single' if vals[1] == 'solid'
+          #
+          props[:sz] = (2 * Float(vals[0].gsub(/[^\d.]/, '')).ceil).to_s if vals[0]
+          props[:val] = vals[1] if vals[1]
+          props[:color] = vals[2].delete('#') if vals[2]
+          #
+          return props
+        },
+        'text-align' => ->(v) { return 'jc', v }
+      }
+      # This proc is used to allow unmapped styles to pass through
+      STYLE_CONVERSION.default_proc = proc do |hash, key|
+        ->(v) { return key, v }
+      end
+      STYLE_CONVERSION.freeze
+
       def accept(visitor)
         visitor.visit(self)
+      end
+
+      # maps the CSS style property to it's OpenXML equivalent. Not all CSS
+      # properties have an equivalent, nor share the same behavior when
+      # defined on different node types (Paragraph, Table and Run).
+      def self.process_style(style_str)
+        return {} unless style_str
+        #
+        styles = style_str.split(';').map { |pair| pair.split(':') }
+        # process the styles as a hash and store values
+        style_attrs = {}
+        Hash[styles].each do |key, value|
+          key, value = convert_style_attr(key.strip, value.strip)
+          style_attrs[key] = value if key
+        end
+        style_attrs
+      end
+
+      # handles conversion of a single attribute allowing recursion through
+      # super classes
+      def self.convert_style_attr(key, value)
+        if self::STYLE_CONVERSION[key]
+          self::STYLE_CONVERSION[key].call(value)
+        else
+          superclass.convert_style_attr(key, value)
+        end
+      end
+
+      # Simplifies usage at call sites
+      def self.transferred_properties(properties)
+        NodeProperties.transferred_properties(properties, self::PROPERTIES)
       end
 
       def self.node_name
@@ -18,6 +77,17 @@ module Sablon
 
       def self.run(properties)
         new('w:rPr', properties, Run::PROPERTIES)
+      end
+
+      # creates a hash of all properties that aren't consumed by the node
+      # so they can be propagated to child nodes
+      def self.transferred_properties(properties, whitelist)
+        props = properties.map do |key, value|
+          next if whitelist.include? key
+          [key, value]
+        end
+        # filter out nils and return hash
+        Hash[props.compact]
       end
 
       def initialize(tagname, properties, whitelist)
@@ -114,6 +184,17 @@ module Sablon
       PROPERTIES = %w[framePr ind jc keepLines keepNext numPr
                       outlineLvl pBdr pStyle rPr sectPr shd spacing
                       tabs textAlignment].freeze
+      STYLE_CONVERSION = {
+        'border' => lambda { |v|
+          props = Node::STYLE_CONVERSION[:border].call(v)
+          #
+          return 'pBdr', [
+            { top: props }, { bottom: props },
+            { left: props }, { right: props }
+          ]
+        },
+        'vertical-align' => ->(v) { return 'textAlignment', v }
+      }.freeze
       attr_accessor :runs
 
       def initialize(properties, runs)
@@ -139,9 +220,33 @@ module Sablon
       PROPERTIES = %w[b i caps color dstrike emboss imprint highlight outline
                       rStyle shadow shd smallCaps strike sz u vanish
                       vertAlign].freeze
+      STYLE_CONVERSION = {
+        'color' => ->(v) { return 'color', v.delete('#') },
+        'font-size' => lambda { |v|
+          return 'sz', (2 * Float(v.gsub(/[^\d.]/, '')).ceil).to_s
+        },
+        'font-style' => lambda { |v|
+          return 'b', nil if v =~ /bold/
+          return 'i', nil if v =~ /italic/
+        },
+        'font-weight' => ->(v) { return 'b', nil if v =~ /bold/ },
+        'text-decoration' => lambda { |v|
+          supported = %w[line-through underline]
+          props = v.split
+          return props[0], 'true' unless supported.include? props[0]
+          return 'strike', 'true' if props[0] == 'line-through'
+          return 'u', 'single' if props.length == 1
+          return 'u', { val: props[1], color: 'auto' } if props.length == 2
+          return 'u', { val: props[1], color: props[2].delete('#') }
+        },
+        'vertical-align' => lambda { |v|
+          return 'vertAlign', 'subscript' if v =~ /sub/
+          return 'vertAlign', 'superscript' if v =~ /super/
+        }
+      }.freeze
       attr_reader :string
 
-      def initialize(string, properties)
+      def initialize(properties, string)
         @properties = NodeProperties.run(properties)
         @string = string
       end
