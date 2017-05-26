@@ -120,7 +120,7 @@ module Sablon
       end
 
       def to_docx
-        "<#{@tagname}>#{process}</#{@tagname}>" unless @properties.empty?
+        "<#{@tagname}>#{properties_word_ml}</#{@tagname}>" unless @properties.empty?
       end
 
       private
@@ -142,7 +142,7 @@ module Sablon
       end
 
       # processes attributes defined on the node into wordML property syntax
-      def process
+      def properties_word_ml
         @properties.map { |k, v| transform_attr(k, v) }.join
       end
 
