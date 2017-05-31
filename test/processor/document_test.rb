@@ -334,11 +334,11 @@ class ProcessorDocumentTest < Sablon::TestCase
     end
   end
 
-  def test_loop_with_missing_variable_raises_error
+  def test_loop_with_non_enumerable_value
     e = assert_raises Sablon::ContextError do
-      process(snippet("paragraph_loop"), {})
+      process(snippet("paragraph_loop"), { "technologies" => "string" })
     end
-    assert_equal "The expression «technologies» should evaluate to an enumerable but was: nil", e.message
+    assert_equal "The expression «technologies» should evaluate to an enumerable but was: \"string\"", e.message
   end
 
   def test_loop_with_missing_end_raises_error
