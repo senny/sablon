@@ -440,6 +440,21 @@ class ProcessorDocumentTest < Sablon::TestCase
     assert_equal "Before After", text(result)
   end
 
+  def test_comment_block_and_comment_as_key
+    result = process(snippet("comment_block_and_comment_as_key"), {comment: 'Contents of comment key'})
+
+    assert_xml_equal <<-document, result
+    <w:r><w:t xml:space="preserve">Before </w:t></w:r>
+    <w:r><w:t xml:space="preserve">After </w:t></w:r>
+    <w:p>           
+      <w:r w:rsidR="004B49F0">
+        <w:rPr><w:noProof/></w:rPr>
+        <w:t>Contents of comment key</w:t>
+      </w:r>
+    </w:p>
+    document
+  end
+
   private
 
   def process(document, context)

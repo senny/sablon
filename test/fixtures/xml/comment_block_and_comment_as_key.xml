@@ -1,0 +1,31 @@
+<w:r><w:t xml:space="preserve">Before </w:t></w:r>
+<w:p>
+<w:fldSimple w:instr=" MERGEFIELD comment \* MERGEFORMAT ">
+  <w:r>
+    <w:rPr><w:noProof/></w:rPr>
+    <w:t>«comment»</w:t>
+  </w:r>
+</w:fldSimple>
+</w:p>
+<w:p>
+<w:r>
+  <w:t>Inside Comment! </w:t>
+</w:r>
+</w:p>
+<w:p>
+<w:fldSimple w:instr=" MERGEFIELD endComment \* MERGEFORMAT ">
+  <w:r>
+    <w:rPr><w:noProof/></w:rPr>
+    <w:t>«endComment»</w:t>
+  </w:r>
+</w:fldSimple>
+</w:p>
+<w:p>
+<w:fldSimple w:instr=" MERGEFIELD =comment \* MERGEFORMAT ">
+  <w:r w:rsidR="004B49F0">
+    <w:rPr><w:noProof/></w:rPr>
+    <w:t>«=comment»</w:t>
+  </w:r>
+</w:fldSimple>
+</w:p>
+<w:r><w:t xml:space="preserve">After </w:t></w:r>
