@@ -8,12 +8,24 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
+    codecov (0.1.10)
+      json
+      simplecov
+      url
+    docile (1.1.5)
+    json (2.1.0)
     mini_portile2 (2.1.0)
     minitest (5.8.0)
     nokogiri (1.7.1)
       mini_portile2 (~> 2.1.0)
     rake (10.4.2)
     rubyzip (1.2.1)
+    simplecov (0.14.1)
+      docile (~> 1.1.0)
+      json (>= 1.8, < 3)
+      simplecov-html (~> 0.10.0)
+    simplecov-html (0.10.0)
+    url (0.3.2)
     xml-simple (1.1.5)
 
 PLATFORMS
@@ -21,10 +33,11 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (>= 1.6)
+  codecov
   minitest (~> 5.4)
   rake (~> 10.0)
   sablon!
   xml-simple
 
 BUNDLED WITH
-   1.14.5
+   1.14.6
