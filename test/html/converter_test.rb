@@ -310,6 +310,13 @@ DOCX
     assert_equal [Sablon::Numbering::Definition.new(1001, 'ListBullet')], @numbering.definitions
   end
 
+  def test_unknown_tag
+    e = assert_raises ArgumentError do
+      process('<badtag/>')
+    end
+    assert_match(/Don't know how to handle node:/, e.message)
+  end
+
   private
 
   def process(input)
