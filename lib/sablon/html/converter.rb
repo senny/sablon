@@ -96,7 +96,7 @@ module Sablon
       # set default styles based on HTML element allowing for h1, h2, etc.
       styles = Hash.new do |hash, key|
         tag, num = key.match(/([a-z]+)(\d*)/)[1..2]
-        { 'pStyle' => hash[tag]['pStyle'] + num } if hash[tag]
+        { 'pStyle' => hash[tag]['pStyle'] + num } if hash.key?(tag)
       end
       styles.merge!('div' => 'Normal', 'p' => 'Paragraph', 'h' => 'Heading',
                     'ul' => 'ListBullet', 'ol' => 'ListNumber')
