@@ -2,6 +2,43 @@
 require "test_helper"
 
 class ConfigurationTest < Sablon::TestCase
+  def setup
+    super
+    @config = Sablon::Configuration.send(:new)
+  end
+
+  def test_register_tag
+    options = {
+      ast_class: :paragraph,
+      attributes: { dummy: 'value' },
+      properties: { pstyle: 'ListBullet' },
+      allowed_children: %i[_inline ol ul li]
+    }
+    # test initialization without type
+    tag = @config.register_html_tag(:test_tag, **options)
+    assert_equal @config.permitted_html_tags[:test_tag], tag
+    assert_equal tag.name, :test_tag
+    assert_equal tag.type, :inline
+    assert_equal tag.ast_class, Sablon::HTMLConverter::Paragraph
+    assert_equal tag.attributes, dummy: 'value'
+    assert_equal tag.properties, pstyle: 'ListBullet'
+    assert_equal tag.allowed_children, %i[_inline ol ul li]
+
+    # test initialization with type
+    tag = @config.register_html_tag('test_tag2', :block, **options)
+    assert_equal @config.permitted_html_tags[:test_tag2], tag
+    assert_equal tag.name, :test_tag2
+    assert_equal tag.type, :block
+  end
+
+  def test_remove_tag
+    tag = @config.register_html_tag(:test)
+    assert_equal @config.remove_html_tag(:test), tag
+    assert_nil @config.permitted_html_tags[:test]
+  end
+end
+
+class ConfigurationHTMLTagTest < Sablon::TestCase
   # test basic instantiation of an HTMLTag
   def test_html_tag_defaults
     tag = Sablon::Configuration::HTMLTag.new(:a, :inline)
@@ -32,8 +69,8 @@ class ConfigurationTest < Sablon::TestCase
     assert_equal tag.name, :a
     assert_equal tag.type, :inline
     assert_equal tag.ast_class, Sablon::HTMLConverter::Run
-    assert_equal tag.attributes, { dummy: 'value1' }
-    assert_equal tag.properties, { dummy2: 'value2' }
+    assert_equal tag.attributes, dummy: 'value1'
+    assert_equal tag.properties, dummy2: 'value2'
     assert_equal tag.allowed_children, [:text]
   end
 
