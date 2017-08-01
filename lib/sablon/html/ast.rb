@@ -115,8 +115,8 @@ module Sablon
 
       def filter(properties, whitelist)
         props = properties.map do |key, value|
-          next unless whitelist.include? key
-          [key, value]
+          next unless whitelist.include? key.to_s
+          [key.to_s, value]
         end
         # filter out nils and return hash
         Hash[props.compact]
