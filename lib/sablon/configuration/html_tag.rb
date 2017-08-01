@@ -44,7 +44,7 @@ module Sablon
         # Set optional attributes
         @attributes = options.fetch(:attributes, {})
         @properties = options.fetch(:properties, {})
-        @allowed_children = options.fetch(:allowed_children, %i[_inline ol ul])
+        self.allowed_children = options[:allowed_children]
       end
 
       # checks if the given tag is a permitted child element
@@ -61,6 +61,16 @@ module Sablon
       end
 
       private
+
+      def allowed_children=(value)
+        if value.nil?
+          @allowed_children = %i[_inline ol ul]
+          return
+        else
+          value = [value] unless value.is_a? Array
+        end
+        @allowed_children = value.map(&:to_sym)
+      end
 
       # converts a string or symbol to a class defined under
       # Sablon::HTMLConverter

@@ -9,11 +9,10 @@ module Sablon
     attr_accessor :permitted_html_tags
 
     def initialize
-      @permitted_html_tags = {}
       initialize_html_tags
     end
 
-    # Adds a new tag to the permitted tags hash
+    # Adds a new tag to the permitted tags hash or replaces an existing one
     def register_html_tag(tag_name, type = :inline, **options)
       tag = HTMLTag.new(tag_name, type, **options)
       @permitted_html_tags[tag.name] = tag
@@ -28,6 +27,7 @@ module Sablon
 
     # Defines all of the initial HTML tags to be used by HTMLconverter
     def initialize_html_tags
+      @permitted_html_tags = {}
       tags = {
         # block level tags
         div: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Normal' } },
@@ -38,8 +38,8 @@ module Sablon
         h4: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Heading4' } },
         h5: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Heading5' } },
         h6: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Heading6' } },
-        ol: { type: :block, ast_class: :paragraph, properties: { pstyle: 'ListNumber' } },
-        ul: { type: :block, ast_class: :paragraph, properties: { pstyle: 'ListBullet' } },
+        ol: { type: :block, ast_class: :paragraph, properties: { pstyle: 'ListNumber' }, allowed_children: %i[_inline ol ul li] },
+        ul: { type: :block, ast_class: :paragraph, properties: { pstyle: 'ListBullet' }, allowed_children: %i[_inline ol ul li] },
         li: { type: :block, ast_class: :paragraph },
         # inline style tags
         span: { type: :inline, ast_class: nil, properties: {} },
