@@ -193,7 +193,7 @@ module Sablon
 
     def ast_runs(nodes, properties)
       runs = nodes.flat_map do |node|
-        if %w[ul ol p div].include?(node.name)
+        if %w[ul ol].include?(node.name)
           @builder.push(node)
           next nil
         else
