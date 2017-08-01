@@ -22,6 +22,7 @@ class HTMLConverterTest < Sablon::TestCase
   end
 
   def test_validate_structure
+    root = Sablon::Configuration.instance.permitted_html_tags['#document-fragment'.to_sym]
     div = Sablon::Configuration.instance.permitted_html_tags[:div]
     span = Sablon::Configuration.instance.permitted_html_tags[:span]
     # test valid relationship
@@ -33,7 +34,7 @@ class HTMLConverterTest < Sablon::TestCase
     assert_equal "Invalid HTML structure: div is not a valid child element of span.", e.message
     # test inline tag with no parent
     e = assert_raises ArgumentError do
-      @converter.send(:validate_structure, nil, span)
+      @converter.send(:validate_structure, root, span)
     end
     assert_equal "Invalid HTML structure: span needs to be wrapped in a block level tag.", e.message
   end
@@ -343,7 +344,7 @@ DOCX
     e = assert_raises ArgumentError do
       process('<badtag/>')
     end
-    assert_match(/Don't know how to handle node:/, e.message)
+    assert_match(/Don't know how to handle HTML tag:/, e.message)
   end
 
   private
