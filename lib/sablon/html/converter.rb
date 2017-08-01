@@ -91,6 +91,52 @@ module Sablon
       @numbering = nil
     end
 
+    def fetch_tag(tag_name)
+      tag_name = tag_name.to_sym
+      unless Sablon::Configuration.instance.permitted_html_tags[tag_name]
+        raise ArgumentError, "Don't know how to handle HTML tag: #{tag_name}"
+      end
+      Sablon::Configuration.instance.permitted_html_tags[tag_name]
+    end
+
+    #
+    # Checking that the current tag is an allowed child of the parent_tag.
+    # If the parent tag is nil then a block level tag is required.
+    def validate_structure(parent, child)
+      if parent && !parent.allowed_child?(child)
+        msg = "#{child.name} is not a valid child element of #{parent.name}."
+      elsif parent.nil? && child.type == :inline
+        msg = "#{child.name} needs to be wrapped in a block level tag."
+      else
+        return
+      end
+      raise ContextError, "Invalid HTML structure: #{msg}"
+    end
+
+    # Validates that the current tag is permitted, that the structure of
+    # the HTML markup is correct and processes the style attribute of the
+    # node.
+    def prepare_node(parent, node, properties)
+      parent_tag = fetch_tag(parent.name) if parent_tag
+      tag = fetch_tag(node.name)
+      # check node hierarchy
+      validate_structure(parent_tag, tag)
+      #
+      # I'll need to figure out how to transfer the ul/ol style down to the li
+      # tag now that I will be using a config module. Creating a List Collection
+      # in the AST file might be the best route using the allowed children
+      # to whitelist content
+      elm_props = tag.properties
+      if node.name == 'li'
+        elm_props[:pStyle] = @definition.style if @definition
+      elsif node.name =~ /ul|ol/
+        merge_node_attributes(node, node.attributes)
+      end
+      # merge and return updated properties
+      ast_class = tag.ast_class || (tag.type == :block ? Paragraph : Run)
+      merge_node_properties(node, properties, elm_props, ast_class)
+    end
+
     # Adds the appropriate style class to the node
     def prepare_paragraph(node)
       # set default styles based on HTML element allowing for h1, h2, etc.
@@ -100,6 +146,8 @@ module Sablon
       end
       styles.merge!('div' => 'Normal', 'p' => 'Paragraph', 'h' => 'Heading',
                     'ul' => 'ListBullet', 'ol' => 'ListNumber')
+      # I'll need to figure out how to transfer the ul/ol style down to the li
+      # tag now that I will be using a config module
       styles['li'] = @definition.style if @definition
       styles.each { |k, v| styles[k] = { 'pStyle' => v } }
       unless styles[node.name]
