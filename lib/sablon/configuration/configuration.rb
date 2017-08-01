@@ -29,6 +29,8 @@ module Sablon
     def initialize_html_tags
       @permitted_html_tags = {}
       tags = {
+        # special tag used for elements with no parent, i.e. top level
+        '#document-fragment'.to_sym => { type: :block, ast_class: :root, allowed_children: :_block },
         # block level tags
         div: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Normal' } },
         p: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Paragraph' } },
