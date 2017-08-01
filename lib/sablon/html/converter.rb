@@ -103,10 +103,10 @@ module Sablon
     # Checking that the current tag is an allowed child of the parent_tag.
     # If the parent tag is nil then a block level tag is required.
     def validate_structure(parent, child)
-      if parent && !parent.allowed_child?(child)
-        msg = "#{child.name} is not a valid child element of #{parent.name}."
-      elsif parent.nil? && child.type == :inline
+      if parent.ast_class == Root && child.type == :inline
         msg = "#{child.name} needs to be wrapped in a block level tag."
+      elsif parent && !parent.allowed_child?(child)
+        msg = "#{child.name} is not a valid child element of #{parent.name}."
       else
         return
       end
@@ -116,8 +116,8 @@ module Sablon
     # Validates that the current tag is permitted, that the structure of
     # the HTML markup is correct and processes the style attribute of the
     # node.
-    def prepare_node(parent, node, properties)
-      parent_tag = fetch_tag(parent.name) if parent_tag
+    def prepare_node(node, properties)
+      parent_tag = fetch_tag(node.parent.name) if node.parent.name
       tag = fetch_tag(node.name)
       # check node hierarchy
       validate_structure(parent_tag, tag)
@@ -125,55 +125,22 @@ module Sablon
       # I'll need to figure out how to transfer the ul/ol style down to the li
       # tag now that I will be using a config module. Creating a List Collection
       # in the AST file might be the best route using the allowed children
-      # to whitelist content
+      # to whitelist content.
       elm_props = tag.properties
       if node.name == 'li'
         elm_props[:pStyle] = @definition.style if @definition
+        elm_props[:numPr] = [
+          { 'ilvl' => @builder.ilvl },
+          { 'numId' => @definition.numid }
+        ]
       elsif node.name =~ /ul|ol/
+        merge_node_attributes(node, node.parent.attributes) if parent_tag.name == :li
         merge_node_attributes(node, node.attributes)
       end
+      #
       # merge and return updated properties
       ast_class = tag.ast_class || (tag.type == :block ? Paragraph : Run)
       merge_node_properties(node, properties, elm_props, ast_class)
-    end
-
-    # Adds the appropriate style class to the node
-    def prepare_paragraph(node)
-      # set default styles based on HTML element allowing for h1, h2, etc.
-      styles = Hash.new do |hash, key|
-        tag, num = key.match(/([a-z]+)(\d*)/)[1..2]
-        { 'pStyle' => hash[tag]['pStyle'] + num } if hash.key?(tag)
-      end
-      styles.merge!('div' => 'Normal', 'p' => 'Paragraph', 'h' => 'Heading',
-                    'ul' => 'ListBullet', 'ol' => 'ListNumber')
-      # I'll need to figure out how to transfer the ul/ol style down to the li
-      # tag now that I will be using a config module
-      styles['li'] = @definition.style if @definition
-      styles.each { |k, v| styles[k] = { 'pStyle' => v } }
-      unless styles[node.name]
-        raise ArgumentError, "Don't know how to handle node: #{node.inspect}"
-      end
-      #
-      merge_node_properties(node, {}, styles[node.name], Paragraph)
-    end
-
-    # Adds properties to the run, from the parent, the style node attributes
-    # and finally any element specfic properties. A modified properties hash
-    # is returned
-    def prepare_run(node, properties)
-      # HTML element based styles
-      styles = {
-        'span' => {}, 'text' => {}, 'br' => {},
-        'strong' => { 'b' => nil }, 'b' => { 'b' => nil },
-        'em' => { 'i' => nil }, 'i' => { 'i' => nil },
-        'u' => { 'u' => 'single' }
-      }
-
-      unless styles.key?(node.name)
-        raise ArgumentError, "Don't know how to handle node: #{node.inspect}"
-      end
-      # combine all properties, return the new hash
-      merge_node_properties(node, properties, styles[node.name], Run)
     end
 
     def merge_node_properties(node, par_props, elm_props, ast_class)
@@ -206,21 +173,16 @@ module Sablon
       node = @builder.next
       return if node.text?
 
-      properties = prepare_paragraph(node)
+      properties = prepare_node(node, {})
 
       # handle special cases
       if node.name =~ /ul|ol/
         @builder.new_layer ilvl: true
         unless @builder.nested?
-          @definition = @numbering.register(properties['pStyle'])
+          @definition = @numbering.register(properties[:pStyle])
         end
-        merge_node_attributes(node, node.attributes)
         @builder.push_all(node.children)
         return
-      elsif node.name == 'li'
-        properties['numPr'] = [
-          { 'ilvl' => @builder.ilvl }, { 'numId' => @definition.numid }
-        ]
       end
 
       # create word_ml node
@@ -231,13 +193,11 @@ module Sablon
 
     def ast_runs(nodes, properties)
       runs = nodes.flat_map do |node|
-        begin
-          local_props = prepare_run(node, properties)
-        rescue ArgumentError
-          raise unless %w[ul ol p div].include?(node.name)
-          merge_node_attributes(node, node.parent.attributes)
+        if %w[ul ol p div].include?(node.name)
           @builder.push(node)
           next nil
+        else
+          local_props = prepare_node(node, properties)
         end
         #
         if node.text?
