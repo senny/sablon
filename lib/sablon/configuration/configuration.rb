@@ -40,8 +40,8 @@ module Sablon
         h4: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Heading4' } },
         h5: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Heading5' } },
         h6: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Heading6' } },
-        ol: { type: :block, ast_class: :paragraph, properties: { pStyle: 'ListNumber' }, allowed_children: %i[_inline ol li] },
-        ul: { type: :block, ast_class: :paragraph, properties: { pStyle: 'ListBullet' }, allowed_children: %i[_inline ul li] },
+        ol: { type: :block, ast_class: :paragraph, properties: { pStyle: 'ListNumber' }, allowed_children: %i[ol li] },
+        ul: { type: :block, ast_class: :paragraph, properties: { pStyle: 'ListBullet' }, allowed_children: %i[ul li] },
         li: { type: :block, ast_class: :paragraph },
         # inline style tags
         span: { type: :inline, ast_class: nil, properties: {} },
