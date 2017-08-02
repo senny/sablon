@@ -1,68 +1,70 @@
 require "sablon/html/ast"
+require "sablon/html/ast/builder"
 require "sablon/html/visitor"
 
 module Sablon
   class HTMLConverter
-    class ASTBuilder
-      Layer = Struct.new(:items, :ilvl)
-
-      def initialize(nodes)
-        @layers = [Layer.new(nodes, false)]
-        @root = Root.new([])
-      end
-
-      def to_ast
-        @root
-      end
-
-      def new_layer(ilvl: false)
-        @layers.push Layer.new([], ilvl)
-      end
-
-      def next
-        current_layer.items.shift
-      end
-
-      def push(node)
-        @layers.last.items.push node
-      end
-
-      def push_all(nodes)
-        nodes.each(&method(:push))
-      end
-
-      def done?
-        !current_layer.items.any?
-      end
-
-      def nested?
-        ilvl > 0
-      end
-
-      def ilvl
-        @layers.select { |layer| layer.ilvl }.size - 1
-      end
-
-      def emit(node)
-        @root.nodes << node
+    # Converts a nokogiri HTML fragment into an equivalent AST structure
+    class ASTBuilder2
+      def self.html_to_ast(env, nodes)
+        new(env, nodes)
       end
 
       private
 
-      def current_layer
-        if @layers.any?
-          last_layer = @layers.last
-          if last_layer.items.any?
-            last_layer
-          else
-            @layers.pop
-            current_layer
-          end
-        else
-          Layer.new([], false)
+      def initialize(env, nodes)
+        @env = env
+        @nodes = nodes
+      end
+
+      # retrieves a HTMLTag instance from the cpermitted_html_tags hash or
+      # raises an ArgumentError if the tag is not registered in the hash
+      def fetch_tag(tag_name)
+        tag_name = tag_name.to_sym
+        unless Sablon::Configuration.instance.permitted_html_tags[tag_name]
+          raise ArgumentError, "Don't know how to handle HTML tag: #{tag_name}"
         end
+        Sablon::Configuration.instance.permitted_html_tags[tag_name]
+      end
+
+      # Checking that the current tag is an allowed child of the parent_tag.
+      # If the parent tag is nil then a block level tag is required.
+      def validate_structure(parent, child)
+        if parent.ast_class == Root && child.type == :inline
+          msg = "#{child.name} needs to be wrapped in a block level tag."
+        elsif parent && !parent.allowed_child?(child)
+          msg = "#{child.name} is not a valid child element of #{parent.name}."
+        else
+          return
+        end
+        raise ContextError, "Invalid HTML structure: #{msg}"
+      end
+
+      # Validates that the current tag is permitted, that the structure of
+      # the HTML markup is correct and processes the style attribute of the
+      # node.
+      def prepare_node(node, properties)
+        parent_tag = fetch_tag(node.parent.name) if node.parent.name
+        tag = fetch_tag(node.name)
+
+        # check node hierarchy
+        validate_structure(parent_tag, tag)
+
+        # merge and return updated properties
+        ast_class = tag.ast_class || (tag.type == :block ? Paragraph : Run)
+        merge_node_properties(node, properties, elm_props, ast_class)
+      end
+
+      # Parses the inline style string and returns a hash of properties
+      def process_style(style_str)
+        return {} unless style_str
+        #
+        styles = style_str.split(';').map { |pair| pair.split(':') }
+        Hash[styles]
       end
     end
+
+
 
     def process(input, env)
       @numbering = env.numbering
@@ -86,32 +88,6 @@ module Sablon
     end
 
     private
-
-    def initialize
-      @numbering = nil
-    end
-
-    def fetch_tag(tag_name)
-      tag_name = tag_name.to_sym
-      unless Sablon::Configuration.instance.permitted_html_tags[tag_name]
-        raise ArgumentError, "Don't know how to handle HTML tag: #{tag_name}"
-      end
-      Sablon::Configuration.instance.permitted_html_tags[tag_name]
-    end
-
-    #
-    # Checking that the current tag is an allowed child of the parent_tag.
-    # If the parent tag is nil then a block level tag is required.
-    def validate_structure(parent, child)
-      if parent.ast_class == Root && child.type == :inline
-        msg = "#{child.name} needs to be wrapped in a block level tag."
-      elsif parent && !parent.allowed_child?(child)
-        msg = "#{child.name} is not a valid child element of #{parent.name}."
-      else
-        return
-      end
-      raise ContextError, "Invalid HTML structure: #{msg}"
-    end
 
     # Validates that the current tag is permitted, that the structure of
     # the HTML markup is correct and processes the style attribute of the
@@ -158,16 +134,6 @@ module Sablon
       properties.merge(elm_props)
     end
 
-    # handles passing all attributes on the parent down to children
-    # preappending parent attributes so child can overwrite if present
-    def merge_node_attributes(node, attributes)
-      node.children.each do |child|
-        attributes.each do |name, atr|
-          catr = child[name] ? child[name] : ''
-          child[name] = atr.value.split(';').concat(catr.split(';')).join('; ')
-        end
-      end
-    end
 
     def ast_next_paragraph
       node = @builder.next
