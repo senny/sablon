@@ -1,5 +1,7 @@
+require "sablon/html/ast/builder"
 module Sablon
   class HTMLConverter
+    # A top level abstract class to handle common logic for all AST nodes
     class Node
       PROPERTIES = [].freeze
       # styles shared or common logic across all node types go here. Any
@@ -197,9 +199,10 @@ module Sablon
       }.freeze
       attr_accessor :runs
 
-      def initialize(properties, runs)
+      def initialize(env, node, tag_config, properties)
+        properties = properties.merge(tag_config.properties)
         @properties = NodeProperties.paragraph(properties)
-        @runs = runs
+        @runs = ASTBuilder2.html_to_ast(env, node.children)
       end
 
       def to_docx
@@ -218,7 +221,8 @@ module Sablon
 
     # Manages the child nodes of a list type tag
     class List < Collection
-      def initialize(env, node, properties)
+      def initialize(env, node, tag_config, properties)
+        properties = properties.merge(tag_config.properties)
         # intialize values
         @list_tag = node.name
         @definition = env.numbering.register(properties[:pStyle])
@@ -258,16 +262,18 @@ module Sablon
 
     # Sets list item specific attributes registered on the node
     class ListParagraph < Paragraph
-      def initialize(env, node, properties)
+      def initialize(env, node, tag_config, properties)
         list_props = {
           pStyle: node['pStyle'],
           numPr: [{ ilvl: node['ilvl'] }, { numId: node['numId'] }]
         }
+        properties = properties.merge(tag_config.properties)
         properties = properties.merge(list_props)
         super(env, node, properties)
       end
     end
 
+    # Create a run of text in the document
     class Run < Node
       PROPERTIES = %w[b i caps color dstrike emboss imprint highlight outline
                       rStyle shadow shd smallCaps strike sz u vanish
@@ -298,9 +304,10 @@ module Sablon
       }.freeze
       attr_reader :string
 
-      def initialize(properties, string)
+      def initialize(_env, node, tag_config, properties)
+        properties = properties.merge(tag_config.properties)
         @properties = NodeProperties.run(properties)
-        @string = string
+        @string = node.text
       end
 
       def to_docx
@@ -313,14 +320,16 @@ module Sablon
 
       private
 
-
       def text
         content = @string.tr("\u00A0", ' ')
         "<w:t xml:space=\"preserve\">#{content}</w:t>"
       end
     end
 
+    # Creates a blank line in the word document
     class Newline < Node
+      def initialize(*); end
+
       def to_docx
         "<w:r><w:br/></w:r>"
       end
