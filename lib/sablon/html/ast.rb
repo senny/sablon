@@ -216,6 +216,58 @@ module Sablon
       end
     end
 
+    # Manages the child nodes of a list type tag
+    class List < Collection
+      def initialize(env, node, properties)
+        # intialize values
+        @list_tag = node.name
+        @definition = env.numbering.register(properties[:pStyle])
+
+        # update attributes of all child nodes
+        transfer_node_attributes(node.children, node.attributes)
+
+        # convert children from HTML to AST nodes
+        super(ASTBuilder2.html_to_ast(env, node.children))
+      end
+
+      private
+
+      # handles passing all attributes on the parent down to children
+      def transfer_node_attributes(nodes, attributes)
+        nodes.each do |child|
+          # update all attributes
+          merge_attributes(child, attributes)
+
+          # set attributes specific to list items
+          next unless node.name == 'li'
+          node['ilvl'] = node.ancestors(".//#{@list_tag}").length - 1
+          node['numId'] = @definition.numid
+        end
+      end
+
+      # merges parent and child attributes together, preappending the parent's
+      # values to allow the child node to override it if the value is already
+      # defined on the child node.
+      def merge_attributes(child, parent_attributes)
+        parent_attributes.each do |name, par_attr|
+          child_attr = child_attr ? child_attr.split(';') : []
+          child[name] = par_attr.split(';').concat(child_attr).join('; ')
+        end
+      end
+    end
+
+    # Sets list item specific attributes registered on the node
+    class ListParagraph < Paragraph
+      def initialize(env, node, properties)
+        list_props = {
+          pStyle: node['pStyle'],
+          numPr: [{ ilvl: node['ilvl'] }, { numId: node['numId'] }]
+        }
+        properties = properties.merge(list_props)
+        super(env, node, properties)
+      end
+    end
+
     class Run < Node
       PROPERTIES = %w[b i caps color dstrike emboss imprint highlight outline
                       rStyle shadow shd smallCaps strike sz u vanish
