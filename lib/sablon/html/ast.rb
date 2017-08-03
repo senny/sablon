@@ -69,11 +69,13 @@ module Sablon
 
       # Simplifies usage at call sites
       def transferred_properties
-        @properties.transferred_properties(self.class::PROPERTIES)
+        @properties.transferred_properties
       end
     end
 
     class NodeProperties
+      attr_reader :transferred_properties
+
       def self.paragraph(properties)
         new('w:pPr', properties, Paragraph::PROPERTIES)
       end
@@ -84,7 +86,7 @@ module Sablon
 
       def initialize(tagname, properties, whitelist)
         @tagname = tagname
-        @properties = filter(properties, whitelist)
+        filter_properties(properties, whitelist)
       end
 
       def inspect
@@ -99,30 +101,26 @@ module Sablon
         @properties[key] = value
       end
 
-      # creates a hash of all properties that aren't consumed by the node
-      # so they can be propagated to child nodes
-      def transferred_properties(whitelist)
-        props = @properties.map do |key, value|
-          next if whitelist.include? key.to_s
-          [key, value]
-        end
-        # filter out nils and return hash
-        Hash[props.compact]
-      end
-
       def to_docx
         "<#{@tagname}>#{process}</#{@tagname}>" unless @properties.empty?
       end
 
       private
 
-      def filter(properties, whitelist)
-        props = properties.map do |key, value|
-          next unless whitelist.include? key.to_s
-          [key, value]
+      # processes properties adding those on the whitelist to the
+      # properties instance variable and those not to the transferred_properties
+      # isntance variable
+      def filter_properties(properties, whitelist)
+        @transferred_properties = {}
+        @properties = {}
+        #
+        properties.each do |key, value|
+          if whitelist.include? key.to_s
+            @properties[key] = value
+          else
+            @transferred_properties[key] = value
+          end
         end
-        # filter out nils and return hash
-        Hash[props.compact]
       end
 
       # processes attributes defined on the node into wordML property syntax
