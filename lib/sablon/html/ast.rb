@@ -226,7 +226,7 @@ module Sablon
       end
 
       def inspect
-        "<Paragraph{#{@properties['pStyle']}}: #{runs.inspect}>"
+        "<Paragraph{#{@properties[:pStyle]}}: #{runs.inspect}>"
       end
     end
 
@@ -235,7 +235,15 @@ module Sablon
       def initialize(env, node, properties)
         # intialize values
         @list_tag = node.name
-        @definition = env.numbering.register(properties[:pStyle])
+        #
+        if node.ancestors(".//#{@list_tag}").length.zero?
+          # Only register a definition when upon the first list tag encountered
+          @definition = env.numbering.register(properties[:pStyle])
+        elsif node.parent.name == 'li'
+          # nested lists can miss having their properties merged if the
+          # ul is a child of the li tag.
+          transfer_node_attributes([node], node.parent.attributes)
+        end
 
         # update attributes of all child nodes
         transfer_node_attributes(node.children, node.attributes)
@@ -248,6 +256,10 @@ module Sablon
         super(ASTBuilder.html_to_ast(env, node.children, properties))
       end
 
+      def inspect
+        "<List: #{super}>"
+      end
+
       private
 
       # handles passing all attributes on the parent down to children
@@ -257,10 +269,11 @@ module Sablon
           merge_attributes(child, attributes)
 
           # set attributes specific to list items
-          next unless child.name == 'li'
-          child['pStyle'] = @definition.style
+          if @definition
+            child['pStyle'] = @definition.style
+            child['numId'] = @definition.numid
+          end
           child['ilvl'] = child.ancestors(".//#{@list_tag}").length - 1
-          child['numId'] = @definition.numid
         end
       end
 
