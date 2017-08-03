@@ -1,4 +1,5 @@
-require "sablon/html/ast/builder"
+require "sablon/html/ast_builder"
+
 module Sablon
   class HTMLConverter
     # A top level abstract class to handle common logic for all AST nodes
@@ -6,14 +7,14 @@ module Sablon
       PROPERTIES = [].freeze
       # styles shared or common logic across all node types go here. Any
       # undefined styles are passed straight through "as is" to the
-      # properties hash. Keys that are symbols will not get called directly
-      # when processing the style string and are suitable for internal-only
-      # usage across different classes.
+      # properties hash. Special conversion procs such as :_border can be
+      # defined here for reuse across several AST nodes as well. Care must
+      # be taken to avoid possible naming conflicts, hence the underscore
       STYLE_CONVERSION = {
         'background-color' => lambda { |v|
           return 'shd', { val: 'clear', fill: v.delete('#') }
         },
-        border: lambda { |v|
+        _border: lambda { |v|
           props = { sz: 2, val: 'single', color: '000000' }
           vals = v.split
           vals[1] = 'single' if vals[1] == 'solid'
@@ -25,50 +26,50 @@ module Sablon
           return props
         },
         'text-align' => ->(v) { return 'jc', v }
-      }
-      # This proc is used to allow unmapped styles to pass through
-      STYLE_CONVERSION.default_proc = proc do |hash, key|
-        ->(v) { return key, v }
-      end
-      STYLE_CONVERSION.freeze
+      }.freeze
 
-      def accept(visitor)
-        visitor.visit(self)
+      def self.node_name
+        @node_name ||= name.split('::').last
       end
 
       # maps the CSS style property to it's OpenXML equivalent. Not all CSS
       # properties have an equivalent, nor share the same behavior when
       # defined on different node types (Paragraph, Table and Run).
-      def self.process_style(style_str)
-        return {} unless style_str
-        #
-        styles = style_str.split(';').map { |pair| pair.split(':') }
+      def self.process_properties(properties)
         # process the styles as a hash and store values
         style_attrs = {}
-        Hash[styles].each do |key, value|
-          key, value = convert_style_attr(key.strip, value.strip)
+        properties.each do |key, value|
+          unless key.is_a? Symbol
+            key, value = *convert_style_property(key.strip, value.strip)
+          end
           style_attrs[key] = value if key
         end
         style_attrs
       end
 
       # handles conversion of a single attribute allowing recursion through
-      # super classes
-      def self.convert_style_attr(key, value)
-        if self::STYLE_CONVERSION[key]
-          self::STYLE_CONVERSION[key].call(value)
+      # super classes. If the key exists and conversion is succesful a
+      # symbol is returned to avoid conflicts with a CSS prop sharing the
+      # same name. Keys without a conversion class are returned as is
+      def self.convert_style_property(key, value)
+        if self::STYLE_CONVERSION.key?(key)
+          key, value = self::STYLE_CONVERSION[key].call(value)
+          key = key.to_sym if key
+          [key, value]
+        elsif self.class == Node
+          [key, value]
         else
-          superclass.convert_style_attr(key, value)
+          superclass.convert_style_property(key, value)
         end
       end
 
-      # Simplifies usage at call sites
-      def self.transferred_properties(properties)
-        NodeProperties.transferred_properties(properties, self::PROPERTIES)
+      def accept(visitor)
+        visitor.visit(self)
       end
 
-      def self.node_name
-        @node_name ||= name.split('::').last
+      # Simplifies usage at call sites
+      def transferred_properties
+        @properties.transferred_properties(self.class::PROPERTIES)
       end
     end
 
@@ -79,17 +80,6 @@ module Sablon
 
       def self.run(properties)
         new('w:rPr', properties, Run::PROPERTIES)
-      end
-
-      # creates a hash of all properties that aren't consumed by the node
-      # so they can be propagated to child nodes
-      def self.transferred_properties(properties, whitelist)
-        props = properties.map do |key, value|
-          next if whitelist.include? key
-          [key, value]
-        end
-        # filter out nils and return hash
-        Hash[props.compact]
       end
 
       def initialize(tagname, properties, whitelist)
@@ -109,6 +99,17 @@ module Sablon
         @properties[key] = value
       end
 
+      # creates a hash of all properties that aren't consumed by the node
+      # so they can be propagated to child nodes
+      def transferred_properties(whitelist)
+        props = @properties.map do |key, value|
+          next if whitelist.include? key.to_s
+          [key, value]
+        end
+        # filter out nils and return hash
+        Hash[props.compact]
+      end
+
       def to_docx
         "<#{@tagname}>#{process}</#{@tagname}>" unless @properties.empty?
       end
@@ -118,7 +119,7 @@ module Sablon
       def filter(properties, whitelist)
         props = properties.map do |key, value|
           next unless whitelist.include? key.to_s
-          [key.to_s, value]
+          [key.to_sym, value]
         end
         # filter out nils and return hash
         Hash[props.compact]
@@ -171,6 +172,15 @@ module Sablon
     end
 
     class Root < Collection
+      def initialize(env, node)
+        # strip text nodes from the root level element, these are typically
+        # extra whitespace from indenting the markup
+        node.search('./text()').remove
+
+        # convert children from HTML to AST nodes
+        super(ASTBuilder.html_to_ast(env, node.children, {}))
+      end
+
       def grep(pattern)
         visitor = GrepVisitor.new(pattern)
         accept(visitor)
@@ -188,7 +198,7 @@ module Sablon
                       tabs textAlignment].freeze
       STYLE_CONVERSION = {
         'border' => lambda { |v|
-          props = Node::STYLE_CONVERSION[:border].call(v)
+          props = Node::STYLE_CONVERSION[:_border].call(v)
           #
           return 'pBdr', [
             { top: props }, { bottom: props },
@@ -199,10 +209,13 @@ module Sablon
       }.freeze
       attr_accessor :runs
 
-      def initialize(env, node, tag_config, properties)
-        properties = properties.merge(tag_config.properties)
+      def initialize(env, node, properties)
+        properties = self.class.process_properties(properties)
         @properties = NodeProperties.paragraph(properties)
-        @runs = ASTBuilder2.html_to_ast(env, node.children)
+        #
+        trans_props = transferred_properties
+        @runs = ASTBuilder.html_to_ast(env, node.children, trans_props)
+        @runs = Collection.new(@runs)
       end
 
       def to_docx
@@ -221,8 +234,7 @@ module Sablon
 
     # Manages the child nodes of a list type tag
     class List < Collection
-      def initialize(env, node, tag_config, properties)
-        properties = properties.merge(tag_config.properties)
+      def initialize(env, node, properties)
         # intialize values
         @list_tag = node.name
         @definition = env.numbering.register(properties[:pStyle])
@@ -230,8 +242,12 @@ module Sablon
         # update attributes of all child nodes
         transfer_node_attributes(node.children, node.attributes)
 
+        # strip text nodes from the list level element, this is typically
+        # extra whitespace from indenting the markup
+        node.search('./text()').remove
+
         # convert children from HTML to AST nodes
-        super(ASTBuilder2.html_to_ast(env, node.children))
+        super(ASTBuilder.html_to_ast(env, node.children, properties))
       end
 
       private
@@ -243,9 +259,10 @@ module Sablon
           merge_attributes(child, attributes)
 
           # set attributes specific to list items
-          next unless node.name == 'li'
-          node['ilvl'] = node.ancestors(".//#{@list_tag}").length - 1
-          node['numId'] = @definition.numid
+          next unless child.name == 'li'
+          child['pStyle'] = @definition.style
+          child['ilvl'] = child.ancestors(".//#{@list_tag}").length - 1
+          child['numId'] = @definition.numid
         end
       end
 
@@ -254,22 +271,21 @@ module Sablon
       # defined on the child node.
       def merge_attributes(child, parent_attributes)
         parent_attributes.each do |name, par_attr|
-          child_attr = child_attr ? child_attr.split(';') : []
-          child[name] = par_attr.split(';').concat(child_attr).join('; ')
+          child_attr = child[name] ? child[name].split(';') : []
+          child[name] = par_attr.value.split(';').concat(child_attr).join('; ')
         end
       end
     end
 
     # Sets list item specific attributes registered on the node
     class ListParagraph < Paragraph
-      def initialize(env, node, tag_config, properties)
+      def initialize(env, node, properties)
         list_props = {
           pStyle: node['pStyle'],
           numPr: [{ ilvl: node['ilvl'] }, { numId: node['numId'] }]
         }
-        properties = properties.merge(tag_config.properties)
         properties = properties.merge(list_props)
-        super(env, node, properties)
+        super
       end
     end
 
@@ -304,8 +320,8 @@ module Sablon
       }.freeze
       attr_reader :string
 
-      def initialize(_env, node, tag_config, properties)
-        properties = properties.merge(tag_config.properties)
+      def initialize(_env, node, properties)
+        properties = self.class.process_properties(properties)
         @properties = NodeProperties.run(properties)
         @string = node.text
       end
