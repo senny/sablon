@@ -56,7 +56,7 @@ module Sablon
           key, value = self::STYLE_CONVERSION[key].call(value)
           key = key.to_sym if key
           [key, value]
-        elsif self.class == Node
+        elsif self == Node
           [key, value]
         else
           superclass.convert_style_property(key, value)
