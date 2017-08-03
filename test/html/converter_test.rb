@@ -9,36 +9,6 @@ class HTMLConverterTest < Sablon::TestCase
     @converter = Sablon::HTMLConverter.new
   end
 
-  def test_fetch_tag
-    tag = Sablon::Configuration.instance.permitted_html_tags[:span]
-    assert_equal @converter.send(:fetch_tag, :span), tag
-    # check that strings are converted into symbols
-    assert_equal @converter.send(:fetch_tag, 'span'), tag
-    # test uknown tag raises error
-    e = assert_raises ArgumentError do
-      @converter.send(:fetch_tag, :unknown_tag)
-    end
-    assert_equal "Don't know how to handle HTML tag: unknown_tag", e.message
-  end
-
-  def test_validate_structure
-    root = Sablon::Configuration.instance.permitted_html_tags['#document-fragment'.to_sym]
-    div = Sablon::Configuration.instance.permitted_html_tags[:div]
-    span = Sablon::Configuration.instance.permitted_html_tags[:span]
-    # test valid relationship
-    assert_nil @converter.send(:validate_structure, div, span)
-    # test inverted relationship
-    e = assert_raises ArgumentError do
-      @converter.send(:validate_structure, span, div)
-    end
-    assert_equal "Invalid HTML structure: div is not a valid child element of span.", e.message
-    # test inline tag with no parent
-    e = assert_raises ArgumentError do
-      @converter.send(:validate_structure, root, span)
-    end
-    assert_equal "Invalid HTML structure: span needs to be wrapped in a block level tag.", e.message
-  end
-
   def test_convert_text_inside_div
     input = '<div>Lorem ipsum dolor sit amet</div>'
     expected_output = <<-DOCX.strip
