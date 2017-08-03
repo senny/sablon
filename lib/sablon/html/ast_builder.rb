@@ -2,6 +2,8 @@ module Sablon
   class HTMLConverter
     # Converts a nokogiri HTML fragment into an equivalent AST structure
     class ASTBuilder
+      attr_reader :nodes
+
       def self.html_to_ast(env, nodes, properties)
         builder = new(env, nodes, properties)
         builder.nodes
@@ -11,9 +13,10 @@ module Sablon
 
       def initialize(env, nodes, properties)
         @env = env
-        @nodes = process_nodes(nodes, properties)
+        @nodes = process_nodes(nodes, properties).compact
       end
 
+      # Loops over HTML nodes converting them to their configured AST class
       def process_nodes(html_nodes, properties)
         html_nodes.flat_map do |node|
           # get tags from config
@@ -24,27 +27,13 @@ module Sablon
           validate_structure(parent_tag, tag)
 
           # merge properties
-          local_props = merge_node_properties(node, properties)
+          local_props = merge_node_properties(node, tag, properties)
           if tag.ast_class
-            tag.ast_class.new(@env, node, tag, local_props)
+            tag.ast_class.new(@env, node, local_props)
           else
-            process_nodes(node.children, properties)
+            process_nodes(node.children, local_props)
           end
         end
-      end
-
-      # Validates that the current tag is permitted, that the structure of
-      # the HTML markup is correct and processes the style attribute of the
-      # node.
-      def prepare_node(node, properties)
-        parent_tag = fetch_tag(node.parent.name) if node.parent.name
-        tag = fetch_tag(node.name)
-
-        # check node hierarchy
-        validate_structure(parent_tag, tag)
-
-        # merge and return updated properties
-        merge_node_properties(node, properties)
       end
 
       # retrieves a HTMLTag instance from the cpermitted_html_tags hash or
@@ -71,16 +60,16 @@ module Sablon
       end
 
       # Merges node properties in a sppecifc
-      def merge_node_properties(node, parent_properties)
+      def merge_node_properties(node, tag, parent_properties)
         # Process any styles, defined on the node into a hash
         if node['style']
           style_props = node['style'].split(';').map { |prop| prop.split(':') }
-          Hash[style_props]
+          style_props = Hash[style_props]
         else
           style_props = {}
         end
         # allow inline styles to override parent styles passed down
-        parent_properties.merge(style_props)
+        parent_properties.merge(style_props).merge(tag.properties)
       end
     end
   end
