@@ -239,14 +239,13 @@ module Sablon
         if node.ancestors(".//#{@list_tag}").length.zero?
           # Only register a definition when upon the first list tag encountered
           @definition = env.numbering.register(properties[:pStyle])
-        elsif node.parent.name == 'li'
-          # nested lists can miss having their properties merged if the
-          # ul is a child of the li tag.
-          transfer_node_attributes([node], node.parent.attributes)
         end
 
         # update attributes of all child nodes
         transfer_node_attributes(node.children, node.attributes)
+
+        # Move any list tags that are a child of a list item up one level
+        process_child_nodes(node)
 
         # strip text nodes from the list level element, this is typically
         # extra whitespace from indenting the markup
@@ -286,6 +285,17 @@ module Sablon
           child[name] = par_attr.value.split(';').concat(child_attr).join('; ')
         end
       end
+
+      # moves any list tags that are a child of a list item tag up one level
+      # so they become a sibling instead of a child
+      def process_child_nodes(node)
+        node.xpath("./li/#{@list_tag}").each do |list|
+          # transfer attributes from parent now because the list tag will
+          # no longer be a child and won't inheirit them as usual
+          transfer_node_attributes(list.children, list.parent.attributes)
+          list.parent.add_next_sibling(list)
+        end
+      end
     end
 
     # Sets list item specific attributes registered on the node
@@ -296,6 +306,12 @@ module Sablon
           numPr: [{ ilvl: node['ilvl'] }, { numId: node['numId'] }]
         }
         properties = properties.merge(list_props)
+        super
+      end
+
+      private
+
+      def transferred_properties
         super
       end
     end
