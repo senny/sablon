@@ -69,7 +69,7 @@ module Sablon
           style_props = {}
         end
         # allow inline styles to override parent styles passed down
-        parent_properties.merge(style_props).merge(tag.properties)
+        parent_properties.merge(tag.properties).merge(style_props)
       end
     end
   end

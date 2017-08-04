@@ -520,8 +520,8 @@ class HTMLConverterStyleTest < Sablon::TestCase
     expected_output = <<-DOCX.strip
       <w:p>
         <w:pPr>
-          <w:jc w:val="center" />
           <w:pStyle w:val="Paragraph" />
+          <w:jc w:val="center" />
         </w:pPr>
         <w:r>
           <w:rPr>
@@ -540,6 +540,15 @@ class HTMLConverterStyleTest < Sablon::TestCase
     assert_equal normalize_wordml(expected_output), process(input)
   end
 
+  def test_inline_style_overrides_tag_style
+    # Note: a toggle property can not be removed once it becomes a symbol
+    # unless there is a specific CSS style that will set it to false. This
+    # is because CSS styles can only override parent properties not remove them.
+    input = '<p><u style="text-decoration: underline wavyDouble">test</u></p>'
+    expected_output = run_with_rpr('<w:u w:val="wavyDouble" w:color="auto" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
   private
 
   def process(input)
@@ -547,7 +556,7 @@ class HTMLConverterStyleTest < Sablon::TestCase
   end
 
   def para_with_ppr(ppr_str)
-    para_str = '<w:p><w:pPr>%s<w:pStyle w:val="Paragraph" /></w:pPr></w:p>'
+    para_str = '<w:p><w:pPr><w:pStyle w:val="Paragraph" />%s</w:pPr></w:p>'
     format(para_str, ppr_str)
   end
 
