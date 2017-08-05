@@ -63,7 +63,9 @@ module Sablon
       def merge_node_properties(node, tag, parent_properties)
         # Process any styles, defined on the node into a hash
         if node['style']
-          style_props = node['style'].split(';').map { |prop| prop.split(':') }
+          style_props = node['style'].split(';').map do |prop|
+            prop.split(':').map(&:strip)
+          end
           style_props = Hash[style_props]
         else
           style_props = {}
