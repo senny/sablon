@@ -24,6 +24,28 @@ module Sablon
       @permitted_html_tags.delete(tag_name)
     end
 
+    # Adds a new style property converter for the specified ast class and
+    # CSS property name. The ast_class variable should be the class name
+    # in lowercased snakecase as a symbol, i.e. MyClass -> :my_class.
+    # The converter passed in must be a proc that accepts
+    # a single argument (the value) and returns two values: the WordML property
+    # name and its value. The converted property value can be a string, hash
+    # or array.
+    def register_style_converter(ast_node, prop_name, converter)
+      # create a new ast node hash if needed
+      unless @defined_style_conversions[ast_node]
+        @defined_style_conversions[ast_node] = {}
+      end
+      # add the style converter to the node's hash
+      @defined_style_conversions[ast_node][prop_name] = converter
+    end
+
+    # Deletes a CSS converter from the hash by specifying the AST class
+    # in lowercased snake case and the property name.
+    def remove_style_converter(ast_node, prop_name)
+      @defined_style_conversions[ast_node].delete(prop_name)
+    end
+
     private
 
     # Defines all of the initial HTML tags to be used by HTMLconverter
