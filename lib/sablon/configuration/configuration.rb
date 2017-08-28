@@ -6,10 +6,11 @@ module Sablon
   class Configuration
     include Singleton
 
-    attr_accessor :permitted_html_tags
+    attr_accessor :permitted_html_tags, :defined_style_conversions
 
     def initialize
       initialize_html_tags
+      initialize_css_style_conversion
     end
 
     # Adds a new tag to the permitted tags hash or replaces an existing one
@@ -59,6 +60,74 @@ module Sablon
         type = settings.delete(:type)
         register_html_tag(tag_name, type, **settings)
       end
+    end
+
+    # Defines an initial set of CSS -> WordML conversion lambdas stored in
+    # a nested hash structure where the first key is the AST class and the
+    # second is the conversion lambda
+    def initialize_css_style_conversion
+      @defined_style_conversions = {
+        # styles shared or common logic across all node types go here.
+        # Special conversion lambdas such as :_border can be
+        # defined here for reuse across several AST nodes. Care must
+        # be taken to avoid possible naming conflicts, hence the underscore.
+        # AST class keys should be stored with their names converted from
+        # camelcase to lowercased snakecase, i.e. TestCase = test_case
+        node: {
+          'background-color' => lambda { |v|
+            return 'shd', { val: 'clear', fill: v.delete('#') }
+          },
+          _border: lambda { |v|
+            props = { sz: 2, val: 'single', color: '000000' }
+            vals = v.split
+            vals[1] = 'single' if vals[1] == 'solid'
+            #
+            props[:sz] = (2 * Float(vals[0].gsub(/[^\d.]/, '')).ceil).to_s if vals[0]
+            props[:val] = vals[1] if vals[1]
+            props[:color] = vals[2].delete('#') if vals[2]
+            #
+            return props
+          },
+          'text-align' => ->(v) { return 'jc', v }
+        },
+        # Styles specific to the Paragraph AST class
+        paragraph: {
+          'border' => lambda { |v|
+            props = @defined_style_conversions[:node][:_border].call(v)
+            #
+            return 'pBdr', [
+              { top: props }, { bottom: props },
+              { left: props }, { right: props }
+            ]
+          },
+          'vertical-align' => ->(v) { return 'textAlignment', v }
+        },
+        # Styles specific to a run of text
+        run: {
+          'color' => ->(v) { return 'color', v.delete('#') },
+          'font-size' => lambda { |v|
+            return 'sz', (2 * Float(v.gsub(/[^\d.]/, '')).ceil).to_s
+          },
+          'font-style' => lambda { |v|
+            return 'b', nil if v =~ /bold/
+            return 'i', nil if v =~ /italic/
+          },
+          'font-weight' => ->(v) { return 'b', nil if v =~ /bold/ },
+          'text-decoration' => lambda { |v|
+            supported = %w[line-through underline]
+            props = v.split
+            return props[0], 'true' unless supported.include? props[0]
+            return 'strike', 'true' if props[0] == 'line-through'
+            return 'u', 'single' if props.length == 1
+            return 'u', { val: props[1], color: 'auto' } if props.length == 2
+            return 'u', { val: props[1], color: props[2].delete('#') }
+          },
+          'vertical-align' => lambda { |v|
+            return 'vertAlign', 'subscript' if v =~ /sub/
+            return 'vertAlign', 'superscript' if v =~ /super/
+          }
+        }
+      }
     end
   end
 end

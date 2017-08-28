@@ -5,31 +5,20 @@ module Sablon
     # A top level abstract class to handle common logic for all AST nodes
     class Node
       PROPERTIES = [].freeze
-      # styles shared or common logic across all node types go here. Any
-      # undefined styles are passed straight through "as is" to the
-      # properties hash. Special conversion procs such as :_border can be
-      # defined here for reuse across several AST nodes as well. Care must
-      # be taken to avoid possible naming conflicts, hence the underscore
-      STYLE_CONVERSION = {
-        'background-color' => lambda { |v|
-          return 'shd', { val: 'clear', fill: v.delete('#') }
-        },
-        _border: lambda { |v|
-          props = { sz: 2, val: 'single', color: '000000' }
-          vals = v.split
-          vals[1] = 'single' if vals[1] == 'solid'
-          #
-          props[:sz] = (2 * Float(vals[0].gsub(/[^\d.]/, '')).ceil).to_s if vals[0]
-          props[:val] = vals[1] if vals[1]
-          props[:color] = vals[2].delete('#') if vals[2]
-          #
-          return props
-        },
-        'text-align' => ->(v) { return 'jc', v }
-      }.freeze
 
       def self.node_name
         @node_name ||= name.split('::').last
+      end
+
+      # Returns a hash defined on the configuration object by default. However,
+      # this method can be overridden by subclasses to return a different
+      # node's style conversion config (i.e. :run) or a hash unrelated to the
+      # config itself. The config object is used for all built-in classes to
+      # allow for end-user customization via the configuration object
+      def self.style_conversion
+        # converts camelcase to underscored
+        key = node_name.gsub(/([a-z])([A-Z])/, '\1_\2').downcase.to_sym
+        Sablon::Configuration.instance.defined_style_conversions.fetch(key, {})
       end
 
       # maps the CSS style property to it's OpenXML equivalent. Not all CSS
@@ -52,8 +41,8 @@ module Sablon
       # symbol is returned to avoid conflicts with a CSS prop sharing the
       # same name. Keys without a conversion class are returned as is
       def self.convert_style_property(key, value)
-        if self::STYLE_CONVERSION.key?(key)
-          key, value = self::STYLE_CONVERSION[key].call(value)
+        if style_conversion.key?(key)
+          key, value = style_conversion[key].call(value)
           key = key.to_sym if key
           [key, value]
         elsif self == Node
@@ -194,17 +183,6 @@ module Sablon
       PROPERTIES = %w[framePr ind jc keepLines keepNext numPr
                       outlineLvl pBdr pStyle rPr sectPr shd spacing
                       tabs textAlignment].freeze
-      STYLE_CONVERSION = {
-        'border' => lambda { |v|
-          props = Node::STYLE_CONVERSION[:_border].call(v)
-          #
-          return 'pBdr', [
-            { top: props }, { bottom: props },
-            { left: props }, { right: props }
-          ]
-        },
-        'vertical-align' => ->(v) { return 'textAlignment', v }
-      }.freeze
       attr_accessor :runs
 
       def initialize(env, node, properties)
@@ -321,30 +299,6 @@ module Sablon
       PROPERTIES = %w[b i caps color dstrike emboss imprint highlight outline
                       rStyle shadow shd smallCaps strike sz u vanish
                       vertAlign].freeze
-      STYLE_CONVERSION = {
-        'color' => ->(v) { return 'color', v.delete('#') },
-        'font-size' => lambda { |v|
-          return 'sz', (2 * Float(v.gsub(/[^\d.]/, '')).ceil).to_s
-        },
-        'font-style' => lambda { |v|
-          return 'b', nil if v =~ /bold/
-          return 'i', nil if v =~ /italic/
-        },
-        'font-weight' => ->(v) { return 'b', nil if v =~ /bold/ },
-        'text-decoration' => lambda { |v|
-          supported = %w[line-through underline]
-          props = v.split
-          return props[0], 'true' unless supported.include? props[0]
-          return 'strike', 'true' if props[0] == 'line-through'
-          return 'u', 'single' if props.length == 1
-          return 'u', { val: props[1], color: 'auto' } if props.length == 2
-          return 'u', { val: props[1], color: props[2].delete('#') }
-        },
-        'vertical-align' => lambda { |v|
-          return 'vertAlign', 'subscript' if v =~ /sub/
-          return 'vertAlign', 'superscript' if v =~ /super/
-        }
-      }.freeze
       attr_reader :string
 
       def initialize(_env, node, properties)
