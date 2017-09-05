@@ -104,11 +104,15 @@ module Sablon
             vals = v.split
             vals[1] = 'single' if vals[1] == 'solid'
             #
-            props[:sz] = (2 * Float(vals[0].gsub(/[^\d.]/, '')).ceil).to_s if vals[0]
+            props[:sz] = @defined_style_conversions[:node][:_sz].call(vals[0])
             props[:val] = vals[1] if vals[1]
             props[:color] = vals[2].delete('#') if vals[2]
             #
             return props
+          },
+          _sz: lambda { |v|
+            return nil unless v
+            (2 * Float(v.gsub(/[^\d.]/, '')).ceil).to_s
           },
           'text-align' => ->(v) { return 'jc', v }
         },
@@ -128,7 +132,7 @@ module Sablon
         run: {
           'color' => ->(v) { return 'color', v.delete('#') },
           'font-size' => lambda { |v|
-            return 'sz', (2 * Float(v.gsub(/[^\d.]/, '')).ceil).to_s
+            return 'sz', @defined_style_conversions[:node][:_sz].call(v)
           },
           'font-style' => lambda { |v|
             return 'b', nil if v =~ /bold/
