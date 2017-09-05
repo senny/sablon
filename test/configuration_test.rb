@@ -36,6 +36,29 @@ class ConfigurationTest < Sablon::TestCase
     assert_equal @config.remove_html_tag(:test), tag
     assert_nil @config.permitted_html_tags[:test]
   end
+
+  def test_register_style_converter_on_existing_ast_class
+    converter = ->(v) { return "test-attr-#{v}" }
+    @config.register_style_converter(:run, 'my-test-attr', converter)
+    #
+    assert @config.defined_style_conversions[:run]['my-test-attr'], 'converter should be stored in hash'
+    assert_equal 'test-attr-123', @config.defined_style_conversions[:run]['my-test-attr'].call(123)
+  end
+
+  def test_register_style_converter_on_newast_class
+    converter = ->(v) { return "test-attr-#{v}" }
+    @config.register_style_converter(:unset_ast_class, 'my-test-attr', converter)
+    #
+    assert @config.defined_style_conversions[:unset_ast_class]['my-test-attr'], 'converter should be stored in hash'
+  end
+
+  def test_remove_style_converter
+    converter = ->(v) { return "test-attr-#{v}" }
+    converter = @config.register_style_converter(:run, 'my-test-attr', converter)
+    #
+    assert_equal converter, @config.remove_style_converter(:run, 'my-test-attr')
+    assert_nil @config.defined_style_conversions[:run]['my-test-attr']
+  end
 end
 
 class ConfigurationHTMLTagTest < Sablon::TestCase
