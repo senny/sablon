@@ -549,6 +549,22 @@ class HTMLConverterStyleTest < Sablon::TestCase
     assert_equal normalize_wordml(expected_output), process(input)
   end
 
+  def test_conversion_of_a_registered_tag_without_ast_class
+    # This registers a new tag with the configuration object and then trys
+    # to convert it
+    Sablon.configure do |config|
+      config.register_html_tag(:bgcyan, :inline, properties: { highlight: 'cyan' })
+    end
+    #
+    input = '<p><bgcyan>test</bgcyan></p>'
+    expected_output = run_with_rpr('<w:highlight w:val="cyan" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+    #
+    Sablon.configure do |config|
+      config.remove_html_tag(:bgcyan)
+    end
+  end
+
   private
 
   def process(input)
