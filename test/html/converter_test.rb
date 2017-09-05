@@ -607,6 +607,21 @@ class HTMLConverterStyleTest < Sablon::TestCase
     end
   end
 
+  def test_conversion_of_registered_style_attribute
+    Sablon.configure do |config|
+      converter = ->(v) { return :highlight, v }
+      config.register_style_converter(:run, 'test-highlight', converter)
+    end
+    #
+    input = '<p><span style="test-highlight: green">test</span></p>'
+    expected_output = run_with_rpr('<w:highlight w:val="green" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+    #
+    Sablon.configure do |config|
+      config.remove_style_converter(:run, 'test-highlight')
+    end
+  end
+
   private
 
   def process(input)
