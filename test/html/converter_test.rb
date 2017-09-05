@@ -559,9 +559,51 @@ class HTMLConverterStyleTest < Sablon::TestCase
     input = '<p><bgcyan>test</bgcyan></p>'
     expected_output = run_with_rpr('<w:highlight w:val="cyan" />')
     assert_equal normalize_wordml(expected_output), process(input)
-    #
+
+    # remove the tag to avoid any accidental side effects
     Sablon.configure do |config|
       config.remove_html_tag(:bgcyan)
+    end
+  end
+
+  def test_conversion_of_a_registered_tag_with_ast_class
+    Sablon.configure do |config|
+      # create the AST class and then pass it onto the register tag method
+      ast_class = Class.new(Sablon::HTMLConverter::Node) do
+        def self.name
+          'TestInstr'
+        end
+
+        def initialize(_env, node, _properties)
+          @content = node.text
+        end
+
+        def inspect
+          @content
+        end
+
+        def to_docx
+          "<w:instrText xml:space=\"preserve\"> #{@content} </w:instrText>"
+        end
+      end
+      #
+      config.register_html_tag(:test_instr, :inline, ast_class: ast_class)
+    end
+    #
+    input = '<p><test_instr>test</test_instr></p>'
+    expected_output = <<-DOCX.strip
+      <w:p>
+        <w:pPr>
+          <w:pStyle w:val="Paragraph" />
+        </w:pPr>
+        <w:instrText xml:space="preserve"> test </w:instrText>
+      </w:p>
+    DOCX
+    assert_equal normalize_wordml(expected_output), process(input)
+
+    # remove the tag to avoid any accidental side effects
+    Sablon.configure do |config|
+      config.remove_html_tag(:test_instr)
     end
   end
 
