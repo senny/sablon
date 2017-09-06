@@ -17,8 +17,8 @@ module Sablon
     # == Parameters
     #  * name - symbol or string of the HTML element tag name
     #  * type - The type of HTML tag needs to be :inline or :block
-    #  * ast_class - class instance, the AST class to process the
-    #                HTML node
+    #  * ast_class - class instance or symbol, the AST class or it's name
+    #                used to process the HTML node
     #  * options - collects all other keyword arguments, Current kwargs are
     #              `:properties`, `:attributes` and `:allowed_children`.
     #
@@ -41,9 +41,11 @@ module Sablon
           raise ArgumentError, "Block level tag #{name} must have an AST class."
         end
 
-        # Set optional attributes
+        # Set attributes from optinos hash, currently unused during AST generation
         @attributes = options.fetch(:attributes, {})
+        # WordML properties defined by the tag, i.e. <w:b /> for the <b> tag, etc.
         @properties = options.fetch(:properties, {})
+        # Set permitted child tags or tag groups
         self.allowed_children = options[:allowed_children]
       end
 

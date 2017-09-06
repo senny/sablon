@@ -215,15 +215,17 @@ Sablon.configure do |config|
 end
 ```
 
+The default set of registered HTML tags and CSS property conversions are defined in [configuration.rb](lib/sablon/configuration/configuration.rb).
+
 #### Customizing HTML Tag Conversion
 
-Any HTML tag can be added using the configuration object even if it needs a custom AST class to handle conversion logic. Simple inline tags that only modify the style of text (i.e. the already supported <b> tag) can be added without an AST class as shown below:
+Any HTML tag can be added using the configuration object even if it needs a custom AST class to handle conversion logic. Simple inline tags that only modify the style of text (i.e. the already supported `<b>` tag) can be added without an AST class as shown below:
 ```ruby
 Sablon.configure do |config|
   config.register_html_tag(:bgcyan, :inline, properties: { highlight: 'cyan' })
 end
 ```
-The above tag simply adds a background color to text using the `<w:highlight w:val="cyan" />` property. The default set of registered HTML tags is defined in [configuration.rb](lib/sablon/configuration/configuration.rb).
+The above tag simply adds a background color to text using the `<w:highlight w:val="cyan" />` property.
 
 
 More complex business logic can be supported by adding a new class under the `Sablon::HTMLConverter` namespace. The new class will likely subclass `Sablon::HTMLConverter::Node` or `Sablon::HTMLConverter::Collection` depending on the needed behavior. The current AST classes serve as additional examples and can be found in [ast.rb](/lib/sablon/html/ast.rb). When registering a new HTML tag that uses a custom AST class the class must be passed in either by name using a lowercased and underscored symbol or the class object itself.
@@ -243,7 +245,36 @@ Sablon.configure do |config|
 end
 ```
 
+Existing tags can be overwritten using the `config.register_html_tag` method or removed entirely using `config.remove_html_tag`.
+```ruby
+# remove tag
+Sablon.configure do |config|
+  # remove support for the span tag
+  config.remove_html_tag(:span)
+end
+```
+
+
 #### Customizing HTML CSS Style Conversion
+
+The conversion of CSS stored in an elements `style="..."` attribute can be customized using the configuration object as well. Adding a new style conversion or overriding an existing one is done using the `config.register_style_converter` method. It accepts three arguments the name of the AST node the style applies to (lowercased and underscored symbol), the name of the CSS property (needs to be a string) and a lambda that accepts a single argument, the property value. The example below shows how to add a new style that sets the `<w:highlight />` property.
+```ruby
+# add style conversion
+Sablon.configure do |config|
+  # register new conversion for the Sablon::HTMLConverter::Run AST class.
+  converter = lambda { |v| return 'highlight', v }
+  config.register_style_converter(:run, 'custom-highlight', converter)
+end
+```
+
+Existing conversions can be overwritten using the `config.register_style_converter` method or removed entirely using `config.remove_style_converter`.
+```ruby
+# remove tag
+Sablon.configure do |config|
+  # remove support for conversion of font-size for the Run AST class
+  config.remove_style_converter(:run, 'font-size')
+end
+```
 
 ### Executable
 
