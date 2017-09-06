@@ -255,9 +255,9 @@ end
 ```
 
 
-#### Customizing HTML CSS Style Conversion
+#### Customizing CSS Style Conversion
 
-The conversion of CSS stored in an elements `style="..."` attribute can be customized using the configuration object as well. Adding a new style conversion or overriding an existing one is done using the `config.register_style_converter` method. It accepts three arguments the name of the AST node the style applies to (lowercased and underscored symbol), the name of the CSS property (needs to be a string) and a lambda that accepts a single argument, the property value. The example below shows how to add a new style that sets the `<w:highlight />` property.
+The conversion of CSS stored in an element's `style="..."` attribute can be customized using the configuration object as well. Adding a new style conversion or overriding an existing one is done using the `config.register_style_converter` method. It accepts three arguments the name of the AST node (as a lowercased and underscored symbol) the style applies to, the name of the CSS property (needs to be a string in most cases) and a lambda that accepts a single argument, the property value. The example below shows how to add a new style that sets the `<w:highlight />` property.
 ```ruby
 # add style conversion
 Sablon.configure do |config|
