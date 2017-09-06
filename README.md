@@ -8,6 +8,28 @@ and efficient.
 
 *Note: Sablon is still in early development. Please report if you encounter any issues along the way.*
 
+#### Table of Contents
+* [Installation](#installation)
+* [Usage](#usage)
+   * [Writing Templates](#writing-templates)
+      * [Content Insertion](#content-insertion)
+         * [WordProcessingML](#wordprocessingml)
+         * [HTML](#html)
+      * [Conditionals](#conditionals)
+      * [Loops](#loops)
+      * [Nesting](#nesting)
+      * [Comments](#comments)
+   * [Configuration (Beta)](#configuration-beta)
+      * [Customizing HTML Tag Conversion](#customizing-html-tag-conversion)
+      * [Customizing CSS Style Conversion](#customizing-css-style-conversion)
+   * [Executable](#executable)
+   * [Examples](#examples)
+      * [Using a Ruby script](#using-a-ruby-script)
+      * [Using the sablon executable](#using-the-sablon-executable)
+* [Contributing](#contributing)
+* [Inspiration](#inspiration)
+
+
 ## Installation
 
 Add this line to your application's Gemfile:
