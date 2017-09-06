@@ -131,13 +131,13 @@ template.render_to_file File.expand_path("~/Desktop/output.docx"), context
 
 Currently, HTML insertion is somewhat limited. It is recommended that the block level tags such as `p` and `div` are not nested within each other, otherwise the final document may not generate as anticipated. List tags (`ul` and `ol`) and inline tags (`span`, `b`, `em`, etc.) can be nested as deeply as needed.
 
-Not all tags are supported. Currently supported tags are defined in [converter.rb](lib/sablon/html/converter.rb) for paragraphs in method `prepare_paragraph` and for text runs in `prepare_run`.
+Not all tags are supported. Currently supported tags are defined in [configuration.rb](lib/sablon/configuration/configuration.rb) for paragraphs in method `prepare_paragraph` and for text runs in `prepare_run`.
 
-Basic conversion of CSS inline styles into matching WordML properties in supported through the `style=" ... "` attribute in the HTML markup. Not all possible styles are supported and only a small subset of CSS styles have a direct WordML equivalent. Styles are passed onto nested elements. The currently supported styles are also defined in [converter.rb](lib/sablon/html/converter.rb) in method `process_style`. Simple toggle properties that aren't directly supported can be added using the `text-decoration: ` style attribute with the proper WordML tag name as the value. Paragraph and Run property reference can be found at:
+Basic conversion of CSS inline styles into matching WordML properties in supported through the `style=" ... "` attribute in the HTML markup. Not all possible styles are supported and only a small subset of CSS styles have a direct WordML equivalent. Styles are passed onto nested elements. The currently supported styles are also defined in [configuration.rb](lib/sablon/configuration/configuration.rb) in method `process_style`. Simple toggle properties that aren't directly supported can be added using the `text-decoration: ` style attribute with the proper WordML tag name as the value. Paragraph and Run property reference can be found at:
   * http://officeopenxml.com/WPparagraphProperties.php
   * http://officeopenxml.com/WPtextFormatting.php
 
-If you wish to write out your HTML code in an indented human readable fashion, or you are pulling content from the ERB templating engine in rails the following regular expression can help eliminate extraneous whitespace in the final document. 
+If you wish to write out your HTML code in an indented human readable fashion, or you are pulling content from the ERB templating engine in rails the following regular expression can help eliminate extraneous whitespace in the final document.
 ```ruby
 # combine all white space
 html_str = html_str.gsub(/\s+/, ' ')
@@ -203,6 +203,47 @@ styles for HTML insertion.
     ... arbitrary document markup ...
 «endComment»
 ```
+
+### Configuration (Beta)
+
+The Sablon::Configuration singleton is a new feature that allows the end user to customize HTML parsing to their needs without needing to fork and edit the source code of the gem. This API is still in a beta state and may be subject to change as future needs are identified beyond HTML conversion.
+
+The example below show how to expose the configuration instance:
+```ruby
+Sablon.configure do |config|
+  # manipulate config object
+end
+```
+
+#### Customizing HTML Tag Conversion
+
+Any HTML tag can be added using the configuration object even if it needs a custom AST class to handle conversion logic. Simple inline tags that only modify the style of text (i.e. the already supported <b> tag) can be added without an AST class as shown below:
+```ruby
+Sablon.configure do |config|
+  config.register_html_tag(:bgcyan, :inline, properties: { highlight: 'cyan' })
+end
+```
+The above tag simply adds a background color to text using the `<w:highlight w:val="cyan" />` property. The default set of registered HTML tags is defined in [configuration.rb](lib/sablon/configuration/configuration.rb).
+
+
+More complex business logic can be supported by adding a new class under the `Sablon::HTMLConverter` namespace. The new class will likely subclass `Sablon::HTMLConverter::Node` or `Sablon::HTMLConverter::Collection` depending on the needed behavior. The current AST classes serve as additional examples and can be found in [ast.rb](/lib/sablon/html/ast.rb). When registering a new HTML tag that uses a custom AST class the class must be passed in either by name using a lowercased and underscored symbol or the class object itself.
+
+The block below shows how to register a new HTML that adds the following AST class: `Sablon::HTMLConverter::InstrText`.
+```ruby
+module Sablon
+  class HTMLConverter
+    class InstrText < Node
+      # implementation details ...
+    end
+  end
+end
+# register tag
+Sablon.configure do |config|
+  config.register_html_tag(:bgcyan, :inline, ast_class: :instr_text)
+end
+```
+
+#### Customizing HTML CSS Style Conversion
 
 ### Executable
 
