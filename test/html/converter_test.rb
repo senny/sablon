@@ -114,6 +114,54 @@ DOCX
     assert_equal normalize_wordml(expected_output), process(input)
   end
 
+  def test_convert_s_tags_inside_p
+    input = '<p>Lorem&nbsp;<s>ipsum dolor</s>&nbsp;sit amet</p>'
+    expected_output = <<-DOCX.strip
+<w:p>
+  <w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>
+  <w:r><w:t xml:space="preserve">Lorem </w:t></w:r>
+  <w:r>
+    <w:rPr><w:strike w:val="true" /></w:rPr>
+    <w:t xml:space="preserve">ipsum dolor</w:t>
+  </w:r>
+  <w:r><w:t xml:space="preserve"> sit amet</w:t></w:r>
+</w:p>
+    DOCX
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_convert_sub_tags_inside_p
+    input = '<p>Lorem&nbsp;<sub>ipsum dolor</sub>&nbsp;sit amet</p>'
+    expected_output = <<-DOCX.strip
+<w:p>
+  <w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>
+  <w:r><w:t xml:space="preserve">Lorem </w:t></w:r>
+  <w:r>
+    <w:rPr><w:vertAlign w:val="subscript" /></w:rPr>
+    <w:t xml:space="preserve">ipsum dolor</w:t>
+  </w:r>
+  <w:r><w:t xml:space="preserve"> sit amet</w:t></w:r>
+</w:p>
+    DOCX
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_convert_sup_tags_inside_p
+    input = '<p>Lorem&nbsp;<sup>ipsum dolor</sup>&nbsp;sit amet</p>'
+    expected_output = <<-DOCX.strip
+<w:p>
+  <w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>
+  <w:r><w:t xml:space="preserve">Lorem </w:t></w:r>
+  <w:r>
+    <w:rPr><w:vertAlign w:val="superscript" /></w:rPr>
+    <w:t xml:space="preserve">ipsum dolor</w:t>
+  </w:r>
+  <w:r><w:t xml:space="preserve"> sit amet</w:t></w:r>
+</w:p>
+    DOCX
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
   def test_convert_br_tags_inside_strong
     input = '<div><strong><br />Lorem ipsum<br />dolor sit amet</strong></div>'
     expected_output = <<-DOCX
