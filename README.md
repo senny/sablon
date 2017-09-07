@@ -252,7 +252,7 @@ The above tag simply adds a background color to text using the `<w:highlight w:v
 
 More complex business logic can be supported by adding a new class under the `Sablon::HTMLConverter` namespace. The new class will likely subclass `Sablon::HTMLConverter::Node` or `Sablon::HTMLConverter::Collection` depending on the needed behavior. The current AST classes serve as additional examples and can be found in [ast.rb](/lib/sablon/html/ast.rb). When registering a new HTML tag that uses a custom AST class the class must be passed in either by name using a lowercased and underscored symbol or the class object itself.
 
-The block below shows how to register a new HTML that adds the following AST class: `Sablon::HTMLConverter::InstrText`.
+The block below shows how to register a new HTML tag that adds the following AST class: `Sablon::HTMLConverter::InstrText`.
 ```ruby
 module Sablon
   class HTMLConverter
