@@ -314,7 +314,7 @@ DOCX
     e = assert_raises ArgumentError do
       process('<badtag/>')
     end
-    assert_match(/Don't know how to handle node:/, e.message)
+    assert_match(/Don't know how to handle HTML tag:/, e.message)
   end
 
   private
@@ -520,8 +520,8 @@ class HTMLConverterStyleTest < Sablon::TestCase
     expected_output = <<-DOCX.strip
       <w:p>
         <w:pPr>
-          <w:jc w:val="center" />
           <w:pStyle w:val="Paragraph" />
+          <w:jc w:val="center" />
         </w:pPr>
         <w:r>
           <w:rPr>
@@ -540,6 +540,88 @@ class HTMLConverterStyleTest < Sablon::TestCase
     assert_equal normalize_wordml(expected_output), process(input)
   end
 
+  def test_inline_style_overrides_tag_style
+    # Note: a toggle property can not be removed once it becomes a symbol
+    # unless there is a specific CSS style that will set it to false. This
+    # is because CSS styles can only override parent properties not remove them.
+    input = '<p><u style="text-decoration: underline wavyDouble">test</u></p>'
+    expected_output = run_with_rpr('<w:u w:val="wavyDouble" w:color="auto" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_conversion_of_a_registered_tag_without_ast_class
+    # This registers a new tag with the configuration object and then trys
+    # to convert it
+    Sablon.configure do |config|
+      config.register_html_tag(:bgcyan, :inline, properties: { highlight: 'cyan' })
+    end
+    #
+    input = '<p><bgcyan>test</bgcyan></p>'
+    expected_output = run_with_rpr('<w:highlight w:val="cyan" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+
+    # remove the tag to avoid any accidental side effects
+    Sablon.configure do |config|
+      config.remove_html_tag(:bgcyan)
+    end
+  end
+
+  def test_conversion_of_a_registered_tag_with_ast_class
+    Sablon.configure do |config|
+      # create the AST class and then pass it onto the register tag method
+      ast_class = Class.new(Sablon::HTMLConverter::Node) do
+        def self.name
+          'TestInstr'
+        end
+
+        def initialize(_env, node, _properties)
+          @content = node.text
+        end
+
+        def inspect
+          @content
+        end
+
+        def to_docx
+          "<w:instrText xml:space=\"preserve\"> #{@content} </w:instrText>"
+        end
+      end
+      #
+      config.register_html_tag(:test_instr, :inline, ast_class: ast_class)
+    end
+    #
+    input = '<p><test_instr>test</test_instr></p>'
+    expected_output = <<-DOCX.strip
+      <w:p>
+        <w:pPr>
+          <w:pStyle w:val="Paragraph" />
+        </w:pPr>
+        <w:instrText xml:space="preserve"> test </w:instrText>
+      </w:p>
+    DOCX
+    assert_equal normalize_wordml(expected_output), process(input)
+
+    # remove the tag to avoid any accidental side effects
+    Sablon.configure do |config|
+      config.remove_html_tag(:test_instr)
+    end
+  end
+
+  def test_conversion_of_registered_style_attribute
+    Sablon.configure do |config|
+      converter = ->(v) { return :highlight, v }
+      config.register_style_converter(:run, 'test-highlight', converter)
+    end
+    #
+    input = '<p><span style="test-highlight: green">test</span></p>'
+    expected_output = run_with_rpr('<w:highlight w:val="green" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+    #
+    Sablon.configure do |config|
+      config.remove_style_converter(:run, 'test-highlight')
+    end
+  end
+
   private
 
   def process(input)
@@ -547,7 +629,7 @@ class HTMLConverterStyleTest < Sablon::TestCase
   end
 
   def para_with_ppr(ppr_str)
-    para_str = '<w:p><w:pPr>%s<w:pStyle w:val="Paragraph" /></w:pPr></w:p>'
+    para_str = '<w:p><w:pPr><w:pStyle w:val="Paragraph" />%s</w:pPr></w:p>'
     format(para_str, ppr_str)
   end
 
@@ -570,230 +652,5 @@ class HTMLConverterStyleTest < Sablon::TestCase
 
   def normalize_wordml(wordml)
     wordml.gsub(/^\s+/, '').tr("\n", '')
-  end
-end
-
-class HTMLConverterASTTest < Sablon::TestCase
-  def setup
-    super
-    @converter = Sablon::HTMLConverter.new
-    @converter.instance_variable_set(:@numbering, Sablon::Environment.new(nil).numbering)
-  end
-
-  def test_div
-    input = '<div>Lorem ipsum dolor sit amet</div>'
-    ast = @converter.processed_ast(input)
-    assert_equal '<Root: [<Paragraph{Normal}: [<Run{}: Lorem ipsum dolor sit amet>]>]>', ast.inspect
-  end
-
-  def test_p
-    input = '<p>Lorem ipsum dolor sit amet</p>'
-    ast = @converter.processed_ast(input)
-    assert_equal '<Root: [<Paragraph{Paragraph}: [<Run{}: Lorem ipsum dolor sit amet>]>]>', ast.inspect
-  end
-
-  def test_b
-    input = '<p>Lorem <b>ipsum dolor sit amet</b></p>'
-    ast = @converter.processed_ast(input)
-    assert_equal '<Root: [<Paragraph{Paragraph}: [<Run{}: Lorem >, <Run{b}: ipsum dolor sit amet>]>]>', ast.inspect
-  end
-
-  def test_i
-    input = '<p>Lorem <i>ipsum dolor sit amet</i></p>'
-    ast = @converter.processed_ast(input)
-    assert_equal '<Root: [<Paragraph{Paragraph}: [<Run{}: Lorem >, <Run{i}: ipsum dolor sit amet>]>]>', ast.inspect
-  end
-
-  def test_br_in_strong
-    input = '<div><strong>Lorem<br />ipsum<br />dolor</strong></div>'
-    par = @converter.processed_ast(input).grep(Sablon::HTMLConverter::Paragraph).first
-    assert_equal "[<Run{b}: Lorem>, <Newline>, <Run{b}: ipsum>, <Newline>, <Run{b}: dolor>]", par.runs.inspect
-  end
-
-  def test_br_in_em
-    input = '<div><em>Lorem<br />ipsum<br />dolor</em></div>'
-    par = @converter.processed_ast(input).grep(Sablon::HTMLConverter::Paragraph).first
-    assert_equal "[<Run{i}: Lorem>, <Newline>, <Run{i}: ipsum>, <Newline>, <Run{i}: dolor>]", par.runs.inspect
-  end
-
-  def test_nested_strong_and_em
-    input = '<div><strong>Lorem <em>ipsum</em> dolor</strong></div>'
-    par = @converter.processed_ast(input).grep(Sablon::HTMLConverter::Paragraph).first
-    assert_equal "[<Run{b}: Lorem >, <Run{b;i}: ipsum>, <Run{b}:  dolor>]", par.runs.inspect
-  end
-
-  def test_ignore_last_br_in_div
-    input = '<div>Lorem ipsum dolor sit amet<br /></div>'
-    par = @converter.processed_ast(input).grep(Sablon::HTMLConverter::Paragraph).first
-    assert_equal "[<Run{}: Lorem ipsum dolor sit amet>]", par.runs.inspect
-  end
-
-  def test_ignore_br_in_blank_div
-    input = '<div><br /></div>'
-    par = @converter.processed_ast(input).grep(Sablon::HTMLConverter::Paragraph).first
-    assert_equal "[]", par.runs.inspect
-  end
-
-  def test_headings
-    input = '<h1>First</h1><h2>Second</h2><h3>Third</h3>'
-    ast = @converter.processed_ast(input)
-    assert_equal "<Root: [<Paragraph{Heading1}: [<Run{}: First>]>, <Paragraph{Heading2}: [<Run{}: Second>]>, <Paragraph{Heading3}: [<Run{}: Third>]>]>", ast.inspect
-  end
-
-  def test_h_with_formatting
-    input = '<h1><strong>Lorem</strong> ipsum dolor <em>sit <u>amet</u></em></h1>'
-    ast = @converter.processed_ast(input)
-    assert_equal "<Root: [<Paragraph{Heading1}: [<Run{b}: Lorem>, <Run{}:  ipsum dolor >, <Run{i}: sit >, <Run{i;u=single}: amet>]>]>", ast.inspect
-  end
-
-  def test_ul
-    input = '<ul><li>Lorem</li><li>ipsum</li></ul>'
-    ast = @converter.processed_ast(input)
-    assert_equal "<Root: [<Paragraph{ListBullet}: [<Run{}: Lorem>]>, <Paragraph{ListBullet}: [<Run{}: ipsum>]>]>", ast.inspect
-  end
-
-  def test_ol
-    input = '<ol><li>Lorem</li><li>ipsum</li></ol>'
-    ast = @converter.processed_ast(input)
-    assert_equal "<Root: [<Paragraph{ListNumber}: [<Run{}: Lorem>]>, <Paragraph{ListNumber}: [<Run{}: ipsum>]>]>", ast.inspect
-  end
-
-  def test_num_id
-    ast = @converter.processed_ast('<ol><li>Some</li><li>Lorem</li></ol><ul><li>ipsum</li></ul><ol><li>dolor</li><li>sit</li></ol>')
-    assert_equal [1001, 1001, 1002, 1003, 1003], get_numpr_prop_from_ast(ast, 'numId')
-  end
-
-  def test_nested_lists_have_the_same_numid
-    ast = @converter.processed_ast('<ul><li>Lorem<ul><li>ipsum<ul><li>dolor</li></ul></li></ul></li></ul>')
-    assert_equal [1001, 1001, 1001], get_numpr_prop_from_ast(ast, 'numId')
-  end
-
-  def test_keep_nested_list_order
-    input = '<ul><li>1<ul><li>1.1<ul><li>1.1.1</li></ul></li><li>1.2</li></ul></li><li>2<ul><li>1.3<ul><li>1.3.1</li></ul></li></ul></li></ul>'
-    ast = @converter.processed_ast(input)
-    assert_equal [1001], get_numpr_prop_from_ast(ast, 'numId').uniq
-    assert_equal [0, 1, 2, 1, 0, 1, 2], get_numpr_prop_from_ast(ast, 'ilvl')
-  end
-
-  private
-
-  # returns the numid attribute from paragraphs
-  def get_numpr_prop_from_ast(ast, key)
-    values = []
-    ast.grep(Sablon::HTMLConverter::Paragraph).each do |para|
-      numpr = para.instance_variable_get('@properties')['numPr']
-      numpr.each { |val| values.push(val[key]) if val[key] }
-    end
-    values
-  end
-end
-
-class NodePropertiesTest < Sablon::TestCase
-  def setup
-    # struct to simplify prop whitelisting during tests
-    @inc_props = Struct.new(:props) do
-      def include?(value)
-        true
-      end
-    end
-  end
-
-  def test_empty_node_properties_converison
-    # test empty properties
-    props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', {}, @inc_props.new)
-    assert_equal props.inspect, ''
-    assert_equal props.to_docx, nil
-  end
-
-  def test_simple_node_property_converison
-    props = { 'pStyle' => 'Paragraph' }
-    props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', props, @inc_props.new)
-    assert_equal props.inspect, 'pStyle=Paragraph'
-    assert_equal props.to_docx, '<w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>'
-  end
-
-  def test_node_property_with_nil_value_converison
-    props = { 'b' => nil }
-    props = Sablon::HTMLConverter::NodeProperties.new('w:rPr', props, @inc_props.new)
-    assert_equal props.inspect, 'b'
-    assert_equal props.to_docx, '<w:rPr><w:b /></w:rPr>'
-  end
-
-  def test_node_property_with_hash_value_converison
-    props = { 'shd' => { color: 'clear', fill: '123456', test: nil } }
-    props = Sablon::HTMLConverter::NodeProperties.new('w:rPr', props, @inc_props.new)
-    assert_equal props.inspect, 'shd={:color=>"clear", :fill=>"123456", :test=>nil}'
-    assert_equal props.to_docx, '<w:rPr><w:shd w:color="clear" w:fill="123456" /></w:rPr>'
-  end
-
-  def test_node_property_with_array_value_converison
-    props = { 'numPr' => [{ 'ilvl' => 1 }, { 'numId' => 34 }] }
-    props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', props, @inc_props.new)
-    assert_equal props.inspect, 'numPr=[{"ilvl"=>1}, {"numId"=>34}]'
-    assert_equal props.to_docx, '<w:pPr><w:numPr><w:ilvl w:val="1" /><w:numId w:val="34" /></w:numPr></w:pPr>'
-  end
-
-  def test_complex_node_properties_conversion
-    props = {
-      'top1' => 'val1',
-      'top2' => [
-        { 'mid0' => nil },
-        { 'mid1' => [
-          { 'bottom1' => { key1: 'abc' } },
-          { 'bottom2' => 'xyz' }
-        ] },
-        { 'mid2' => 'val2' }
-      ],
-      'top3' => { key1: 1, key2: '2', key3: nil, key4: true, key5: false }
-    }
-    output = <<-DOCX.gsub(/^\s*/, '').delete("\n")
-      <w:pPr>
-        <w:top1 w:val="val1" />
-        <w:top2>
-          <w:mid0 />
-          <w:mid1>
-            <w:bottom1 w:key1="abc" />
-            <w:bottom2 w:val="xyz" />
-          </w:mid1>
-          <w:mid2 w:val="val2" />
-        </w:top2>
-        <w:top3 w:key1="1" w:key2="2" w:key4="true" />
-      </w:pPr>
-    DOCX
-    props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', props, @inc_props.new)
-    assert_equal props.to_docx, output
-  end
-
-  def test_setting_property_value
-    props = {}
-    props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', props, @inc_props.new)
-    props['rStyle'] = 'FootnoteText'
-    assert_equal({ 'rStyle' => 'FootnoteText' }, props.instance_variable_get(:@properties))
-  end
-
-  def test_properties_filtered_on_init
-    props = { 'pStyle' => 'Paragraph', 'rStyle' => 'EndnoteText' }
-    props = Sablon::HTMLConverter::NodeProperties.new('w:rPr', props, %[rStyle])
-    assert_equal({ 'rStyle' => 'EndnoteText' }, props.instance_variable_get(:@properties))
-  end
-
-  def test_transferred_properties
-    props = { 'pStyle' => 'Paragraph', 'rStyle' => 'EndnoteText' }
-    trans = Sablon::HTMLConverter::NodeProperties.transferred_properties(props, %[pStyle])
-    assert_equal({ 'rStyle' => 'EndnoteText' }, trans)
-  end
-
-  def test_node_properties_paragraph_factory
-    props = { 'pStyle' => 'Paragraph' }
-    props = Sablon::HTMLConverter::NodeProperties.paragraph(props)
-    assert_equal 'pStyle=Paragraph', props.inspect
-    assert_equal props.to_docx, '<w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>'
-  end
-
-  def test_node_properties_run_factory
-    props = { 'color' => 'FF00FF' }
-    props = Sablon::HTMLConverter::NodeProperties.run(props)
-    assert_equal 'color=FF00FF', props.inspect
-    assert_equal '<w:rPr><w:color w:val="FF00FF" /></w:rPr>', props.to_docx
   end
 end
