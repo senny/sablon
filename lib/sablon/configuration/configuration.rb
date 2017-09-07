@@ -54,6 +54,7 @@ module Sablon
       tags = {
         # special tag used for elements with no parent, i.e. top level
         '#document-fragment' => { type: :block, ast_class: :root, allowed_children: :_block },
+
         # block level tags
         div: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Normal' } },
         p: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Paragraph' } },
@@ -66,6 +67,7 @@ module Sablon
         ol: { type: :block, ast_class: :list, properties: { pStyle: 'ListNumber' }, allowed_children: %i[ol li] },
         ul: { type: :block, ast_class: :list, properties: { pStyle: 'ListBullet' }, allowed_children: %i[ul li] },
         li: { type: :block, ast_class: :list_paragraph },
+
         # inline style tags
         span: { type: :inline, ast_class: nil, properties: {} },
         strong: { type: :inline, ast_class: nil, properties: { b: nil } },
@@ -73,6 +75,10 @@ module Sablon
         em: { type: :inline, ast_class: nil, properties: { i: nil } },
         i: { type: :inline, ast_class: nil, properties: { i: nil } },
         u: { type: :inline, ast_class: nil, properties: { u: 'single' } },
+        s: { type: :inline, ast_class: nil, properties: { strike: 'true' } },
+        sub: { type: :inline, ast_class: nil, properties: { vertAlign: 'subscript' } },
+        sup: { type: :inline, ast_class: nil, properties: { vertAlign: 'superscript' } },
+
         # inline content tags
         text: { type: :inline, ast_class: :run, properties: {}, allowed_children: [] },
         br: { type: :inline, ast_class: :newline, properties: {}, allowed_children: [] }
