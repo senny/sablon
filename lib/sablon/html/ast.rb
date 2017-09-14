@@ -52,7 +52,7 @@ module Sablon
         end
       end
 
-      def initialize
+      def initialize(_env, _node, _properties)
         @attributes ||= {}
       end
 
@@ -68,10 +68,7 @@ module Sablon
       # Simplifies usage at call sites by only requiring them to supply
       # the tag name to use and any child AST nodes to render
       def to_docx(tag, children = nil)
-        attr_str = ''
-        if @attributes
-          attr_str = ' ' + @attributes.map { |k, v| %(#{k}="#{v}") }.join(' ')
-        end
+        attr_str = @attributes.map { |k, v| %(#{k}="#{v}") }.join(' ')
         prop_str = @properties.to_docx if @properties
         #
         if children
@@ -213,6 +210,7 @@ module Sablon
       attr_accessor :runs
 
       def initialize(env, node, properties)
+        super
         properties = self.class.process_properties(properties)
         @properties = NodeProperties.paragraph(properties)
         #
@@ -331,6 +329,7 @@ module Sablon
       attr_reader :string
 
       def initialize(_env, node, properties)
+        super
         properties = self.class.process_properties(properties)
         @properties = NodeProperties.run(properties)
         @string = node.text
