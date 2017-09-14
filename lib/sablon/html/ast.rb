@@ -52,6 +52,10 @@ module Sablon
         end
       end
 
+      def initialize
+        @attributes ||= {}
+      end
+
       def accept(visitor)
         visitor.visit(self)
       end
@@ -59,6 +63,22 @@ module Sablon
       # Simplifies usage at call sites
       def transferred_properties
         @properties.transferred_properties
+      end
+
+      # Simplifies usage at call sites by only requiring them to supply
+      # the tag name to use and any child AST nodes to render
+      def to_docx(tag, children = nil)
+        attr_str = ''
+        if @attributes
+          attr_str = ' ' + @attributes.map { |k, v| %(#{k}="#{v}") }.join(' ')
+        end
+        prop_str = @properties.to_docx if @properties
+        #
+        if children
+          "<#{tag}#{attr_str}>#{prop_str}#{children.to_docx}</#{tag}>"
+        else
+          "<#{tag}#{attr_str}>#{prop_str}</#{tag}>"
+        end
       end
     end
 
