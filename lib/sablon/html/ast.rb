@@ -220,7 +220,7 @@ module Sablon
       end
 
       def to_docx
-        "<w:p>#{@properties.to_docx}#{runs.to_docx}</w:p>"
+        super('w:p', runs)
       end
 
       def accept(visitor)
@@ -326,28 +326,26 @@ module Sablon
       PROPERTIES = %w[b i caps color dstrike emboss imprint highlight outline
                       rStyle shadow shd smallCaps strike sz u vanish
                       vertAlign].freeze
-      attr_reader :string
+
+      Text = Struct.new(:content) do
+        def to_docx
+          "<w:t xml:space=\"preserve\">#{content.tr("\u00A0", ' ')}</w:t>"
+        end
+      end
 
       def initialize(_env, node, properties)
         super
         properties = self.class.process_properties(properties)
         @properties = NodeProperties.run(properties)
-        @string = node.text
+        @text = Text.new(node.text)
       end
 
       def to_docx
-        "<w:r>#{@properties.to_docx}#{text}</w:r>"
+        super('w:r', @text)
       end
 
       def inspect
-        "<Run{#{@properties.inspect}}: #{string}>"
-      end
-
-      private
-
-      def text
-        content = @string.tr("\u00A0", ' ')
-        "<w:t xml:space=\"preserve\">#{content}</w:t>"
+        "<Run{#{@properties.inspect}}: #{@text.content}>"
       end
     end
 
