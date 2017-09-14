@@ -70,12 +70,9 @@ module Sablon
       def to_docx(tag, children = nil)
         attr_str = @attributes.map { |k, v| %(#{k}="#{v}") }.join(' ')
         prop_str = @properties.to_docx if @properties
+        children_str = children.to_docx if children
         #
-        if children
-          "<#{tag}#{attr_str}>#{prop_str}#{children.to_docx}</#{tag}>"
-        else
-          "<#{tag}#{attr_str}>#{prop_str}</#{tag}>"
-        end
+        "<#{tag}#{attr_str}>#{prop_str}#{children_str}</#{tag}>"
       end
     end
 
