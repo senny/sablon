@@ -62,6 +62,7 @@ module Sablon
       end
     end
 
+    # Manages the properties for an AST node
     class NodeProperties
       attr_reader :transferred_properties
 
@@ -136,6 +137,8 @@ module Sablon
       end
     end
 
+    # A container for an array of AST nodes with convenience methods to
+    # work with the internal array as if it were a regular node
     class Collection < Node
       attr_reader :nodes
       def initialize(nodes)
@@ -158,6 +161,8 @@ module Sablon
       end
     end
 
+    # Stores all of the AST nodes from the current fragment of HTML being
+    # parsed
     class Root < Collection
       def initialize(env, node)
         # strip text nodes from the root level element, these are typically
@@ -179,6 +184,8 @@ module Sablon
       end
     end
 
+    # An AST node representing the top level content container for a word
+    # document. These cannot be nested within other paragraph elements
     class Paragraph < Node
       PROPERTIES = %w[framePr ind jc keepLines keepNext numPr
                       outlineLvl pBdr pStyle rPr sectPr shd spacing
@@ -276,7 +283,8 @@ module Sablon
       end
     end
 
-    # Sets list item specific attributes registered on the node
+    # Sets list item specific attributes registered on the node to properly
+    # generate a list paragraph
     class ListParagraph < Paragraph
       def initialize(env, node, properties)
         list_props = {
@@ -294,7 +302,8 @@ module Sablon
       end
     end
 
-    # Create a run of text in the document
+    # Create a run of text in the document, runs cannot be nested within
+    # each other
     class Run < Node
       PROPERTIES = %w[b i caps color dstrike emboss imprint highlight outline
                       rStyle shadow shd smallCaps strike sz u vanish
