@@ -60,23 +60,32 @@ module Sablon
         visitor.visit(self)
       end
 
+      # Simplifies usage at call sites by only requiring them to supply
+      # the tag name to use and any child AST nodes to render
+      def to_docx(tag)
+        prop_str = @properties.to_docx if @properties
+        #
+        "<#{tag}#{attributes_to_docx}>#{prop_str}#{children_to_docx}</#{tag}>"
+      end
+
+      private
+
       # Simplifies usage at call sites
       def transferred_properties
         @properties.transferred_properties
       end
 
+      # Gracefully handles conversion of an attributes hash into a
+      # string
       def attributes_to_docx
         return '' if @attributes.nil? || @attributes.empty?
         ' ' + @attributes.map { |k, v| %(#{k}="#{v}") }.join(' ')
       end
 
-      # Simplifies usage at call sites by only requiring them to supply
-      # the tag name to use and any child AST nodes to render
-      def to_docx(tag, children = nil)
-        prop_str = @properties.to_docx if @properties
-        children_str = children.to_docx if children
-        #
-        "<#{tag}#{attributes_to_docx}>#{prop_str}#{children_str}</#{tag}>"
+      # Acts like an abstract method allowing subclases full flexibility to
+      # define any content inside the tags.
+      def children_to_docx
+        ''
       end
     end
 
@@ -221,7 +230,7 @@ module Sablon
       end
 
       def to_docx
-        super('w:p', runs)
+        super('w:p')
       end
 
       def accept(visitor)
@@ -231,6 +240,12 @@ module Sablon
 
       def inspect
         "<Paragraph{#{@properties[:pStyle]}}: #{runs.inspect}>"
+      end
+
+      private
+
+      def children_to_docx
+        runs.to_docx
       end
     end
 
@@ -328,38 +343,41 @@ module Sablon
                       rStyle shadow shd smallCaps strike sz u vanish
                       vertAlign].freeze
 
-      Text = Struct.new(:content) do
-        def to_docx
-          "<w:t xml:space=\"preserve\">#{content.tr("\u00A0", ' ')}</w:t>"
-        end
-      end
-
       def initialize(_env, node, properties)
         super
         properties = self.class.process_properties(properties)
         @properties = NodeProperties.run(properties)
-        @text = Text.new(node.text)
+        @string = node.text
       end
 
       def to_docx
-        super('w:r', @text)
+        super('w:r')
       end
 
       def inspect
-        "<Run{#{@properties.inspect}}: #{@text.content}>"
+        "<Run{#{@properties.inspect}}: #{@string}>"
+      end
+
+      private
+
+      def children_to_docx
+        content = @string.tr("\u00A0", ' ')
+        "<w:t xml:space=\"preserve\">#{content}</w:t>"
       end
     end
 
     # Creates a blank line in the word document
-    class Newline < Node
+    class Newline < Run
       def initialize(*); end
-
-      def to_docx
-        "<w:r><w:br/></w:r>"
-      end
 
       def inspect
         "<Newline>"
+      end
+
+      private
+
+      def children_to_docx
+        "<w:br/>"
       end
     end
   end
