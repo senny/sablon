@@ -23,6 +23,9 @@ module Sablon
           parent_tag = fetch_tag(node.parent.name) if node.parent.name
           tag = fetch_tag(node.name)
 
+          # remove all text nodes if the tag doesn't accept them
+          node.search('./text()').remove if drop_text?(tag)
+
           # check node hierarchy
           validate_structure(parent_tag, tag)
 
@@ -57,6 +60,15 @@ module Sablon
           return
         end
         raise ContextError, "Invalid HTML structure: #{msg}"
+      end
+
+      # If the node doesn't allow inline elements, or text specifically,
+      # drop all text nodes. This is largely meant to prevent whitespace
+      # between tags from rasing an invalid structure error. Although it
+      # will purge the node whether it contains nonblank characters or not.
+      def drop_text?(child)
+        text = fetch_tag(:text)
+        !child.allowed_child?(text)
       end
 
       # Merges node properties in a sppecifc

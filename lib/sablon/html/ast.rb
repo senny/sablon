@@ -52,16 +52,44 @@ module Sablon
         end
       end
 
+      def initialize(_env, _node, _properties)
+        @attributes ||= {}
+      end
+
       def accept(visitor)
         visitor.visit(self)
       end
+
+      # Simplifies usage at call sites by only requiring them to supply
+      # the tag name to use and any child AST nodes to render
+      def to_docx(tag)
+        prop_str = @properties.to_docx if @properties
+        #
+        "<#{tag}#{attributes_to_docx}>#{prop_str}#{children_to_docx}</#{tag}>"
+      end
+
+      private
 
       # Simplifies usage at call sites
       def transferred_properties
         @properties.transferred_properties
       end
+
+      # Gracefully handles conversion of an attributes hash into a
+      # string
+      def attributes_to_docx
+        return '' if @attributes.nil? || @attributes.empty?
+        ' ' + @attributes.map { |k, v| %(#{k}="#{v}") }.join(' ')
+      end
+
+      # Acts like an abstract method allowing subclases full flexibility to
+      # define any content inside the tags.
+      def children_to_docx
+        ''
+      end
     end
 
+    # Manages the properties for an AST node
     class NodeProperties
       attr_reader :transferred_properties
 
@@ -136,6 +164,8 @@ module Sablon
       end
     end
 
+    # A container for an array of AST nodes with convenience methods to
+    # work with the internal array as if it were a regular node
     class Collection < Node
       attr_reader :nodes
       def initialize(nodes)
@@ -158,6 +188,8 @@ module Sablon
       end
     end
 
+    # Stores all of the AST nodes from the current fragment of HTML being
+    # parsed
     class Root < Collection
       def initialize(env, node)
         # strip text nodes from the root level element, these are typically
@@ -179,6 +211,8 @@ module Sablon
       end
     end
 
+    # An AST node representing the top level content container for a word
+    # document. These cannot be nested within other paragraph elements
     class Paragraph < Node
       PROPERTIES = %w[framePr ind jc keepLines keepNext numPr
                       outlineLvl pBdr pStyle rPr sectPr shd spacing
@@ -186,6 +220,7 @@ module Sablon
       attr_accessor :runs
 
       def initialize(env, node, properties)
+        super
         properties = self.class.process_properties(properties)
         @properties = NodeProperties.paragraph(properties)
         #
@@ -195,7 +230,7 @@ module Sablon
       end
 
       def to_docx
-        "<w:p>#{@properties.to_docx}#{runs.to_docx}</w:p>"
+        super('w:p')
       end
 
       def accept(visitor)
@@ -205,6 +240,12 @@ module Sablon
 
       def inspect
         "<Paragraph{#{@properties[:pStyle]}}: #{runs.inspect}>"
+      end
+
+      private
+
+      def children_to_docx
+        runs.to_docx
       end
     end
 
@@ -276,7 +317,8 @@ module Sablon
       end
     end
 
-    # Sets list item specific attributes registered on the node
+    # Sets list item specific attributes registered on the node to properly
+    # generate a list paragraph
     class ListParagraph < Paragraph
       def initialize(env, node, properties)
         list_props = {
@@ -294,45 +336,48 @@ module Sablon
       end
     end
 
-    # Create a run of text in the document
+    # Create a run of text in the document, runs cannot be nested within
+    # each other
     class Run < Node
       PROPERTIES = %w[b i caps color dstrike emboss imprint highlight outline
                       rStyle shadow shd smallCaps strike sz u vanish
                       vertAlign].freeze
-      attr_reader :string
 
       def initialize(_env, node, properties)
+        super
         properties = self.class.process_properties(properties)
         @properties = NodeProperties.run(properties)
         @string = node.text
       end
 
       def to_docx
-        "<w:r>#{@properties.to_docx}#{text}</w:r>"
+        super('w:r')
       end
 
       def inspect
-        "<Run{#{@properties.inspect}}: #{string}>"
+        "<Run{#{@properties.inspect}}: #{@string}>"
       end
 
       private
 
-      def text
+      def children_to_docx
         content = @string.tr("\u00A0", ' ')
         "<w:t xml:space=\"preserve\">#{content}</w:t>"
       end
     end
 
     # Creates a blank line in the word document
-    class Newline < Node
+    class Newline < Run
       def initialize(*); end
-
-      def to_docx
-        "<w:r><w:br/></w:r>"
-      end
 
       def inspect
         "<Newline>"
+      end
+
+      private
+
+      def children_to_docx
+        "<w:br/>"
       end
     end
   end
