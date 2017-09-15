@@ -65,14 +65,18 @@ module Sablon
         @properties.transferred_properties
       end
 
+      def attributes_to_docx
+        return '' if @attributes.nil? || @attributes.empty?
+        ' ' + @attributes.map { |k, v| %(#{k}="#{v}") }.join(' ')
+      end
+
       # Simplifies usage at call sites by only requiring them to supply
       # the tag name to use and any child AST nodes to render
       def to_docx(tag, children = nil)
-        attr_str = @attributes.map { |k, v| %(#{k}="#{v}") }.join(' ')
         prop_str = @properties.to_docx if @properties
         children_str = children.to_docx if children
         #
-        "<#{tag}#{attr_str}>#{prop_str}#{children_str}</#{tag}>"
+        "<#{tag}#{attributes_to_docx}>#{prop_str}#{children_str}</#{tag}>"
       end
     end
 
