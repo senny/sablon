@@ -601,7 +601,7 @@ class HTMLConverterStyleTest < Sablon::TestCase
     # This registers a new tag with the configuration object and then trys
     # to convert it
     Sablon.configure do |config|
-      config.register_html_tag(:bgcyan, :inline, properties: { highlight: 'cyan' })
+      config.register_html_tag(:bgcyan, :inline, properties: { 'highlight' => { val: 'cyan' } })
     end
     #
     input = '<p><bgcyan>test</bgcyan></p>'
