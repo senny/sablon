@@ -43,8 +43,11 @@ module Sablon
 
         # Set attributes from optinos hash, currently unused during AST generation
         @attributes = options.fetch(:attributes, {})
-        # WordML properties defined by the tag, i.e. <w:b /> for the <b> tag, etc.
+        # WordML properties defined by the tag, i.e. <w:b /> for the <b> tag,
+        # etc. All the keys need to be symbols to avoid getting reparsed
+        # with the element's CSS attributes.
         @properties = options.fetch(:properties, {})
+        @properties = Hash[@properties.map { |k, v| [k.to_sym, v] }]
         # Set permitted child tags or tag groups
         self.allowed_children = options[:allowed_children]
       end
