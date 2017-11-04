@@ -435,6 +435,18 @@ class ProcessorDocumentTest < Sablon::TestCase
     assert_equal "", text(result)
   end
 
+  def test_conditional_with_equality_operator
+    result = process(snippet("conditional_with_equality_operator"), {"middle_name" => "John", "age" => 45})  
+    assert_xml_equal <<-document, result
+        <w:p>
+          <w:t>some content</w:t>
+        </w:p>
+        <w:p>
+          <w:t>some content</w:t>
+        </w:p>
+    document
+  end
+
   def test_comment
     result = process(snippet("comment"), {})
     assert_equal "Before After", text(result)
