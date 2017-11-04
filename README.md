@@ -193,6 +193,22 @@ For more complex conditionals you can use a predicate like so:
 «body:endIf»
 ```
 
+It's also possible to use equality operators for conditionals:
+
+```
+«technology:if(=='Ruby')»
+    ... arbitrary document markup ...
+«technologies:endIf»
+```
+
+```
+«intValue:if(!=42)»
+    ... arbitrary document markup ...
+«intValue:endIf»
+```
+
+Strings need to be enclosed in single quotes, e.g. ```'String'```. The value after the operator will be compared against the value of the context variable.
+
 #### Loops
 
 Loops repeat parts of the document.

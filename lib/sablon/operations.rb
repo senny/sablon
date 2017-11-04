@@ -25,6 +25,21 @@ module Sablon
       end
     end
 
+    class OperatorCondition < Struct.new(:conditon_expr, :block, :operation)
+      def evaluate(env)
+        value = conditon_expr.evaluate(env.context)
+        if truthy?(operation[0..1], operation[2..-1].tr("'", ""), value.to_s)
+          block.replace(block.process(env).reverse)
+        else
+          block.replace([])
+        end
+      end
+
+      def truthy?(operation, value_a, value_b)
+        return (operation == "!=") ? (value_a != value_b) : (value_a == value_b) 
+      end
+    end
+
     class Condition < Struct.new(:conditon_expr, :block, :predicate)
       def evaluate(env)
         value = conditon_expr.evaluate(env.context)
