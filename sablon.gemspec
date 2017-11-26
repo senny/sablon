@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.version       = Sablon::VERSION
   spec.authors       = ["Yves Senn"]
   spec.email         = ["yves.senn@gmail.com"]
-  spec.summary       = %q{docx tempalte processor}
+  spec.summary       = %q{docx template processor}
   spec.description   = %q{Sablon is a document template processor. At this time it works only with docx and MailMerge fields.}
   spec.homepage      = "http://github.com/senny/sablon"
   spec.license       = "MIT"
