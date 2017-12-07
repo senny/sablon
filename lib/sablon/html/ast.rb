@@ -347,7 +347,7 @@ module Sablon
         super
         properties = self.class.process_properties(properties)
         @properties = NodeProperties.run(properties)
-        @string = node.text
+        @string = node.to_s # using `text` doesn't reconvert HTML entities
       end
 
       def to_docx
