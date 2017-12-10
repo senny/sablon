@@ -126,6 +126,67 @@ module Sablon
           },
           'text-align' => ->(v) { return 'jc', v }
         },
+        # Styles specific to the Table AST class
+        table: {
+          'border' => lambda { |v|
+            props = config.defined_style_conversions[:node][:_border].call(v)
+            #
+            return 'tblBorders', [
+              { top: props }, { start: props }, { bottom: props },
+              { end: props }, { insideH: props }, { insideV: props }
+            ]
+          },
+          'margin' => lambda { |v|
+            vals = v.split.map do |s|
+              config.defined_style_conversions[:node][:_sz].call(s)
+            end
+            #
+            props = [vals[0], vals[0], vals[0], vals[0]] if vals.length == 1
+            props = [vals[0], vals[1], vals[0], vals[1]] if vals.length == 2
+            props = [vals[0], vals[1], vals[2], vals[1]] if vals.length == 3
+            props = [vals[0], vals[1], vals[2], vals[3]] if vals.length > 3
+            return 'tblCellMar', [
+              { top: { w: props[0], type: 'dxa' } },
+              { end: { w: props[1], type: 'dxa' } },
+              { bottom: { w: props[2], type: 'dxa' } },
+              { start: { w: props[3], type: 'dxa' } }
+            ]
+          },
+          'cellspacing' => lambda { |v|
+            v = config.defined_style_conversions[:node][:_sz].call(v)
+            return 'tblCellSpacing', { w: v, type: 'dxa' }
+          },
+          'width' => lambda { |v|
+            v = config.defined_style_conversions[:node][:_sz].call(v)
+            return 'tblW', { w: v, type: 'dxa' }
+          }
+        },
+        # Styles specific to the TableCell AST class
+        table_cell: {
+          'border' => lambda { |v|
+            value = config.defined_style_conversions[:table]['border'].call(v)[1]
+            return 'tcBorders', value
+          },
+          'colspan' => ->(v) { return 'gridSpan', v },
+          'margin' => lambda { |v|
+            value = config.defined_style_conversions[:table]['margin'].call(v)[1]
+            return 'tcMar', value
+          },
+          'rowspan' => lambda { |v|
+            return 'vMerge', 'restart' if v == 'start'
+            return 'vMerge', v if v == 'continue'
+            return 'vMerge', nil if v == 'end'
+          },
+          'vertical-align' => ->(v) { return 'vAlign', v },
+          'white-space' => lambda { |v|
+            return 'noWrap', nil if v == 'nowrap'
+            return 'tcFitText', 'true' if v == 'fit'
+          },
+          'width' => lambda { |v|
+            value = config.defined_style_conversions[:table]['width'].call(v)[1]
+            return 'tcW', value
+          }
+        },
         # Styles specific to the Paragraph AST class
         paragraph: {
           'border' => lambda { |v|
