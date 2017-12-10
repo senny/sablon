@@ -1,3 +1,8 @@
+require "simplecov"
+SimpleCov.start do
+  add_filter %r{^/test/}
+end
+
 require "bundler/setup"
 
 require "minitest/autorun"

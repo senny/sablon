@@ -405,6 +405,35 @@ class HTMLConverterTest < Sablon::TestCase
     assert_equal normalize_wordml(expected_output), process(input)
   end
 
+  def test_table_with_table_row_table_header_cell_and_caption
+    # This would generate an invalid docu
+    input='<table><caption>Table Title</caption><tr><th>Content</th></tr></table>'
+    expected_output=<<-DOCX.strip
+      <w:p>
+        <w:pPr>
+          <w:pStyle w:val="Caption" />
+        </w:pPr>
+        <w:r>
+          <w:t xml:space="preserve">Table Title</w:t>
+        </w:r>
+      </w:p>
+      <w:tbl>
+        <w:tr>
+          <w:tc>
+            <w:p>
+              <w:pPr><w:jc w:val="center" /></w:pPr>
+              <w:r>
+                <w:rPr><w:b /></w:rPr>
+                <w:t xml:space="preserve">Content</w:t>
+              </w:r>
+            </w:p>
+          </w:tc>
+        </w:tr>
+      </w:tbl>
+    DOCX
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
   def test_unknown_tag
     e = assert_raises ArgumentError do
       process('<badtag/>')
