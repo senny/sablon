@@ -354,6 +354,57 @@ class HTMLConverterTest < Sablon::TestCase
     assert_equal [Sablon::Numbering::Definition.new(1001, 'ListBullet')], @numbering.definitions
   end
 
+  def test_table_tag
+    input='<table></table>'
+    expected_output='<w:tbl></w:tbl>'
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_table_with_table_row
+    # This would generate an invalid docu
+    input='<table><tr></tr><tr></tr></table>'
+    expected_output='<w:tbl><w:tr></w:tr><w:tr></w:tr></w:tbl>'
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_table_with_table_row_and_table_cell
+    # This would generate an invalid docu
+    input='<table><tr><td>Content</td></tr></table>'
+    expected_output=<<-DOCX.strip
+      <w:tbl>
+        <w:tr>
+          <w:tc>
+            <w:p>
+              <w:r><w:t xml:space="preserve">Content</w:t></w:r>
+            </w:p>
+          </w:tc>
+        </w:tr>
+      </w:tbl>
+    DOCX
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_table_with_table_row_and_table_header_cell
+    # This would generate an invalid docu
+    input='<table><tr><th>Content</th></tr></table>'
+    expected_output=<<-DOCX.strip
+      <w:tbl>
+        <w:tr>
+          <w:tc>
+            <w:p>
+              <w:pPr><w:jc w:val="center" /></w:pPr>
+              <w:r>
+                <w:rPr><w:b /></w:rPr>
+                <w:t xml:space="preserve">Content</w:t>
+              </w:r>
+            </w:p>
+          </w:tc>
+        </w:tr>
+      </w:tbl>
+    DOCX
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
   def test_unknown_tag
     e = assert_raises ArgumentError do
       process('<badtag/>')
