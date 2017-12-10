@@ -274,15 +274,33 @@ module Sablon
         # Process properties
         properties = self.class.process_properties(properties)
         @properties = NodeProperties.table(properties)
-
-        # convert child nodes and pass on properties not retained by the parent
         trans_props = transferred_properties
+
+        # Pull out the caption node if it exists and convert it separately.
+        # If multiple caption tags are defined, only the first one is kept.
+        @caption = node.xpath('./caption').remove
+        @caption = nil if @caption.empty?
+        if @caption
+          cap_side_pat = /caption-side: ?(top|bottom)/
+          @cap_side = @caption.attr('style').to_s.match(cap_side_pat).to_a[1]
+          node.add_previous_sibling @caption
+          @caption = ASTBuilder.html_to_ast(env, @caption, trans_props)[0]
+        end
+
+        # convert remaining child nodes and pass on transferrable properties
         @children = ASTBuilder.html_to_ast(env, node.children, trans_props)
         @children = Collection.new(@children)
       end
 
       def to_docx
-        super('w:tbl')
+        if @caption && @cap_side == 'bottom'
+          super('w:tbl') + @caption.to_docx
+        elsif @caption
+          # caption always goes above table unless explicitly set to "bottom"
+          @caption.to_docx + super('w:tbl')
+        else
+          super('w:tbl')
+        end
       end
 
       def accept(visitor)
