@@ -97,6 +97,18 @@ module Sablon
         new('w:pPr', properties, Paragraph::PROPERTIES)
       end
 
+      def self.table(properties)
+        new('w:tblPr', properties, Table::PROPERTIES)
+      end
+
+      def self.table_row(properties)
+        new('w:trPr', properties, TableRow::PROPERTIES)
+      end
+
+      def self.table_cell(properties)
+        new('w:tcPr', properties, TableCell::PROPERTIES)
+      end
+
       def self.run(properties)
         new('w:rPr', properties, Run::PROPERTIES)
       end
