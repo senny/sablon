@@ -309,7 +309,13 @@ module Sablon
       end
 
       def inspect
-        "<Table{#{@properties.inspect}}: #{@children.inspect}>"
+        if @caption && @cap_side == 'bottom'
+          "<Table{#{@properties.inspect}}: #{@children.inspect}, #{@caption.inspect}>"
+        elsif @caption
+          "<Table{#{@properties.inspect}}: #{@caption.inspect}, #{@children.inspect}>"
+        else
+          "<Table{#{@properties.inspect}}: #{@children.inspect}>"
+        end
       end
 
       private
