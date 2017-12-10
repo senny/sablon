@@ -295,10 +295,111 @@ class HTMLConverterStyleTest < Sablon::TestCase
     end
   end
 
+  def test_table_border_conversion
+    input = '<table style="border: 1px dotted #eaf"><tr><td></td></tr></table>'
+    props = <<-DOCX.strip
+      <w:tblBorders>
+        <w:top w:sz="2" w:val="dotted" w:color="eaf" />
+        <w:start w:sz="2" w:val="dotted" w:color="eaf" />
+        <w:bottom w:sz="2" w:val="dotted" w:color="eaf" />
+        <w:end w:sz="2" w:val="dotted" w:color="eaf" />
+        <w:insideH w:sz="2" w:val="dotted" w:color="eaf" />
+        <w:insideV w:sz="2" w:val="dotted" w:color="eaf" />
+      </w:tblBorders>
+    DOCX
+    expected_output = table_with_props(props)
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_table_margin_conversion
+    # test with single value
+    input = '<table style="margin: 2"><tr><td></td></tr></table>'
+    props = <<-DOCX.strip
+      <w:tblCellMar>
+        <w:top w:w="4" w:type="dxa" />
+        <w:end w:w="4" w:type="dxa" />
+        <w:bottom w:w="4" w:type="dxa" />
+        <w:start w:w="4" w:type="dxa" />
+      </w:tblCellMar>
+    DOCX
+    expected_output = table_with_props(props)
+    assert_equal normalize_wordml(expected_output), process(input)
+
+    # test with two values
+    input = '<table style="margin: 2 4"><tr><td></td></tr></table>'
+    props = <<-DOCX.strip
+      <w:tblCellMar>
+        <w:top w:w="4" w:type="dxa" />
+        <w:end w:w="8" w:type="dxa" />
+        <w:bottom w:w="4" w:type="dxa" />
+        <w:start w:w="8" w:type="dxa" />
+      </w:tblCellMar>
+    DOCX
+    expected_output = table_with_props(props)
+    assert_equal normalize_wordml(expected_output), process(input)
+
+    # test with three values
+    input = '<table style="margin: 2 4 8"><tr><td></td></tr></table>'
+    props = <<-DOCX.strip
+      <w:tblCellMar>
+        <w:top w:w="4" w:type="dxa" />
+        <w:end w:w="8" w:type="dxa" />
+        <w:bottom w:w="16" w:type="dxa" />
+        <w:start w:w="8" w:type="dxa" />
+      </w:tblCellMar>
+    DOCX
+    expected_output = table_with_props(props)
+    assert_equal normalize_wordml(expected_output), process(input)
+
+    # test with four values
+    input = '<table style="margin: 2 4 8 16"><tr><td></td></tr></table>'
+    props = <<-DOCX.strip
+      <w:tblCellMar>
+        <w:top w:w="4" w:type="dxa" />
+        <w:end w:w="8" w:type="dxa" />
+        <w:bottom w:w="16" w:type="dxa" />
+        <w:start w:w="32" w:type="dxa" />
+      </w:tblCellMar>
+    DOCX
+    expected_output = table_with_props(props)
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_table_cellspacing_conversion
+    input = '<table style="cellspacing: 1"><tr><td></td></tr></table>'
+    expected_output = table_with_props('<w:tblCellSpacing w:w="2" w:type="dxa" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_table_width_conversion
+    input = '<table style="width: 1"><tr><td></td></tr></table>'
+    expected_output = table_with_props('<w:tblW w:w="2" w:type="dxa" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
   private
 
   def process(input)
     @converter.process(input, @env)
+  end
+
+  def table_with_props(tbl_pr_str, tr_pr_str = '', tc_pr_str = '')
+    tbl_str = <<-DOCX.strip
+      <w:tbl>
+          %s
+        <w:tr>
+          %s
+          <w:tc>
+            %s
+            <w:p></w:p>
+          </w:tc>
+        </w:tr>
+      </w:tbl>
+    DOCX
+    tbl_pr_str = "<w:tblPr>#{tbl_pr_str}</w:tblPr>" unless tbl_pr_str == ''
+    tr_pr_str = "<w:trPr>#{tr_pr_str}</w:trPr>" unless tr_pr_str == ''
+    tc_pr_str = "<w:tcPr>#{tc_pr_str}</w:tcPr>" unless tc_pr_str == ''
+    format(tbl_str, tbl_pr_str, tr_pr_str, tc_pr_str)
   end
 
   def para_with_ppr(ppr_str)
