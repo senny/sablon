@@ -110,17 +110,25 @@ class HTMLConverterASTTest < Sablon::TestCase
   end
 
   def test_table_with_table_row
-    # This would generate an invalid docu
     input='<table><tr></tr></table>'
     ast = @converter.processed_ast(input)
     assert_equal '<Root: [<Table{}: [<TableRow{}: []>]>]>', ast.inspect
   end
 
   def test_table_with_table_row_and_table_cell
-    # This would generate an invalid docu
     input='<table><tr><td>Content</td></tr></table>'
     ast = @converter.processed_ast(input)
     assert_equal '<Root: [<Table{}: [<TableRow{}: [<TableCell{}: <Paragraph{}: [<Run{}: Content>]>>]>]>]>', ast.inspect
+  end
+
+  def test_table_with_table_row_and_table_cell_and_caption
+    input='<table><caption>Table Title</caption><tr><td>Content</td></tr></table>'
+    ast = @converter.processed_ast(input)
+    assert_equal '<Root: [<Table{}: <Paragraph{Caption}: [<Run{}: Table Title>]>, [<TableRow{}: [<TableCell{}: <Paragraph{}: [<Run{}: Content>]>>]>]>]>', ast.inspect
+    #
+    input='<table><caption style="caption-side: bottom">Table Title</caption><tr><td>Content</td></tr></table>'
+    ast = @converter.processed_ast(input)
+    assert_equal '<Root: [<Table{}: [<TableRow{}: [<TableCell{}: <Paragraph{}: [<Run{}: Content>]>>]>], <Paragraph{Caption}: [<Run{}: Table Title>]>>]>', ast.inspect
   end
 
   private
