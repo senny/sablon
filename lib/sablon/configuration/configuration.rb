@@ -56,6 +56,10 @@ module Sablon
         '#document-fragment' => { type: :block, ast_class: :root, allowed_children: :_block },
 
         # block level tags
+        table: { type: :block, ast_class: :table, allowed_children: :tr },
+        tr: { type: :block, ast_class: :table_row, allowed_children: %i[th td] },
+        th: { type: :block, ast_class: :table_cell, properties: { b: nil, jc: 'center' }, allowed_children: %i[_block _inline] },
+        td: { type: :block, ast_class: :table_cell, allowed_children: %i[_block _inline] },
         div: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Normal' }, allowed_children: :_inline },
         p: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Paragraph' }, allowed_children: :_inline },
         h1: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Heading1' }, allowed_children: :_inline },
