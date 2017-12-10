@@ -377,6 +377,79 @@ class HTMLConverterStyleTest < Sablon::TestCase
     assert_equal normalize_wordml(expected_output), process(input)
   end
 
+  def test_table_cell_borders_conversion
+    input = '<table><tr><td style="border: 1px dotted #eaf"></td></tr></table>'
+    props = <<-DOCX.strip
+      <w:tcBorders>
+        <w:top w:sz="2" w:val="dotted" w:color="eaf" />
+        <w:start w:sz="2" w:val="dotted" w:color="eaf" />
+        <w:bottom w:sz="2" w:val="dotted" w:color="eaf" />
+        <w:end w:sz="2" w:val="dotted" w:color="eaf" />
+        <w:insideH w:sz="2" w:val="dotted" w:color="eaf" />
+        <w:insideV w:sz="2" w:val="dotted" w:color="eaf" />
+      </w:tcBorders>
+    DOCX
+    expected_output = table_with_props('', '', props)
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_table_cell_colspan_conversion
+    input = '<table><tr><td style="colspan: 2"></td></tr></table>'
+    expected_output = table_with_props('', '', '<w:gridSpan w:val="2" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_table_cell_margin_conversion
+    # test with four values
+    input = '<table><tr><td style="margin: 2 4 8 16"></td></tr></table>'
+    props = <<-DOCX.strip
+      <w:tcMar>
+        <w:top w:w="4" w:type="dxa" />
+        <w:end w:w="8" w:type="dxa" />
+        <w:bottom w:w="16" w:type="dxa" />
+        <w:start w:w="32" w:type="dxa" />
+      </w:tcMar>
+    DOCX
+    expected_output = table_with_props('', '', props)
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_table_cell_rowspan_conversion
+    input = '<table><tr><td style="rowspan: start"></td></tr></table>'
+    expected_output = table_with_props('', '', '<w:vMerge w:val="restart" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+    #
+    input = '<table><tr><td style="rowspan: continue"></td></tr></table>'
+    expected_output = table_with_props('', '', '<w:vMerge w:val="continue" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+    #
+    input = '<table><tr><td style="rowspan: end"></td></tr></table>'
+    expected_output = table_with_props('', '', '<w:vMerge />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_table_cell_vertical_align_conversion
+    input = '<table><tr><td style="vertical-align: top"></td></tr></table>'
+    expected_output = table_with_props('', '', '<w:vAlign w:val="top" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_table_cell_white_space_conversion
+    input = '<table><tr><td style="white-space: nowrap"></td></tr></table>'
+    expected_output = table_with_props('', '', '<w:noWrap />')
+    assert_equal normalize_wordml(expected_output), process(input)
+    #
+    input = '<table><tr><td style="white-space: fit"></td></tr></table>'
+    expected_output = table_with_props('', '', '<w:tcFitText w:val="true" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
+  def test_table_cell_width_conversion
+    input = '<table><tr><td style="width: 100"></td></tr></table>'
+    expected_output = table_with_props('', '', '<w:tcW w:w="200" w:type="dxa" />')
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
   private
 
   def process(input)
