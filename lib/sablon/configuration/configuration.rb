@@ -129,7 +129,7 @@ module Sablon
         # Styles specific to the Table AST class
         table: {
           'border' => lambda { |v|
-            props = config.defined_style_conversions[:node][:_border].call(v)
+            props = @defined_style_conversions[:node][:_border].call(v)
             #
             return 'tblBorders', [
               { top: props }, { start: props }, { bottom: props },
@@ -138,7 +138,7 @@ module Sablon
           },
           'margin' => lambda { |v|
             vals = v.split.map do |s|
-              config.defined_style_conversions[:node][:_sz].call(s)
+              @defined_style_conversions[:node][:_sz].call(s)
             end
             #
             props = [vals[0], vals[0], vals[0], vals[0]] if vals.length == 1
@@ -153,23 +153,23 @@ module Sablon
             ]
           },
           'cellspacing' => lambda { |v|
-            v = config.defined_style_conversions[:node][:_sz].call(v)
+            v = @defined_style_conversions[:node][:_sz].call(v)
             return 'tblCellSpacing', { w: v, type: 'dxa' }
           },
           'width' => lambda { |v|
-            v = config.defined_style_conversions[:node][:_sz].call(v)
+            v = @defined_style_conversions[:node][:_sz].call(v)
             return 'tblW', { w: v, type: 'dxa' }
           }
         },
         # Styles specific to the TableCell AST class
         table_cell: {
           'border' => lambda { |v|
-            value = config.defined_style_conversions[:table]['border'].call(v)[1]
+            value = @defined_style_conversions[:table]['border'].call(v)[1]
             return 'tcBorders', value
           },
           'colspan' => ->(v) { return 'gridSpan', v },
           'margin' => lambda { |v|
-            value = config.defined_style_conversions[:table]['margin'].call(v)[1]
+            value = @defined_style_conversions[:table]['margin'].call(v)[1]
             return 'tcMar', value
           },
           'rowspan' => lambda { |v|
@@ -183,7 +183,7 @@ module Sablon
             return 'tcFitText', 'true' if v == 'fit'
           },
           'width' => lambda { |v|
-            value = config.defined_style_conversions[:table]['width'].call(v)[1]
+            value = @defined_style_conversions[:table]['width'].call(v)[1]
             return 'tcW', value
           }
         },
