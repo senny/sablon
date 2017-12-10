@@ -53,6 +53,7 @@ module Sablon
       end
 
       def initialize(_env, _node, _properties)
+        @properties ||= nil
         @attributes ||= {}
       end
 
@@ -169,6 +170,8 @@ module Sablon
     class Collection < Node
       attr_reader :nodes
       def initialize(nodes)
+        @properties ||= nil
+        @attributes ||= {}
         @nodes = nodes
       end
 
@@ -255,6 +258,7 @@ module Sablon
         # intialize values
         @list_tag = node.name
         #
+        @definition = nil
         if node.ancestors(".//#{@list_tag}").length.zero?
           # Only register a definition when upon the first list tag encountered
           @definition = env.numbering.register(properties[:pStyle])
@@ -368,7 +372,10 @@ module Sablon
 
     # Creates a blank line in the word document
     class Newline < Run
-      def initialize(*); end
+      def initialize(*)
+        @properties = nil
+        @attributes = {}
+      end
 
       def inspect
         "<Newline>"
