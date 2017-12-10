@@ -336,6 +336,118 @@ module Sablon
       end
     end
 
+    # Builds a table from html table tags
+    class Table < Node
+      PROPERTIES = %w[jc shd tblBorders tblCaption tblCellMar tblCellSpacing
+                      tblInd tblLayout tblLook tblOverlap tblpPr tblStyle
+                      tblStyleColBandSize tblStyleRowBandSize tblW].freeze
+
+      def initialize(env, node, properties)
+        super
+
+        # Process properties
+        properties = self.class.process_properties(properties)
+        @properties = NodeProperties.table(properties)
+
+        # convert child nodes and pass on properties not retained by the parent
+        trans_props = transferred_properties
+        @children = ASTBuilder.html_to_ast(env, node.children, trans_props)
+        @children = Collection.new(@children)
+      end
+
+      def to_docx
+        super('w:tbl')
+      end
+
+      def accept(visitor)
+        super
+        @children.accept(visitor)
+      end
+
+      def inspect
+        "<Table{#{@properties.inspect}}: #{@children.inspect}>"
+      end
+
+      private
+
+      def children_to_docx
+        @children.to_docx
+      end
+    end
+
+    # Converts html table rows into wordML table rows
+    class TableRow < Node
+      PROPERTIES = %w[cantSplit hidden jc tblCellSpacing tblHeader
+                      trHeight tblPrEx].freeze
+
+      def initialize(env, node, properties)
+        super
+        properties = self.class.process_properties(properties)
+        @properties = NodeProperties.table_row(properties)
+        #
+        trans_props = transferred_properties
+        @children = ASTBuilder.html_to_ast(env, node.children, trans_props)
+        @children = Collection.new(@children)
+      end
+
+      def to_docx
+        super('w:tr')
+      end
+
+      def accept(visitor)
+        super
+        @children.accept(visitor)
+      end
+
+      def inspect
+        "<TableRow{#{@properties.inspect}}: #{@children.inspect}>"
+      end
+
+      private
+
+      def children_to_docx
+        @children.to_docx
+      end
+    end
+
+    # Converts html table cells into wordML table cells
+    class TableCell < Node
+      PROPERTIES = %w[gridSpan hideMark noWrap shd tcBorders tcFitText
+                      tcMar tcW vAlign vMerge].freeze
+
+      def initialize(env, node, properties)
+        super
+        properties = self.class.process_properties(properties)
+        @properties = NodeProperties.table_cell(properties)
+        # this works in the simple case but fails if the user wants to
+        # nest other block level content in the table cell. According the
+        # spec a table cell can hold any other block level content such as
+        # tables, paragraphs and lists. Ideally, I'd wrap any plain text
+        # in a paragraph and then handle block level elements through the
+        # regular AST conversion process.
+        @children = Paragraph.new(env, node, transferred_properties)
+      end
+
+      def to_docx
+        super('w:tc')
+      end
+
+      def accept(visitor)
+        super
+        @children.accept(visitor)
+      end
+
+      def inspect
+        "<TableCell{#{@properties.inspect}}: #{@children.inspect}>"
+      end
+
+      private
+
+      def children_to_docx
+        @children.to_docx
+      end
+    end
+
     # Create a run of text in the document, runs cannot be nested within
     # each other
     class Run < Node
