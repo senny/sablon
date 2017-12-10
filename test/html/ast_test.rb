@@ -103,6 +103,26 @@ class HTMLConverterASTTest < Sablon::TestCase
     assert_equal %w[0 1 2 1 0 1 2], get_numpr_prop_from_ast(ast, :ilvl)
   end
 
+  def test_table_tag
+    input='<table></table>'
+    ast = @converter.processed_ast(input)
+    assert_equal '<Root: [<Table{}: []>]>', ast.inspect
+  end
+
+  def test_table_with_table_row
+    # This would generate an invalid docu
+    input='<table><tr></tr></table>'
+    ast = @converter.processed_ast(input)
+    assert_equal '<Root: [<Table{}: [<TableRow{}: []>]>]>', ast.inspect
+  end
+
+  def test_table_with_table_row_and_table_cell
+    # This would generate an invalid docu
+    input='<table><tr><td>Content</td></tr></table>'
+    ast = @converter.processed_ast(input)
+    assert_equal '<Root: [<Table{}: [<TableRow{}: [<TableCell{}: <Paragraph{}: [<Run{}: Content>]>>]>]>]>', ast.inspect
+  end
+
   private
 
   # returns the numid attribute from paragraphs
