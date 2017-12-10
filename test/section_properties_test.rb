@@ -34,7 +34,7 @@ class SectionPropertiesTest < Sablon::TestCase
 </w:body>
     documentxml
     properties = Sablon::Processor::SectionProperties.from_document(xml)
-    assert_equal nil, properties.start_page_number
+    assert_nil properties.start_page_number
     properties.start_page_number = "16"
     assert_equal "16", properties.start_page_number
   end
