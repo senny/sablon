@@ -11,6 +11,12 @@ module Sablon
         @node_name ||= name.split('::').last
       end
 
+      # Returns the type of node this AST class represents. Block level nodes
+      # can stand on their own
+      def self.node_type
+        :block
+      end
+
       # Returns a hash defined on the configuration object by default. However,
       # this method can be overridden by subclasses to return a different
       # node's style conversion config (i.e. :run) or a hash unrelated to the
@@ -404,6 +410,10 @@ module Sablon
       PROPERTIES = %w[b i caps color dstrike emboss imprint highlight outline
                       rStyle shadow shd smallCaps strike sz u vanish
                       vertAlign].freeze
+
+      def self.node_type
+        :inline
+      end
 
       def initialize(_env, node, properties)
         super
