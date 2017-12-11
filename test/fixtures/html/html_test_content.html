@@ -197,12 +197,22 @@
     <caption style="caption-side: bottom; highlight: cyan; text-align: center">
         Table 1: Example With Formatting
     </caption>
-    <tr style="border: 1px solid #FF00FF">
-        <th>Head Cell 1</th>
-        <th>Head Cell 2</th>
-    </tr>
-    <tr style="border: 1px solid #0000FF">
-        <td style="color: #FFAA22">Data Cell 1</td>
-        <td style="background-color: #123456">Data Cell 2</td>
-    </tr>
+    <thead>
+        <tr style="border: 1px solid #FF00FF">
+            <th>Head Cell 1</th>
+            <th>Head Cell 2</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr style="border: 1px solid #0000FF">
+            <td style="color: #FFAA22">Data Cell 1</td>
+            <td style="background-color: #123456">Data Cell 2</td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td>Data Cell 3</td>
+            <td>Data Cell 4</td>
+        </tr>
+    </tfoot>
 </table>
