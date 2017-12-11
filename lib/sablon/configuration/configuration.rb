@@ -56,7 +56,7 @@ module Sablon
         '#document-fragment' => { type: :block, ast_class: :root, allowed_children: :_block },
 
         # block level tags
-        table: { type: :block, ast_class: :table, allowed_children: %i[tr caption]},
+        table: { type: :block, ast_class: :table, allowed_children: %i[caption thead tbody tfoot tr ]},
         tr: { type: :block, ast_class: :table_row, allowed_children: %i[th td] },
         th: { type: :block, ast_class: :table_cell, properties: { b: nil, jc: 'center' }, allowed_children: %i[_block _inline] },
         td: { type: :block, ast_class: :table_cell, allowed_children: %i[_block _inline] },
@@ -73,7 +73,12 @@ module Sablon
         ul: { type: :block, ast_class: :list, properties: { pStyle: 'ListBullet' }, allowed_children: %i[ul li] },
         li: { type: :block, ast_class: :list_paragraph },
 
-        # inline style tags
+        # inline style tags for tables
+        thead: { type: :inline, ast_class: nil, properties: { tblHeader: nil }, allowed_children: :tr },
+        tbody: { type: :inline, ast_class: nil, properties: {}, allowed_children: :tr },
+        tfoot: { type: :inline, ast_class: nil, properties: {}, allowed_children: :tr },
+
+        # inline style tags for runs
         span: { type: :inline, ast_class: nil, properties: {} },
         strong: { type: :inline, ast_class: nil, properties: { b: nil } },
         b: { type: :inline, ast_class: nil, properties: { b: nil } },
