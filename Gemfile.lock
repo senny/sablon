@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sablon (0.0.21)
+    sablon (0.0.22)
       nokogiri (>= 1.6.0)
       rubyzip (>= 1.1.1)
 
