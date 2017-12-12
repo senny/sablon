@@ -13,6 +13,7 @@ module Sablon
     end
 
     def add_found_relationships(content, output_stream)
+      output_stream.put_next_entry('word/_rels/document.xml.rels')
       if @relationships.length > 0
         rels_doc = Nokogiri::XML(content)
         rels_doc_root = rels_doc.root
@@ -24,7 +25,6 @@ module Sablon
 
         rels_doc_root.last_element_child.after(node_set)
 
-        output_stream.put_next_entry('word/_rels/document.xml.rels')
         output_stream.write(rels_doc.to_xml(indent: 0, save_with: 0))
         @relationships = []
       else
