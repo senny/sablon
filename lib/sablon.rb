@@ -3,6 +3,7 @@ require 'nokogiri'
 
 require "sablon/version"
 require "sablon/configuration/configuration"
+require "sablon/relationship/relationship"
 
 require "sablon/numbering"
 require "sablon/context"

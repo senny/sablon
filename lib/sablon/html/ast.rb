@@ -387,5 +387,45 @@ module Sablon
         "<w:br/>"
       end
     end
+
+    # Creates a clickable URL in the word document, this only supports external urls only
+    class Hyperlink < Node
+      attr_accessor :runs
+
+      def initialize(env, node, properties)
+        super
+        properties = self.class.process_properties(properties)
+        @properties = NodeProperties.run(properties)
+
+        @runs = ASTBuilder.html_to_ast(env, node.children, {rStyle: 'Hyperlink'})
+        @runs = Collection.new(@runs)
+        hyperlink_relation = {
+            :Id => 'rId' + SecureRandom.uuid.gsub('-', ''),
+            :Type => 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
+            :Target => node.attributes["href"].value,
+            :TargetMode => 'External'}
+        Sablon::Relationship.instance.relationships << hyperlink_relation
+        @attributes = {'r:id' => hyperlink_relation[:Id]}
+      end
+
+      def to_docx
+        super('w:hyperlink')
+      end
+
+      def inspect
+        "<Hyperlink{#{@properties.inspect}}: #{runs.inspect}>"
+      end
+
+      def accept(visitor)
+        super
+        runs.accept(visitor)
+      end
+
+      private
+
+      def children_to_docx
+        runs.to_docx
+      end
+    end
   end
 end
