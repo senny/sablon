@@ -16,8 +16,6 @@ require "sablon/operations"
 require "sablon/html/converter"
 require "sablon/content"
 
-require 'pry'
-
 module Sablon
   class TemplateError < ArgumentError; end
   class ContextError < ArgumentError; end
