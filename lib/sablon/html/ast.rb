@@ -118,6 +118,10 @@ module Sablon
       def inspect
         "[#{nodes.map(&:inspect).join(', ')}]"
       end
+
+      def <<(node)
+        @nodes << node
+      end
     end
 
     # Stores all of the AST nodes from the current fragment of HTML being
@@ -399,13 +403,12 @@ module Sablon
         super
         properties = self.class.process_properties(properties)
         @properties = NodeProperties.table_cell(properties)
-        # this works in the simple case but fails if the user wants to
-        # nest other block level content in the table cell. According the
-        # spec a table cell can hold any other block level content such as
-        # tables, paragraphs and lists. Ideally, I'd wrap any plain text
-        # in a paragraph and then handle block level elements through the
-        # regular AST conversion process.
-        @children = Paragraph.new(env, node, transferred_properties)
+        #
+        # Nodes are processed first "as is" and then based on the XML
+        # generated wrapped by paragraphs.
+        trans_props = transferred_properties
+        @children = ASTBuilder.html_to_ast(env, node.children, trans_props)
+        @children = wrap_with_paragraphs(env, @children)
       end
 
       def to_docx
@@ -422,6 +425,47 @@ module Sablon
       end
 
       private
+
+      # Wraps nodes in Paragraph AST nodes if needed to produced a valid
+      # document
+      def wrap_with_paragraphs(env, nodes)
+        # convert all nodes to live xml, and use first node to determine
+        # if that AST node should be wrapped in a paragraph
+        nodes_xml = nodes.map { |n| Nokogiri::XML.fragment(n.to_docx) }
+        #
+        para = nil
+        new_nodes = []
+        nodes_xml.each_with_index do |n, i|
+          next unless n.children.first
+          # add all nodes that need wrapped to a paragraph sequentially.
+          # New paragraphs are created when something that doesn't need
+          # wrapped is encountered to retain proper content ordering.
+          first_node_name = n.children.first.node_name
+          if wrapped_by_paragraph.include? first_node_name
+            if para.nil?
+              para = new_paragraph(env)
+              new_nodes << para
+            end
+            para.runs << nodes[i]
+          else
+            new_nodes << nodes[i]
+            para = nil
+          end
+        end
+        # filter nils and return
+        Collection.new(new_nodes.compact)
+      end
+
+      # Returns a list of child tags that need to be wrapped in a paragraph
+      def wrapped_by_paragraph
+        Paragraph::CHILD_TAGS - self.class::CHILD_TAGS
+      end
+
+      # Creates a new Paragraph AST node, with no children
+      def new_paragraph(env)
+        para = Nokogiri::HTML.fragment('<p></p>').first_element_child
+        ASTBuilder.html_to_ast(env, [para], transferred_properties).first
+      end
 
       def children_to_docx
         @children.to_docx
