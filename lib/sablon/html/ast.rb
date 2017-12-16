@@ -452,6 +452,8 @@ module Sablon
             para = nil
           end
         end
+        # Ensure the table cell has an empty paragraph if nothing else
+        new_nodes << new_paragraph(env) if new_nodes.empty?
         # filter nils and return
         Collection.new(new_nodes.compact)
       end
