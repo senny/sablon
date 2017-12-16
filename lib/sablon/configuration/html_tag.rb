@@ -34,6 +34,8 @@ module Sablon
         # Set basic params converting some args to symbols for consistency
         @name = name.to_sym
         @type = type.to_sym
+        @ast_class = nil
+        # use self.ast_class to trigger setter method
         self.ast_class = ast_class if ast_class
 
         # Ensure block level tags have an AST class
