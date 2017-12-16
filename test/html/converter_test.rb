@@ -355,26 +355,27 @@ class HTMLConverterTest < Sablon::TestCase
   end
 
   def test_table_tag
-    input='<table></table>'
-    expected_output='<w:tbl></w:tbl>'
+    input = '<table></table>'
+    expected_output = '<w:tbl></w:tbl>'
     assert_equal normalize_wordml(expected_output), process(input)
   end
 
   def test_table_with_table_row
     # This would generate an invalid docu
-    input='<table><tr></tr><tr></tr></table>'
-    expected_output='<w:tbl><w:tr></w:tr><w:tr></w:tr></w:tbl>'
+    input = '<table><tr></tr><tr></tr></table>'
+    expected_output = '<w:tbl><w:tr></w:tr><w:tr></w:tr></w:tbl>'
     assert_equal normalize_wordml(expected_output), process(input)
   end
 
   def test_table_with_table_row_and_table_cell
     # This would generate an invalid docu
-    input='<table><tr><td>Content</td></tr></table>'
-    expected_output=<<-DOCX.strip
+    input = '<table><tr><td>Content</td></tr></table>'
+    expected_output = <<-DOCX.strip
       <w:tbl>
         <w:tr>
           <w:tc>
             <w:p>
+              <w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>
               <w:r><w:t xml:space="preserve">Content</w:t></w:r>
             </w:p>
           </w:tc>
@@ -386,13 +387,16 @@ class HTMLConverterTest < Sablon::TestCase
 
   def test_table_with_table_row_and_table_header_cell
     # This would generate an invalid docu
-    input='<table><tr><th>Content</th></tr></table>'
-    expected_output=<<-DOCX.strip
+    input = '<table><tr><th>Content</th></tr></table>'
+    expected_output = <<-DOCX.strip
       <w:tbl>
         <w:tr>
           <w:tc>
             <w:p>
-              <w:pPr><w:jc w:val="center" /></w:pPr>
+              <w:pPr>
+                <w:jc w:val="center" />
+                <w:pStyle w:val="Paragraph" />
+              </w:pPr>
               <w:r>
                 <w:rPr><w:b /></w:rPr>
                 <w:t xml:space="preserve">Content</w:t>
@@ -407,8 +411,8 @@ class HTMLConverterTest < Sablon::TestCase
 
   def test_table_with_table_row_table_header_cell_and_caption
     # This would generate an invalid docu
-    input='<table><caption>Table Title</caption><tr><th>Content</th></tr></table>'
-    expected_output=<<-DOCX.strip
+    input = '<table><caption>Table Title</caption><tr><th>Content</th></tr></table>'
+    expected_output = <<-DOCX.strip
       <w:p>
         <w:pPr>
           <w:pStyle w:val="Caption" />
@@ -421,7 +425,10 @@ class HTMLConverterTest < Sablon::TestCase
         <w:tr>
           <w:tc>
             <w:p>
-              <w:pPr><w:jc w:val="center" /></w:pPr>
+              <w:pPr>
+                <w:jc w:val="center" />
+                <w:pStyle w:val="Paragraph" />
+              </w:pPr>
               <w:r>
                 <w:rPr><w:b /></w:rPr>
                 <w:t xml:space="preserve">Content</w:t>
@@ -451,7 +458,10 @@ class HTMLConverterTest < Sablon::TestCase
           </w:trPr>
           <w:tc>
             <w:p>
-              <w:pPr><w:jc w:val="center" /></w:pPr>
+              <w:pPr>
+                <w:jc w:val="center" />
+                <w:pStyle w:val="Paragraph" />
+              </w:pPr>
               <w:r>
                 <w:rPr><w:b /></w:rPr>
                 <w:t xml:space="preserve">Head</w:t>
@@ -462,6 +472,9 @@ class HTMLConverterTest < Sablon::TestCase
         <w:tr>
           <w:tc>
             <w:p>
+              <w:pPr>
+                <w:pStyle w:val="Paragraph" />
+              </w:pPr>
               <w:r>
                 <w:t xml:space="preserve">Body</w:t>
               </w:r>
@@ -471,6 +484,9 @@ class HTMLConverterTest < Sablon::TestCase
         <w:tr>
           <w:tc>
             <w:p>
+              <w:pPr>
+                <w:pStyle w:val="Paragraph" />
+              </w:pPr>
               <w:r>
                 <w:t xml:space="preserve">Foot</w:t>
               </w:r>
