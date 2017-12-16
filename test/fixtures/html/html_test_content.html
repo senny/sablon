@@ -217,9 +217,9 @@
     </tfoot>
 </table>
 
-<table style="border: 1px solid #000000">
+<table style="border: 1px solid #000000; width: 4000dxa">
     <tr>
-        <td>Only Text<p>In paragraph</p>below paragraph</td>
+        <td>Above paragraph tag<p>In paragraph</p>below paragraph tag</td>
 
         <td>
             <ul>
@@ -233,14 +233,20 @@
         <td>
             <ol>
                 <li>Item 1</li>
-                <li>Item 2</li>
+                <li>Item 2
+                    <ol>
+                        <li>Item 2a</li>
+                        <li>Item 2b</li>
+                    </ol>
+                </li>
             </ol>
         </td>
 
         <td>
             <table style="border: 1px solid #FF0000">
                 <caption style="text-align: center">Sub table header</caption>
-                <tr><td>A</td></tr>
+                <tr><td>A</td><td>B</td></tr>
+                <tr><td>C</td><td>D</td></tr>
             </table>
         </td>
     </tr>
