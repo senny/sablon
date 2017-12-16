@@ -146,10 +146,23 @@ module Sablon
     # An AST node representing the top level content container for a word
     # document. These cannot be nested within other paragraph elements
     class Paragraph < Node
+      attr_accessor :runs
+
       PROPERTIES = %w[framePr ind jc keepLines keepNext numPr
                       outlineLvl pBdr pStyle rPr sectPr shd spacing
                       tabs textAlignment].freeze
-      attr_accessor :runs
+
+      # Permitted child tags defined by the OpenXML spec
+      CHILD_TAGS = %w[w:bdo w:bookmarkEnd w:bookmarkStart w:commentRangeEnd
+                      w:commentRangeStart w:customXml
+                      w:customXmlDelRangeEnd w:customXmlDelRangeStart
+                      w:customXmlInsRangeEnd w:customXmlInsRangeStart
+                      w:customXmlMoveFromRangeEnd w:customXmlMoveFromRangeStart
+                      w:customXmlMoveToRangeEnd w:customXmlMoveToRangeStart
+                      w:del w:dir w:fldSimple w:hyperlink w:ins w:moveFrom
+                      w:moveFromRangeEnd w:moveFromRangeStart w:moveTo
+                      w:moveToRangeEnd w:moveToRangeStart m:oMath m:oMathPara
+                      w:pPr w:proofErr w:r w:sdt w:smartTag]
 
       def initialize(env, node, properties)
         super
@@ -370,6 +383,17 @@ module Sablon
     class TableCell < Node
       PROPERTIES = %w[gridSpan hideMark noWrap shd tcBorders tcFitText
                       tcMar tcW vAlign vMerge].freeze
+
+      # Permitted child tags defined by the OpenXML spec
+      CHILD_TAGS = %w[w:altChunk w:bookmarkEnd w:bookmarkStart w:commentRangeEnd
+                      w:commentRangeStart w:customXml w:customXmlDelRangeEnd
+                      w:customXmlDelRangeStart w:customXmlInsRangeEnd
+                      w:customXmlInsRangeStart w:customXmlMoveFromRangeEnd
+                      w:customXmlMoveFromRangeStart w:customXmlMoveToRangeEnd
+                      w:customXmlMoveToRangeStart w:del w:ins w:moveFrom
+                      w:moveFromRangeEnd w:moveFromRangeStart w:moveTo
+                      w:moveToRangeEnd w:moveToRangeStart m:oMath m:oMathPara
+                      w:p w:permEnd w:permStart w:proofErr w:sdt w:tbl w:tcPr]
 
       def initialize(env, node, properties)
         super
