@@ -136,12 +136,41 @@ is sufficient:
 To use HTML insertion prepare the context like so:
 
 ```ruby
-html_body = <<-HTML
-<div>This text can contain <em>additional formatting</em>
-according to the <strong>HTML</strong> specification.</div>
-<p style="text-align: right; background-color: #FFFF00">Right aligned
-content with a yellow background color</p>
-<div><span style="color: #123456">Inline styles</span> are possible as well</div>
+html_body = <<-HTML.strip
+<div>
+    This text can contain <em>additional formatting</em> according to the
+    <strong>HTML</strong> specification.
+</div>
+
+<p style="text-align: right; background-color: #FFFF00">
+    Right aligned content with a yellow background color.
+</p>
+
+<div>
+    <span style="color: #123456">Inline styles</span> are possible as well
+</div>
+
+<table style="border: 1px solid #0000FF;">
+    <caption>Table's can also be created via HTML</caption>
+    <tr>
+        <td>Cell 1 only text</td>
+        <td>
+            <ul>
+                <li>List in Table - 1</li>
+                <li>List in Table - 2</li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>
+            <table style="border: 1px solid #FF0000;">
+                <tr><th>A</th><th>B</th></tr>
+                <tr><td>C</td><td>D</td></tr>
+            </table>
+        </td>
+    </tr>
+</table>
 HTML
 context = {
   article: Sablon.content(:html, html_body) }
@@ -151,21 +180,32 @@ context = {
 template.render_to_file File.expand_path("~/Desktop/output.docx"), context
 ```
 
-Currently, HTML insertion is somewhat limited. It is recommended that the block level tags such as `p` and `div` are not nested within each other, otherwise the final document may not generate as anticipated. List tags (`ul` and `ol`) and inline tags (`span`, `b`, `em`, etc.) can be nested as deeply as needed.
+There is no 1:1 conversion between HTML and Open Office XML however, a large
+number of tags are very similar. HTML insertion is relatively complete
+covering several key content structures such as paragraphs, tables and lists.
+The snippet above showcases some of the capabilities present, for a comprehensive
+example please see the html insertion test fixture [here](test/fixtures/html/html_test_content.html).
+All html element conversions are defined in [configuration.rb](lib/sablon/configuration/configuration.rb)
+with their matching AST classes defined in [ast.rb](lib/sablon/html/ast.rb).
 
-Not all tags are supported. Currently supported tags are defined in [configuration.rb](lib/sablon/configuration/configuration.rb) for paragraphs in method `prepare_paragraph` and for text runs in `prepare_run`.
+Basic conversion of CSS inline styles into matching WordML properties is possible
+using the `style=" ... "` attribute in the HTML markup. Not all CSS properties
+are supported as only a small subset of CSS styles have a direct Open Office XML
+equivalent. Styles are passed onto nested elements if the parent can't use them.
+The currently supported styles are also defined in [configuration.rb](lib/sablon/configuration/configuration.rb). Toggle
+properties that aren't directly supported can be added using the
+`text-decoration: ` style attribute with the proper XML tag name as the
+value (i.e. `text-decoration: dstrike` for `w:dstrike`). Simple single value properties that do not need a conversion can be added using the XML property name directly, omitting the `w:` prefix i.e.
+(`highlight: cyan` for `w:hightlight`).
 
-Basic conversion of CSS inline styles into matching WordML properties in supported through the `style=" ... "` attribute in the HTML markup. Not all possible styles are supported and only a small subset of CSS styles have a direct WordML equivalent. Styles are passed onto nested elements. The currently supported styles are also defined in [configuration.rb](lib/sablon/configuration/configuration.rb) in method `process_style`. Simple toggle properties that aren't directly supported can be added using the `text-decoration: ` style attribute with the proper WordML tag name as the value. Paragraph and Run property reference can be found at:
+Table, Paragraph and Run property references can be found at:
   * http://officeopenxml.com/WPparagraphProperties.php
   * http://officeopenxml.com/WPtextFormatting.php
+  * http://officeopenxml.com/WPtableProperties.php
 
-If you wish to write out your HTML code in an indented human readable fashion, or you are pulling content from the ERB templating engine in rails the following regular expression can help eliminate extraneous whitespace in the final document.
-```ruby
-# combine all white space
-html_str = html_str.gsub(/\s+/, ' ')
-# clear any white space between block level tags and other content
-html_str.gsub(%r{\s*<(/?(?:h\d|div|p|br|ul|ol|li).*?)>\s*}, '<\1>')
-```
+The full Open Office XML specification used to develop the HTML converter
+can be found [here](https://www.ecma-international.org/publications/standards/Ecma-376.htm).
+The third edition was used.
 
 IMPORTANT: Currently, the insertion will replace the containing paragraph. This means that other content in the same paragraph is discarded.
 
