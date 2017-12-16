@@ -464,7 +464,7 @@ class HTMLConverterStyleTest < Sablon::TestCase
           %s
           <w:tc>
             %s
-            <w:p></w:p>
+            <w:p><w:pPr><w:pStyle w:val="Paragraph" /></w:pPr></w:p>
           </w:tc>
         </w:tr>
       </w:tbl>
