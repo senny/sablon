@@ -34,11 +34,6 @@ class HTMLConverterASTBuilderTest < Sablon::TestCase
       @bulider.send(:validate_structure, span, div)
     end
     assert_equal "Invalid HTML structure: div is not a valid child element of span.", e.message
-    # test inline tag with no parent
-    e = assert_raises ArgumentError do
-      @bulider.send(:validate_structure, root, span)
-    end
-    assert_equal "Invalid HTML structure: span needs to be wrapped in a block level tag.", e.message
   end
 
   def test_merge_properties
