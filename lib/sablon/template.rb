@@ -42,7 +42,7 @@ module Sablon
           end
         end
         if relations_file_content
-          Sablon::Relationship.instance.add_found_relationships(relations_file_content, out)
+          env.relationship.add_found_relationships(relations_file_content, out)
         end
       end
     end

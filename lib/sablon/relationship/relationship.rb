@@ -1,10 +1,7 @@
-require 'singleton'
-
 module Sablon
   # Handles storing referenced relationships in the document.xml file and writing them
   # down in the document.xml.rels file
   class Relationship
-    include Singleton
 
     attr_accessor :relationships
 

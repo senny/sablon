@@ -409,7 +409,7 @@ module Sablon
             :Type => 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
             :Target => node.attributes["href"].value,
             :TargetMode => 'External'}
-        Sablon::Relationship.instance.relationships << hyperlink_relation
+        env.relationship.relationships << hyperlink_relation
         @attributes = {'r:id' => hyperlink_relation[:Id]}
       end
 
