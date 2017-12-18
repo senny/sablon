@@ -71,11 +71,47 @@ module Sablon
       def self.id; :word_ml end
       def self.wraps?(value) false end
 
+      def initialize(value)
+        super Nokogiri::XML.fragment(value)
+      end
+
       def append_to(paragraph, display_node, env)
-        Nokogiri::XML.fragment(xml).children.reverse.each do |child|
-          paragraph.add_next_sibling child
+        if all_inline?
+          append_xml_to(display_node)
+        else
+          append_xml_to(paragraph)
+          paragraph.remove
         end
-        paragraph.remove
+      end
+
+      private
+
+      # Adds the XML to be inserted in the document as siblings to the
+      # node passed in.
+      def append_xml_to(node)
+        xml.children.reverse.each do |child|
+          node.add_next_sibling child
+        end
+      end
+
+      # Returns `true` if all of the xml nodes to be inserted are
+      def all_inline?
+        (xml.children.map(&:node_name) - inline_tags).empty?
+      end
+
+      # Array of tags allowed to be a child of the w:p XML tag as defined
+      # by the Open XML specification
+      def inline_tags
+        %w[w:bdo w:bookmarkEnd w:bookmarkStart w:commentRangeEnd
+           w:commentRangeStart w:customXml
+           w:customXmlDelRangeEnd w:customXmlDelRangeStart
+           w:customXmlInsRangeEnd w:customXmlInsRangeStart
+           w:customXmlMoveFromRangeEnd w:customXmlMoveFromRangeStart
+           w:customXmlMoveToRangeEnd w:customXmlMoveToRangeStart
+           w:del w:dir w:fldSimple w:hyperlink w:ins w:moveFrom
+           w:moveFromRangeEnd w:moveFromRangeStart w:moveTo
+           w:moveToRangeEnd w:moveToRangeStart m:oMath m:oMathPara
+           w:pPr w:proofErr w:r w:sdt w:smartTag]
       end
     end
 
