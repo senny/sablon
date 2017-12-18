@@ -53,7 +53,7 @@ module Sablon
       @permitted_html_tags = {}
       tags = {
         # special tag used for elements with no parent, i.e. top level
-        '#document-fragment' => { type: :block, ast_class: :root, allowed_children: :_block },
+        '#document-fragment' => { type: :block, ast_class: :root, allowed_children: %i[_block _inline] },
 
         # block level tags
         table: { type: :block, ast_class: :table, allowed_children: %i[caption thead tbody tfoot tr ]},
