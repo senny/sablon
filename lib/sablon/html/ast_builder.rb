@@ -52,13 +52,8 @@ module Sablon
       # Checking that the current tag is an allowed child of the parent_tag.
       # If the parent tag is nil then a block level tag is required.
       def validate_structure(parent, child)
-        if parent.ast_class == Root && child.type == :inline
-          msg = "#{child.name} needs to be wrapped in a block level tag."
-        elsif parent && !parent.allowed_child?(child)
-          msg = "#{child.name} is not a valid child element of #{parent.name}."
-        else
-          return
-        end
+        return unless parent && !parent.allowed_child?(child)
+        msg = "#{child.name} is not a valid child element of #{parent.name}."
         raise ContextError, "Invalid HTML structure: #{msg}"
       end
 
