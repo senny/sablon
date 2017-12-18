@@ -102,6 +102,10 @@ module Sablon
         new('w:rPr', properties, Run::PROPERTIES)
       end
 
+      def self.hyperlink(properties)
+        new('w:rPr', properties, Hyperlink::PROPERTIES)
+      end
+
       def initialize(tagname, properties, whitelist)
         @tagname = tagname
         filter_properties(properties, whitelist)
@@ -395,9 +399,10 @@ module Sablon
       def initialize(env, node, properties)
         super
         properties = self.class.process_properties(properties)
-        @properties = NodeProperties.run(properties)
+        @properties = NodeProperties.hyperlink(properties)
 
-        @runs = ASTBuilder.html_to_ast(env, node.children, {rStyle: 'Hyperlink'})
+        trans_props = transferred_properties
+        @runs = ASTBuilder.html_to_ast(env, node.children, trans_props)
         @runs = Collection.new(@runs)
         hyperlink_relation = {
             :Id => 'rId' + SecureRandom.uuid.gsub('-', ''),
