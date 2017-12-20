@@ -44,6 +44,6 @@ class SablonHTMLTest < Sablon::TestCase
     # combine all white space
     html_str = html_str.gsub(/\s+/, ' ')
     # clear any white space between block level tags and other content
-    html_str.gsub(%r{\s*<(/?(?:h\d|div|p|br|ul|ol|li|a).*?)>\s*}, '<\1>')
+    html_str.gsub(%r{\s*<(/?(?:h\d|div|p|br|ul|ol|li).*?)>\s*}, '<\1>')
   end
 end
