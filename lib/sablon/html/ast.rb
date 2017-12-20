@@ -394,7 +394,6 @@ module Sablon
 
     # Creates a clickable URL in the word document, this only supports external urls only
     class Hyperlink < Node
-      attr_accessor :runs
 
       def initialize(env, node, properties)
         super
@@ -418,18 +417,18 @@ module Sablon
       end
 
       def inspect
-        "<Hyperlink{#{@properties.inspect}}: #{runs.inspect}>"
+        "<Hyperlink{#{@properties.inspect}}: #{@runs.inspect}>"
       end
 
       def accept(visitor)
         super
-        runs.accept(visitor)
+        @runs.accept(visitor)
       end
 
       private
 
       def children_to_docx
-        runs.to_docx
+        @runs.to_docx
       end
     end
   end
