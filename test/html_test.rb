@@ -14,13 +14,16 @@ class SablonHTMLTest < Sablon::TestCase
   end
 
   def test_generate_document_from_template_with_styles_and_html
+    uid_generator = UIDTestGenerator.new
     template_path = @base_path + "fixtures/insertion_template.docx"
     output_path = @base_path + "sandbox/html.docx"
     template = Sablon.template template_path
     context = { 'html:content' => content }
-    template.render_to_file output_path, context
+    SecureRandom.stub(:uuid, uid_generator.method(:new_uid)) do |secure_random_instance|
+      template.render_to_file output_path, context
 
-    assert_docx_equal @sample_path, output_path
+      assert_docx_equal @sample_path, output_path
+    end
   end
 
   def test_generate_document_from_template_without_styles_and_html

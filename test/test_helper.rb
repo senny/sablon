@@ -17,7 +17,8 @@ class Sablon::TestCase < MiniTest::Test
 
   class UIDTestGenerator
     def initialize
-      @current_id = rand(10...100)
+      # @current_id = rand(10...100)
+      @current_id = 122
       @current_id_start = @current_id
     end
 
