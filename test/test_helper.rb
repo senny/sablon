@@ -14,4 +14,20 @@ class Sablon::TestCase < MiniTest::Test
   def teardown
     super
   end
+
+  class UIDTestGenerator
+    def initialize
+      @current_id = rand(10...100)
+      @current_id_start = @current_id
+    end
+
+    def new_uid
+      @current_id += 1
+      @current_id.to_s
+    end
+
+    def reset
+      @current_id = @current_id_start
+    end
+  end
 end
