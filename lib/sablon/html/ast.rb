@@ -403,10 +403,11 @@ module Sablon
         trans_props = transferred_properties
         @runs = ASTBuilder.html_to_ast(env, node.children, trans_props)
         @runs = Collection.new(@runs)
+        @target = node.attributes["href"].value
         hyperlink_relation = {
             :Id => 'rId' + SecureRandom.uuid.gsub('-', ''),
             :Type => 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
-            :Target => node.attributes["href"].value,
+            :Target => @target,
             :TargetMode => 'External'}
         env.relationship.relationships << hyperlink_relation
         @attributes = {'r:id' => hyperlink_relation[:Id]}
@@ -417,7 +418,7 @@ module Sablon
       end
 
       def inspect
-        "<Hyperlink{#{@properties.inspect}}: #{@runs.inspect}>"
+        "<Hyperlink{#{@properties.inspect.length > 0 ? @properties.inspect + ';' : ''}target:#{@target}}: #{@runs.inspect}>"
       end
 
       def accept(visitor)
