@@ -31,6 +31,53 @@ class HTMLConverterTest < Sablon::TestCase
     assert_equal normalize_wordml(expected_output), process(input)
   end
 
+  def test_convert_hyperlink_inside_div
+    uid_generator = UIDTestGenerator.new
+    SecureRandom.stub(:uuid, uid_generator.method(:new_uid)) do |secure_random_instance|
+
+      input = '<div>Lorem ipsum dolor sit amet; search it at <a href="http://www.google.com">google</a></div>'
+      expected_output = <<-DOCX.strip
+<w:p>
+  <w:pPr><w:pStyle w:val="Normal" /></w:pPr>
+  <w:r><w:t xml:space="preserve">Lorem ipsum dolor sit amet; search it at </w:t></w:r>
+  <w:hyperlink r:id=\"rId#{secure_random_instance.uuid}\">
+    <w:r>
+      <w:rPr>
+        <w:rStyle w:val=\"Hyperlink\" />
+      </w:rPr>
+      <w:t xml:space=\"preserve\">google</w:t>
+    </w:r>
+  </w:hyperlink>
+</w:p>
+      DOCX
+      uid_generator.reset
+      assert_equal normalize_wordml(expected_output), process(input)
+    end
+  end
+
+  def test_convert_hyperlink_inside_p
+    uid_generator = UIDTestGenerator.new
+    SecureRandom.stub(:uuid, uid_generator.method(:new_uid)) do |secure_random_instance|
+      input = '<p>Lorem ipsum dolor sit amet; search it at <a href="http://www.google.com">google</a></p>'
+      expected_output = <<-DOCX.strip
+  <w:p>
+    <w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>
+    <w:r><w:t xml:space="preserve">Lorem ipsum dolor sit amet; search it at </w:t></w:r>
+    <w:hyperlink r:id=\"rId#{secure_random_instance.uuid}\">
+        <w:r>
+          <w:rPr>
+            <w:rStyle w:val=\"Hyperlink\" />
+          </w:rPr>
+          <w:t xml:space=\"preserve\">google</w:t>
+        </w:r>
+    </w:hyperlink>
+  </w:p>
+      DOCX
+      uid_generator.reset
+      assert_equal normalize_wordml(expected_output), process(input)
+    end
+  end
+
   def test_convert_text_inside_multiple_divs
     input = '<div>Lorem ipsum</div><div>dolor sit amet</div>'
     expected_output = <<-DOCX.strip
@@ -352,6 +399,30 @@ class HTMLConverterTest < Sablon::TestCase
     DOCX
     assert_equal normalize_wordml(expected_output), process(input)
     assert_equal [Sablon::Numbering::Definition.new(1001, 'ListBullet')], @numbering.definitions
+  end
+
+  def test_anchor_tag
+    uid_generator = UIDTestGenerator.new
+    input = '<p><a href="www.github.com">GitHub</a></p>'
+    SecureRandom.stub(:uuid, uid_generator.method(:new_uid)) do |secure_random_instance|
+      expected_output = <<-DOCX.strip
+        <w:p>
+          <w:pPr>
+          <w:pStyle w:val="Paragraph" />
+          </w:pPr>
+          <w:hyperlink r:id="rId#{secure_random_instance.uuid}">
+            <w:r>
+            <w:rPr>
+              <w:rStyle w:val="Hyperlink" />
+            </w:rPr>
+            <w:t xml:space="preserve">GitHub</w:t>
+            </w:r>
+          </w:hyperlink>
+        </w:p>
+      DOCX
+      uid_generator.reset
+      assert_equal normalize_wordml(expected_output), process(input)
+    end
   end
 
   def test_table_tag

@@ -73,6 +73,18 @@ class HTMLConverterStyleTest < Sablon::TestCase
     assert_equal normalize_wordml(expected_output), process(input)
   end
 
+  # test that styles defined on the <a> tag are passed down to runs
+  def test_hyperlink_with_font_style
+    uid_generator = UIDTestGenerator.new
+    SecureRandom.stub(:uuid, uid_generator.method(:new_uid)) do |secure_random_instance|
+      uid_generator.reset
+      input = '<p><a href="http://www.google.com" style="font-style: italic">Google</a></p>'
+      expected_output = hyperlink_with_rpr('<w:i />', secure_random_instance.uuid)
+      uid_generator.reset
+      assert_equal normalize_wordml(expected_output), process(input)
+    end
+  end
+
   def test_run_with_background_color
     input = '<p><span style="background-color: #123456">test</span></p>'
     expected_output = run_with_rpr('<w:shd w:val="clear" w:fill="123456" />')
@@ -104,7 +116,7 @@ class HTMLConverterStyleTest < Sablon::TestCase
     expected_output = run_with_rpr('<w:b />')
     assert_equal normalize_wordml(expected_output), process(input)
 
-    # test that non-numeric are ignored
+    # test italics
     input = '<p><span style="font-style: italic">test</span></p>'
     expected_output = run_with_rpr('<w:i />')
     assert_equal normalize_wordml(expected_output), process(input)
@@ -493,6 +505,26 @@ class HTMLConverterStyleTest < Sablon::TestCase
           <w:t xml:space="preserve">test</w:t>
         </w:r>
       </w:p>
+    DOCX
+    format(para_str, rpr_str)
+  end
+
+  def hyperlink_with_rpr(rpr_str, id)
+    para_str = <<-DOCX.strip
+      <w:p>
+        <w:pPr>
+        <w:pStyle w:val="Paragraph" />
+        </w:pPr>
+      <w:hyperlink r:id="rId#{id}">
+        <w:r>
+        <w:rPr>
+          <w:rStyle w:val="Hyperlink" />
+          %s
+        </w:rPr>
+        <w:t xml:space="preserve">Google</w:t>
+        </w:r>
+      </w:hyperlink>
+    </w:p>
     DOCX
     format(para_str, rpr_str)
   end

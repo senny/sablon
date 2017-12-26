@@ -78,7 +78,7 @@ module Sablon
         tbody: { type: :inline, ast_class: nil, properties: {}, allowed_children: :tr },
         tfoot: { type: :inline, ast_class: nil, properties: {}, allowed_children: :tr },
 
-        # inline style tags for runs
+        # inline style tags
         span: { type: :inline, ast_class: nil, properties: {} },
         strong: { type: :inline, ast_class: nil, properties: { b: nil } },
         b: { type: :inline, ast_class: nil, properties: { b: nil } },
@@ -90,6 +90,7 @@ module Sablon
         sup: { type: :inline, ast_class: nil, properties: { vertAlign: 'superscript' } },
 
         # inline content tags
+        a: { type: :inline, ast_class: :hyperlink, properties: { rStyle: 'Hyperlink' } },
         text: { type: :inline, ast_class: :run, properties: {}, allowed_children: [] },
         br: { type: :inline, ast_class: :newline, properties: {}, allowed_children: [] }
       }
