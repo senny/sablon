@@ -102,6 +102,10 @@ module Sablon
         new('w:rPr', properties, Run::PROPERTIES)
       end
 
+      def self.hyperlink(properties)
+        new('w:rPr', properties, Hyperlink::PROPERTIES)
+      end
+
       def initialize(tagname, properties, whitelist)
         @tagname = tagname
         filter_properties(properties, whitelist)
@@ -121,6 +125,11 @@ module Sablon
 
       def to_docx
         "<#{@tagname}>#{properties_word_ml}</#{@tagname}>" unless @properties.empty?
+      end
+
+      # Delegates #empty? to the `@properties` attribute
+      def empty?
+        @properties.empty?
       end
 
       private
@@ -385,6 +394,49 @@ module Sablon
 
       def children_to_docx
         "<w:br/>"
+      end
+    end
+
+    # Creates a clickable URL in the word document, this only supports external
+    # urls only
+    class Hyperlink < Node
+      def initialize(env, node, properties)
+        super
+        properties = self.class.process_properties(properties)
+        @properties = NodeProperties.hyperlink(properties)
+
+        trans_props = transferred_properties
+        @runs = ASTBuilder.html_to_ast(env, node.children, trans_props)
+        @runs = Collection.new(@runs)
+        @target = node.attributes['href'].value
+        hyperlink_relation = {
+          Id: 'rId' + SecureRandom.uuid.delete('-'),
+          Type: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
+          Target: @target,
+          TargetMode: 'External'
+        }
+        env.relationship.relationships << hyperlink_relation
+        @attributes = { 'r:id' => hyperlink_relation[:Id] }
+      end
+
+      def to_docx
+        super('w:hyperlink')
+      end
+
+      def inspect
+        prop_str = @properties.empty? ? '' : @properties.inspect + ';'
+        "<Hyperlink{#{prop_str}target:#{@target}}: #{@runs.inspect}>"
+      end
+
+      def accept(visitor)
+        super
+        @runs.accept(visitor)
+      end
+
+      private
+
+      def children_to_docx
+        @runs.to_docx
       end
     end
   end

@@ -69,6 +69,7 @@ module Sablon
         li: { type: :block, ast_class: :list_paragraph },
 
         # inline style tags
+        a: { type: :inline, ast_class: :hyperlink, properties: { rStyle: 'Hyperlink' } },
         span: { type: :inline, ast_class: nil, properties: {} },
         strong: { type: :inline, ast_class: nil, properties: { b: nil } },
         b: { type: :inline, ast_class: nil, properties: { b: nil } },

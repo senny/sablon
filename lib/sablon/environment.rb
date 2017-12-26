@@ -5,6 +5,7 @@ module Sablon
     attr_reader :template
     attr_reader :numbering
     attr_reader :context
+    attr_reader :relationship
 
     # returns a new environment with merged contexts
     def alter_context(context = {})
@@ -20,9 +21,11 @@ module Sablon
       if parent_env
         @template = parent_env.template
         @numbering = parent_env.numbering
+        @relationship = parent_env.relationship
       else
         @template = template
         @numbering = Numbering.new
+        @relationship = Relationship.new
       end
       #
       @context = Context.transform_hash(context)

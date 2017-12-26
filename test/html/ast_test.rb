@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 require "test_helper"
+require 'securerandom'
 
 class HTMLConverterASTTest < Sablon::TestCase
   def setup
@@ -30,6 +31,12 @@ class HTMLConverterASTTest < Sablon::TestCase
     input = '<p>Lorem <i>ipsum dolor sit amet</i></p>'
     ast = @converter.processed_ast(input)
     assert_equal '<Root: [<Paragraph{Paragraph}: [<Run{}: Lorem >, <Run{i}: ipsum dolor sit amet>]>]>', ast.inspect
+  end
+
+  def test_a
+    input = '<p>Lorem <a href="http://www.google.com">google</a></p>'
+    ast = @converter.processed_ast(input)
+    assert_equal '<Root: [<Paragraph{Paragraph}: [<Run{}: Lorem >, <Hyperlink{target:http://www.google.com}: [<Run{rStyle=Hyperlink}: google>]>]>]>', ast.inspect
   end
 
   def test_br_in_strong
