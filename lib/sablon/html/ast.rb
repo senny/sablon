@@ -400,7 +400,6 @@ module Sablon
     # Creates a clickable URL in the word document, this only supports external
     # urls only
     class Hyperlink < Node
-
       def initialize(env, node, properties)
         super
         properties = self.class.process_properties(properties)
