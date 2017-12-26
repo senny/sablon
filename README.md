@@ -139,7 +139,9 @@ To use HTML insertion prepare the context like so:
 html_body = <<-HTML.strip
 <div>
     This text can contain <em>additional formatting</em> according to the
-    <strong>HTML</strong> specification.
+    <strong>HTML</strong> specification. As well as links to external
+    <a href="https://github.com/senny/sablon">websites</a>, don't forget
+    the "http/https" bit.
 </div>
 
 <p style="text-align: right; background-color: #FFFF00">
