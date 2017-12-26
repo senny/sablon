@@ -127,6 +127,11 @@ module Sablon
         "<#{@tagname}>#{process}</#{@tagname}>" unless @properties.empty?
       end
 
+      # Delegates #empty? to the `@properties` attribute
+      def empty?
+        @properties.empty?
+      end
+
       private
 
       # processes properties adding those on the whitelist to the
@@ -392,7 +397,8 @@ module Sablon
       end
     end
 
-    # Creates a clickable URL in the word document, this only supports external urls only
+    # Creates a clickable URL in the word document, this only supports external
+    # urls only
     class Hyperlink < Node
 
       def initialize(env, node, properties)
@@ -403,14 +409,15 @@ module Sablon
         trans_props = transferred_properties
         @runs = ASTBuilder.html_to_ast(env, node.children, trans_props)
         @runs = Collection.new(@runs)
-        @target = node.attributes["href"].value
+        @target = node.attributes['href'].value
         hyperlink_relation = {
-            :Id => 'rId' + SecureRandom.uuid.gsub('-', ''),
-            :Type => 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
-            :Target => @target,
-            :TargetMode => 'External'}
+          Id: 'rId' + SecureRandom.uuid.delete('-'),
+          Type: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
+          Target: @target,
+          TargetMode: 'External'
+        }
         env.relationship.relationships << hyperlink_relation
-        @attributes = {'r:id' => hyperlink_relation[:Id]}
+        @attributes = { 'r:id' => hyperlink_relation[:Id] }
       end
 
       def to_docx
@@ -418,7 +425,8 @@ module Sablon
       end
 
       def inspect
-        "<Hyperlink{#{@properties.inspect.length > 0 ? @properties.inspect + ';' : ''}target:#{@target}}: #{@runs.inspect}>"
+        prop_str = @properties.empty? ? '' : @properties.inspect + ';'
+        "<Hyperlink{#{prop_str}target:#{@target}}: #{@runs.inspect}>"
       end
 
       def accept(visitor)
