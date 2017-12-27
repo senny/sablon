@@ -1,6 +1,23 @@
 # -*- coding: utf-8 -*-
 require "test_helper"
 
+module ContentTestSetup
+  def setup
+    super
+    @template_text = '<w:p><span>template</span></w:p><w:p>AFTER</w:p>'
+    @document = Nokogiri::XML.fragment(@template_text)
+    @paragraph = @document.children.first
+    @node = @document.css("span").first
+    @env = Sablon::Environment.new(nil)
+  end
+
+  private
+
+  def assert_xml_equal(expected, document)
+    assert_equal expected, document.to_xml(indent: 0, save_with: 0)
+  end
+end
+
 class ContentTest < Sablon::TestCase
   def test_can_build_content_objects
     content = Sablon.content(:string, "a string")
@@ -69,22 +86,6 @@ class CustomContentTest < Sablon::TestCase
   end
 end
 
-module ContentTestSetup
-  def setup
-    super
-    @template_text = '<w:p><span>template</span></w:p><w:p>AFTER</w:p>'
-    @document = Nokogiri::XML.fragment(@template_text)
-    @paragraph = @document.children.first
-    @node = @document.css("span").first
-    @env = Sablon::Environment.new(nil)
-  end
-
-  private
-  def assert_xml_equal(expected, document)
-    assert_equal expected, document.to_xml(indent: 0, save_with: 0)
-  end
-end
-
 class ContentStringTest < Sablon::TestCase
   include ContentTestSetup
 
@@ -92,7 +93,7 @@ class ContentStringTest < Sablon::TestCase
     Sablon.content(:string, "a normal string").append_to @paragraph, @node, @env
 
     output = <<-XML.strip
-<w:p><span>template</span><span>a normal string</span></w:p><w:p>AFTER</w:p>
+      <w:p><span>template</span><span>a normal string</span></w:p><w:p>AFTER</w:p>
     XML
     assert_xml_equal output, @document
   end
@@ -101,7 +102,7 @@ class ContentStringTest < Sablon::TestCase
     Sablon.content(:string, 42).append_to @paragraph, @node, @env
 
     output = <<-XML.strip
-<w:p><span>template</span><span>42</span></w:p><w:p>AFTER</w:p>
+      <w:p><span>template</span><span>42</span></w:p><w:p>AFTER</w:p>
     XML
     assert_xml_equal output, @document
   end
@@ -110,16 +111,16 @@ class ContentStringTest < Sablon::TestCase
     Sablon.content(:string, "a\nmultiline\n\nstring").append_to @paragraph, @node, @env
 
     output = <<-XML.strip.gsub("\n", "")
-<w:p>
-<span>template</span>
-<span>a</span>
-<w:br/>
-<span>multiline</span>
-<w:br/>
-<w:br/>
-<span>string</span>
-</w:p>
-<w:p>AFTER</w:p>
+      <w:p>
+        <span>template</span>
+        <span>a</span>
+        <w:br/>
+        <span>multiline</span>
+        <w:br/>
+        <w:br/>
+        <span>string</span>
+      </w:p>
+      <w:p>AFTER</w:p>
     XML
 
     assert_xml_equal output, @document
@@ -146,10 +147,10 @@ class ContentWordMLTest < Sablon::TestCase
     Sablon.content(:word_ml, @word_ml).append_to @paragraph, @node, @env
 
     output = <<-XML.strip.gsub("\n", "")
-<w:p>
-<w:r><w:t xml:space=\"preserve\">a </w:t></w:r>
-</w:p>
-<w:p>AFTER</w:p>
+      <w:p>
+        <w:r><w:t xml:space=\"preserve\">a </w:t></w:r>
+      </w:p>
+      <w:p>AFTER</w:p>
     XML
 
     assert_xml_equal output, @document
