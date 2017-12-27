@@ -56,8 +56,13 @@ module Sablon
         '#document-fragment' => { type: :block, ast_class: :root, allowed_children: :_block },
 
         # block level tags
+        table: { type: :block, ast_class: :table, allowed_children: %i[caption thead tbody tfoot tr ]},
+        tr: { type: :block, ast_class: :table_row, allowed_children: %i[th td] },
+        th: { type: :block, ast_class: :table_cell, properties: { b: nil, jc: 'center' }, allowed_children: %i[_block _inline] },
+        td: { type: :block, ast_class: :table_cell, allowed_children: %i[_block _inline] },
         div: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Normal' }, allowed_children: :_inline },
         p: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Paragraph' }, allowed_children: :_inline },
+        caption: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Caption' }, allowed_children: :_inline },
         h1: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Heading1' }, allowed_children: :_inline },
         h2: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Heading2' }, allowed_children: :_inline },
         h3: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Heading3' }, allowed_children: :_inline },
@@ -68,8 +73,12 @@ module Sablon
         ul: { type: :block, ast_class: :list, properties: { pStyle: 'ListBullet' }, allowed_children: %i[ul li] },
         li: { type: :block, ast_class: :list_paragraph },
 
+        # inline style tags for tables
+        thead: { type: :inline, ast_class: nil, properties: { tblHeader: nil }, allowed_children: :tr },
+        tbody: { type: :inline, ast_class: nil, properties: {}, allowed_children: :tr },
+        tfoot: { type: :inline, ast_class: nil, properties: {}, allowed_children: :tr },
+
         # inline style tags
-        a: { type: :inline, ast_class: :hyperlink, properties: { rStyle: 'Hyperlink' } },
         span: { type: :inline, ast_class: nil, properties: {} },
         strong: { type: :inline, ast_class: nil, properties: { b: nil } },
         b: { type: :inline, ast_class: nil, properties: { b: nil } },
@@ -81,6 +90,7 @@ module Sablon
         sup: { type: :inline, ast_class: nil, properties: { vertAlign: 'superscript' } },
 
         # inline content tags
+        a: { type: :inline, ast_class: :hyperlink, properties: { rStyle: 'Hyperlink' } },
         text: { type: :inline, ast_class: :run, properties: {}, allowed_children: [] },
         br: { type: :inline, ast_class: :newline, properties: {}, allowed_children: [] }
       }
@@ -122,6 +132,67 @@ module Sablon
             (2 * Float(v.gsub(/[^\d.]/, '')).ceil).to_s
           },
           'text-align' => ->(v) { return 'jc', v }
+        },
+        # Styles specific to the Table AST class
+        table: {
+          'border' => lambda { |v|
+            props = @defined_style_conversions[:node][:_border].call(v)
+            #
+            return 'tblBorders', [
+              { top: props }, { start: props }, { bottom: props },
+              { end: props }, { insideH: props }, { insideV: props }
+            ]
+          },
+          'margin' => lambda { |v|
+            vals = v.split.map do |s|
+              @defined_style_conversions[:node][:_sz].call(s)
+            end
+            #
+            props = [vals[0], vals[0], vals[0], vals[0]] if vals.length == 1
+            props = [vals[0], vals[1], vals[0], vals[1]] if vals.length == 2
+            props = [vals[0], vals[1], vals[2], vals[1]] if vals.length == 3
+            props = [vals[0], vals[1], vals[2], vals[3]] if vals.length > 3
+            return 'tblCellMar', [
+              { top: { w: props[0], type: 'dxa' } },
+              { end: { w: props[1], type: 'dxa' } },
+              { bottom: { w: props[2], type: 'dxa' } },
+              { start: { w: props[3], type: 'dxa' } }
+            ]
+          },
+          'cellspacing' => lambda { |v|
+            v = @defined_style_conversions[:node][:_sz].call(v)
+            return 'tblCellSpacing', { w: v, type: 'dxa' }
+          },
+          'width' => lambda { |v|
+            v = @defined_style_conversions[:node][:_sz].call(v)
+            return 'tblW', { w: v, type: 'dxa' }
+          }
+        },
+        # Styles specific to the TableCell AST class
+        table_cell: {
+          'border' => lambda { |v|
+            value = @defined_style_conversions[:table]['border'].call(v)[1]
+            return 'tcBorders', value
+          },
+          'colspan' => ->(v) { return 'gridSpan', v },
+          'margin' => lambda { |v|
+            value = @defined_style_conversions[:table]['margin'].call(v)[1]
+            return 'tcMar', value
+          },
+          'rowspan' => lambda { |v|
+            return 'vMerge', 'restart' if v == 'start'
+            return 'vMerge', v if v == 'continue'
+            return 'vMerge', nil if v == 'end'
+          },
+          'vertical-align' => ->(v) { return 'vAlign', v },
+          'white-space' => lambda { |v|
+            return 'noWrap', nil if v == 'nowrap'
+            return 'tcFitText', 'true' if v == 'fit'
+          },
+          'width' => lambda { |v|
+            value = @defined_style_conversions[:table]['width'].call(v)[1]
+            return 'tcW', value
+          }
         },
         # Styles specific to the Paragraph AST class
         paragraph: {

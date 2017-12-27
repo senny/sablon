@@ -104,6 +104,27 @@ class NodePropertiesTest < Sablon::TestCase
     assert_equal props.to_docx, '<w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>'
   end
 
+  def test_node_properties_table_factory
+    props = { 'tblStyle' => 'Classic' }
+    props = Sablon::HTMLConverter::NodeProperties.table(props)
+    assert_equal 'tblStyle=Classic', props.inspect
+    assert_equal props.to_docx, '<w:tblPr><w:tblStyle w:val="Classic" /></w:tblPr>'
+  end
+
+  def test_node_properties_table_row_factory
+    props = { 'jc' => 'left' }
+    props = Sablon::HTMLConverter::NodeProperties.table_row(props)
+    assert_equal 'jc=left', props.inspect
+    assert_equal props.to_docx, '<w:trPr><w:jc w:val="left" /></w:trPr>'
+  end
+
+  def test_node_properties_table_cell_factory
+    props = { 'tcFitText' => 'true' }
+    props = Sablon::HTMLConverter::NodeProperties.table_cell(props)
+    assert_equal 'tcFitText=true', props.inspect
+    assert_equal props.to_docx, '<w:tcPr><w:tcFitText w:val="true" /></w:tcPr>'
+  end
+
   def test_node_properties_run_factory
     props = { 'color' => 'FF00FF' }
     props = Sablon::HTMLConverter::NodeProperties.run(props)

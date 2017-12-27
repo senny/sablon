@@ -1,4 +1,5 @@
 require "sablon/html/ast_builder"
+require "sablon/html/node_properties"
 
 module Sablon
   class HTMLConverter
@@ -90,90 +91,6 @@ module Sablon
       end
     end
 
-    # Manages the properties for an AST node
-    class NodeProperties
-      attr_reader :transferred_properties
-
-      def self.paragraph(properties)
-        new('w:pPr', properties, Paragraph::PROPERTIES)
-      end
-
-      def self.run(properties)
-        new('w:rPr', properties, Run::PROPERTIES)
-      end
-
-      def self.hyperlink(properties)
-        new('w:rPr', properties, Hyperlink::PROPERTIES)
-      end
-
-      def initialize(tagname, properties, whitelist)
-        @tagname = tagname
-        filter_properties(properties, whitelist)
-      end
-
-      def inspect
-        @properties.map { |k, v| v ? "#{k}=#{v}" : k }.join(';')
-      end
-
-      def [](key)
-        @properties[key]
-      end
-
-      def []=(key, value)
-        @properties[key] = value
-      end
-
-      def to_docx
-        "<#{@tagname}>#{properties_word_ml}</#{@tagname}>" unless @properties.empty?
-      end
-
-      # Delegates #empty? to the `@properties` attribute
-      def empty?
-        @properties.empty?
-      end
-
-      private
-
-      # processes properties adding those on the whitelist to the
-      # properties instance variable and those not to the transferred_properties
-      # isntance variable
-      def filter_properties(properties, whitelist)
-        @transferred_properties = {}
-        @properties = {}
-        #
-        properties.each do |key, value|
-          if whitelist.include? key.to_s
-            @properties[key] = value
-          else
-            @transferred_properties[key] = value
-          end
-        end
-      end
-
-      # processes attributes defined on the node into wordML property syntax
-      def properties_word_ml
-        @properties.map { |k, v| transform_attr(k, v) }.join
-      end
-
-      # properties that have a list as the value get nested in tags and
-      # each entry in the list is transformed. When a value is a hash the
-      # keys in the hash are used to explicitly build the XML tag attributes.
-      def transform_attr(key, value)
-        if value.is_a? Array
-          sub_attrs = value.map do |sub_prop|
-            sub_prop.map { |k, v| transform_attr(k, v) }
-          end
-          "<w:#{key}>#{sub_attrs.join}</w:#{key}>"
-        elsif value.is_a? Hash
-          props = value.map { |k, v| format('w:%s="%s"', k, v) if v }
-          "<w:#{key} #{props.compact.join(' ')} />"
-        else
-          value = format('w:val="%s" ', value) if value
-          "<w:#{key} #{value}/>"
-        end
-      end
-    end
-
     # A container for an array of AST nodes with convenience methods to
     # work with the internal array as if it were a regular node
     class Collection < Node
@@ -197,6 +114,10 @@ module Sablon
 
       def inspect
         "[#{nodes.map(&:inspect).join(', ')}]"
+      end
+
+      def <<(node)
+        @nodes << node
       end
     end
 
@@ -226,10 +147,23 @@ module Sablon
     # An AST node representing the top level content container for a word
     # document. These cannot be nested within other paragraph elements
     class Paragraph < Node
+      attr_accessor :runs
+
       PROPERTIES = %w[framePr ind jc keepLines keepNext numPr
                       outlineLvl pBdr pStyle rPr sectPr shd spacing
                       tabs textAlignment].freeze
-      attr_accessor :runs
+
+      # Permitted child tags defined by the OpenXML spec
+      CHILD_TAGS = %w[w:bdo w:bookmarkEnd w:bookmarkStart w:commentRangeEnd
+                      w:commentRangeStart w:customXml
+                      w:customXmlDelRangeEnd w:customXmlDelRangeStart
+                      w:customXmlInsRangeEnd w:customXmlInsRangeStart
+                      w:customXmlMoveFromRangeEnd w:customXmlMoveFromRangeStart
+                      w:customXmlMoveToRangeEnd w:customXmlMoveToRangeStart
+                      w:del w:dir w:fldSimple w:hyperlink w:ins w:moveFrom
+                      w:moveFromRangeEnd w:moveFromRangeStart w:moveTo
+                      w:moveToRangeEnd w:moveToRangeStart m:oMath m:oMathPara
+                      w:pPr w:proofErr w:r w:sdt w:smartTag]
 
       def initialize(env, node, properties)
         super
@@ -349,6 +283,195 @@ module Sablon
       end
     end
 
+    # Builds a table from html table tags
+    class Table < Node
+      PROPERTIES = %w[jc shd tblBorders tblCaption tblCellMar tblCellSpacing
+                      tblInd tblLayout tblLook tblOverlap tblpPr tblStyle
+                      tblStyleColBandSize tblStyleRowBandSize tblW].freeze
+
+      def initialize(env, node, properties)
+        super
+
+        # Process properties
+        properties = self.class.process_properties(properties)
+        @properties = NodeProperties.table(properties)
+        trans_props = transferred_properties
+
+        # Pull out the caption node if it exists and convert it separately.
+        # If multiple caption tags are defined, only the first one is kept.
+        @caption = node.xpath('./caption').remove
+        @caption = nil if @caption.empty?
+        if @caption
+          cap_side_pat = /caption-side: ?(top|bottom)/
+          @cap_side = @caption.attr('style').to_s.match(cap_side_pat).to_a[1]
+          node.add_previous_sibling @caption
+          @caption = ASTBuilder.html_to_ast(env, @caption, trans_props)[0]
+        end
+
+        # convert remaining child nodes and pass on transferrable properties
+        @children = ASTBuilder.html_to_ast(env, node.children, trans_props)
+        @children = Collection.new(@children)
+      end
+
+      def to_docx
+        if @caption && @cap_side == 'bottom'
+          super('w:tbl') + @caption.to_docx
+        elsif @caption
+          # caption always goes above table unless explicitly set to "bottom"
+          @caption.to_docx + super('w:tbl')
+        else
+          super('w:tbl')
+        end
+      end
+
+      def accept(visitor)
+        super
+        @children.accept(visitor)
+      end
+
+      def inspect
+        if @caption && @cap_side == 'bottom'
+          "<Table{#{@properties.inspect}}: #{@children.inspect}, #{@caption.inspect}>"
+        elsif @caption
+          "<Table{#{@properties.inspect}}: #{@caption.inspect}, #{@children.inspect}>"
+        else
+          "<Table{#{@properties.inspect}}: #{@children.inspect}>"
+        end
+      end
+
+      private
+
+      def children_to_docx
+        @children.to_docx
+      end
+    end
+
+    # Converts html table rows into wordML table rows
+    class TableRow < Node
+      PROPERTIES = %w[cantSplit hidden jc tblCellSpacing tblHeader
+                      trHeight tblPrEx].freeze
+
+      def initialize(env, node, properties)
+        super
+        properties = self.class.process_properties(properties)
+        @properties = NodeProperties.table_row(properties)
+        #
+        trans_props = transferred_properties
+        @children = ASTBuilder.html_to_ast(env, node.children, trans_props)
+        @children = Collection.new(@children)
+      end
+
+      def to_docx
+        super('w:tr')
+      end
+
+      def accept(visitor)
+        super
+        @children.accept(visitor)
+      end
+
+      def inspect
+        "<TableRow{#{@properties.inspect}}: #{@children.inspect}>"
+      end
+
+      private
+
+      def children_to_docx
+        @children.to_docx
+      end
+    end
+
+    # Converts html table cells into wordML table cells
+    class TableCell < Node
+      PROPERTIES = %w[gridSpan hideMark noWrap shd tcBorders tcFitText
+                      tcMar tcW vAlign vMerge].freeze
+
+      # Permitted child tags defined by the OpenXML spec
+      CHILD_TAGS = %w[w:altChunk w:bookmarkEnd w:bookmarkStart w:commentRangeEnd
+                      w:commentRangeStart w:customXml w:customXmlDelRangeEnd
+                      w:customXmlDelRangeStart w:customXmlInsRangeEnd
+                      w:customXmlInsRangeStart w:customXmlMoveFromRangeEnd
+                      w:customXmlMoveFromRangeStart w:customXmlMoveToRangeEnd
+                      w:customXmlMoveToRangeStart w:del w:ins w:moveFrom
+                      w:moveFromRangeEnd w:moveFromRangeStart w:moveTo
+                      w:moveToRangeEnd w:moveToRangeStart m:oMath m:oMathPara
+                      w:p w:permEnd w:permStart w:proofErr w:sdt w:tbl w:tcPr]
+
+      def initialize(env, node, properties)
+        super
+        properties = self.class.process_properties(properties)
+        @properties = NodeProperties.table_cell(properties)
+        #
+        # Nodes are processed first "as is" and then based on the XML
+        # generated wrapped by paragraphs.
+        trans_props = transferred_properties
+        @children = ASTBuilder.html_to_ast(env, node.children, trans_props)
+        @children = wrap_with_paragraphs(env, @children)
+      end
+
+      def to_docx
+        super('w:tc')
+      end
+
+      def accept(visitor)
+        super
+        @children.accept(visitor)
+      end
+
+      def inspect
+        "<TableCell{#{@properties.inspect}}: #{@children.inspect}>"
+      end
+
+      private
+
+      # Wraps nodes in Paragraph AST nodes if needed to produced a valid
+      # document
+      def wrap_with_paragraphs(env, nodes)
+        # convert all nodes to live xml, and use first node to determine
+        # if that AST node should be wrapped in a paragraph
+        nodes_xml = nodes.map { |n| Nokogiri::XML.fragment(n.to_docx) }
+        #
+        para = nil
+        new_nodes = []
+        nodes_xml.each_with_index do |n, i|
+          next unless n.children.first
+          # add all nodes that need wrapped to a paragraph sequentially.
+          # New paragraphs are created when something that doesn't need
+          # wrapped is encountered to retain proper content ordering.
+          first_node_name = n.children.first.node_name
+          if wrapped_by_paragraph.include? first_node_name
+            if para.nil?
+              para = new_paragraph(env)
+              new_nodes << para
+            end
+            para.runs << nodes[i]
+          else
+            new_nodes << nodes[i]
+            para = nil
+          end
+        end
+        # Ensure the table cell has an empty paragraph if nothing else
+        new_nodes << new_paragraph(env) if new_nodes.empty?
+        # filter nils and return
+        Collection.new(new_nodes.compact)
+      end
+
+      # Returns a list of child tags that need to be wrapped in a paragraph
+      def wrapped_by_paragraph
+        Paragraph::CHILD_TAGS - self.class::CHILD_TAGS
+      end
+
+      # Creates a new Paragraph AST node, with no children
+      def new_paragraph(env)
+        para = Nokogiri::HTML.fragment('<p></p>').first_element_child
+        ASTBuilder.html_to_ast(env, [para], transferred_properties).first
+      end
+
+      def children_to_docx
+        @children.to_docx
+      end
+    end
+
     # Create a run of text in the document, runs cannot be nested within
     # each other
     class Run < Node
@@ -402,13 +525,12 @@ module Sablon
     class Hyperlink < Node
       def initialize(env, node, properties)
         super
-        properties = self.class.process_properties(properties)
-        @properties = NodeProperties.hyperlink(properties)
-
-        trans_props = transferred_properties
-        @runs = ASTBuilder.html_to_ast(env, node.children, trans_props)
+        # properties are passed directly to runs because hyperlink nodes
+        # don't have a corresponding property tag like runs or paragraphs.
+        @runs = ASTBuilder.html_to_ast(env, node.children, properties)
         @runs = Collection.new(@runs)
         @target = node.attributes['href'].value
+        #
         hyperlink_relation = {
           Id: 'rId' + SecureRandom.uuid.delete('-'),
           Type: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
@@ -424,8 +546,7 @@ module Sablon
       end
 
       def inspect
-        prop_str = @properties.empty? ? '' : @properties.inspect + ';'
-        "<Hyperlink{#{prop_str}target:#{@target}}: #{@runs.inspect}>"
+        "<Hyperlink{target:#{@target}}: #{@runs.inspect}>"
       end
 
       def accept(visitor)

@@ -110,6 +110,34 @@ class HTMLConverterASTTest < Sablon::TestCase
     assert_equal %w[0 1 2 1 0 1 2], get_numpr_prop_from_ast(ast, :ilvl)
   end
 
+  def test_table_tag
+    input='<table></table>'
+    ast = @converter.processed_ast(input)
+    assert_equal '<Root: [<Table{}: []>]>', ast.inspect
+  end
+
+  def test_table_with_table_row
+    input='<table><tr></tr></table>'
+    ast = @converter.processed_ast(input)
+    assert_equal '<Root: [<Table{}: [<TableRow{}: []>]>]>', ast.inspect
+  end
+
+  def test_table_with_table_row_and_table_cell
+    input='<table><tr><td>Content</td></tr></table>'
+    ast = @converter.processed_ast(input)
+    assert_equal '<Root: [<Table{}: [<TableRow{}: [<TableCell{}: [<Paragraph{Paragraph}: [<Run{}: Content>]>]>]>]>]>', ast.inspect
+  end
+
+  def test_table_with_table_row_and_table_cell_and_caption
+    input='<table><caption>Table Title</caption><tr><td>Content</td></tr></table>'
+    ast = @converter.processed_ast(input)
+    assert_equal '<Root: [<Table{}: <Paragraph{Caption}: [<Run{}: Table Title>]>, [<TableRow{}: [<TableCell{}: [<Paragraph{Paragraph}: [<Run{}: Content>]>]>]>]>]>', ast.inspect
+    #
+    input='<table><caption style="caption-side: bottom">Table Title</caption><tr><td>Content</td></tr></table>'
+    ast = @converter.processed_ast(input)
+    assert_equal '<Root: [<Table{}: [<TableRow{}: [<TableCell{}: [<Paragraph{Paragraph}: [<Run{}: Content>]>]>]>], <Paragraph{Caption}: [<Run{}: Table Title>]>>]>', ast.inspect
+  end
+
   private
 
   # returns the numid attribute from paragraphs
