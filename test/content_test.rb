@@ -110,7 +110,7 @@ class ContentStringTest < Sablon::TestCase
   def test_string_with_newlines
     Sablon.content(:string, "a\nmultiline\n\nstring").append_to @paragraph, @node, @env
 
-    output = <<-XML.strip.gsub("\n", "")
+    output = <<-XML.gsub(/\s/, '')
       <w:p>
         <span>template</span>
         <span>a</span>
@@ -137,16 +137,22 @@ class ContentWordMLTest < Sablon::TestCase
   include ContentTestSetup
 
   def test_blank_word_ml
+    # Blank strings get appended as-is without changing anything
     Sablon.content(:word_ml, "").append_to @paragraph, @node, @env
-
-    assert_xml_equal "<w:p>AFTER</w:p>", @document
+    assert_xml_equal "<w:p><span>template</span></w:p><w:p>AFTER</w:p>", @document
   end
 
-  def test_inserts_word_ml_into_the_document
+  def test_plain_text_word_ml
+    # Blank strings get appended as-is without changing anything
+    Sablon.content(:word_ml, "test").append_to @paragraph, @node, @env
+    assert_xml_equal "test<w:p>AFTER</w:p>", @document
+  end
+
+  def test_inserts_paragraph_word_ml_into_the_document
     @word_ml = '<w:p><w:r><w:t xml:space="preserve">a </w:t></w:r></w:p>'
     Sablon.content(:word_ml, @word_ml).append_to @paragraph, @node, @env
 
-    output = <<-XML.strip.gsub("\n", "")
+    output = <<-XML.gsub(/^\s+|\n/, '')
       <w:p>
         <w:r><w:t xml:space=\"preserve\">a </w:t></w:r>
       </w:p>
@@ -156,7 +162,44 @@ class ContentWordMLTest < Sablon::TestCase
     assert_xml_equal output, @document
   end
 
+  def test_inserts_inline_word_ml_into_the_document
+    @word_ml = '<w:r><w:t xml:space="preserve">inline text </w:t></w:r>'
+    Sablon.content(:word_ml, @word_ml).append_to @paragraph, @node, @env
+
+    output = <<-XML.gsub(/^\s+|\n/, '')
+      <w:p>
+        <span>template</span>
+        <w:r><w:t xml:space="preserve">inline text </w:t></w:r>
+      </w:p>
+      <w:p>AFTER</w:p>
+    XML
+
+    assert_xml_equal output, @document
+  end
+
   def test_inserting_word_ml_multiple_times_into_same_paragraph
-    skip "Content::WordML currently removes the paragraph..."
+    @word_ml = '<w:r><w:t xml:space="preserve">inline text </w:t></w:r>'
+    Sablon.content(:word_ml, @word_ml).append_to @paragraph, @node, @env
+    @word_ml = '<w:r><w:t xml:space="preserve">inline text2 </w:t></w:r>'
+    Sablon.content(:word_ml, @word_ml).append_to @paragraph, @node, @env
+    @word_ml = '<w:r><w:t xml:space="preserve">inline text3 </w:t></w:r>'
+    Sablon.content(:word_ml, @word_ml).append_to @paragraph, @node, @env
+
+    # This seems counter intuitive but is actually the expected behavior.
+    # Envision inline HTML insertion inside a sentence. If new content was
+    # always appended to the end of the paragraph the "inserted content"
+    # would appear at the end of the sentence instead of it's desired
+    # location in the middle.
+    output = <<-XML.gsub(/^\s+|\n/, '')
+      <w:p>
+        <span>template</span>
+        <w:r><w:t xml:space="preserve">inline text3 </w:t></w:r>
+        <w:r><w:t xml:space="preserve">inline text2 </w:t></w:r>
+        <w:r><w:t xml:space="preserve">inline text </w:t></w:r>
+      </w:p>
+      <w:p>AFTER</w:p>
+    XML
+
+    assert_xml_equal output, @document
   end
 end
