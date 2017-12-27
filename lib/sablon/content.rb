@@ -84,6 +84,20 @@ module Sablon
         end
       end
 
+      # This allows proper equality checks with other WordML content objects.
+      # Due to the fact the `xml` attribute is a live Nokogiri object
+      # the default `==` comparison returns false unless it is the exact
+      # same object being compared. This method instead checks if the XML
+      # being added to the document is the same when the `other` object is
+      # an instance of the WordML content class.
+      def ==(other)
+        if other.class == self.class
+          xml.to_s == other.xml.to_s
+        else
+          super
+        end
+      end
+
       private
 
       # Adds the XML to be inserted in the document as siblings to the
