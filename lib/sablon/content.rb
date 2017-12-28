@@ -77,7 +77,10 @@ module Sablon
 
       def append_to(paragraph, display_node, env)
         if all_inline?
-          append_xml_to(display_node)
+          # Remove this line after checking the XML generated from a
+          # complex field
+          puts "\n#{'-'*80}\n#{paragraph}\n#{'='*80}\n#{display_node.parent}\n#{'*'*80}\n#{display_node}\n#{'-'*80}\n"
+          append_xml_to(display_node.parent)
         else
           append_xml_to(paragraph)
           paragraph.remove
