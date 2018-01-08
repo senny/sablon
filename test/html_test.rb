@@ -20,7 +20,10 @@ class SablonHTMLTest < Sablon::TestCase
     template = Sablon.template template_path
     context = {
       'html:content' => content,
-      'html:inline_content' => '<b><span style="color: #123456">should</span></b>'
+      inline_content: {
+        'html:should' => '<b><span style="color: #123456">should</span></b>',
+        'html:github' => '<a href="http://www.github.com" style="color: #0000FF">GitHub</a>'
+      }
     }
     SecureRandom.stub(:uuid, uid_generator.method(:new_uid)) do
       template.render_to_file output_path, context
