@@ -71,11 +71,85 @@ module Sablon
       def self.id; :word_ml end
       def self.wraps?(value) false end
 
+      def initialize(value)
+        super Nokogiri::XML.fragment(value)
+      end
+
       def append_to(paragraph, display_node, env)
-        Nokogiri::XML.fragment(xml).children.reverse.each do |child|
-          paragraph.add_next_sibling child
+        # if all nodes are inline then add them to the existing paragraph
+        # otherwise replace the paragraph with the new content.
+        if all_inline?
+          pr_tag = display_node.parent.at_xpath('./w:rPr')
+          add_siblings_to(display_node.parent, pr_tag)
+          display_node.parent.remove
+        else
+          add_siblings_to(paragraph)
+          paragraph.remove
         end
-        paragraph.remove
+      end
+
+      # This allows proper equality checks with other WordML content objects.
+      # Due to the fact the `xml` attribute is a live Nokogiri object
+      # the default `==` comparison returns false unless it is the exact
+      # same object being compared. This method instead checks if the XML
+      # being added to the document is the same when the `other` object is
+      # an instance of the WordML content class.
+      def ==(other)
+        if other.class == self.class
+          xml.to_s == other.xml.to_s
+        else
+          super
+        end
+      end
+
+      private
+
+      # Returns `true` if all of the xml nodes to be inserted are
+      def all_inline?
+        (xml.children.map(&:node_name) - inline_tags).empty?
+      end
+
+      # Array of tags allowed to be a child of the w:p XML tag as defined
+      # by the Open XML specification
+      def inline_tags
+        %w[w:bdo w:bookmarkEnd w:bookmarkStart w:commentRangeEnd
+           w:commentRangeStart w:customXml
+           w:customXmlDelRangeEnd w:customXmlDelRangeStart
+           w:customXmlInsRangeEnd w:customXmlInsRangeStart
+           w:customXmlMoveFromRangeEnd w:customXmlMoveFromRangeStart
+           w:customXmlMoveToRangeEnd w:customXmlMoveToRangeStart
+           w:del w:dir w:fldSimple w:hyperlink w:ins w:moveFrom
+           w:moveFromRangeEnd w:moveFromRangeStart w:moveTo
+           w:moveToRangeEnd w:moveToRangeStart m:oMath m:oMathPara
+           w:pPr w:proofErr w:r w:sdt w:smartTag]
+      end
+
+      # Adds the XML to be inserted in the document as siblings to the
+      # node passed in. Run properties are merged here because of namespace
+      # issues when working with a document fragment
+      def add_siblings_to(node, rpr_tag = nil)
+        xml.children.reverse.each do |child|
+          node.add_next_sibling child
+          # merge properties
+          next unless rpr_tag
+          merge_rpr_tags(child, rpr_tag.children)
+        end
+      end
+
+      # Merges the provided properties into the run proprties of the
+      # node passed in. Properties are only added if they are not already
+      # defined on the node itself.
+      def merge_rpr_tags(node, props)
+        # first assert that all child runs (w:r tags) have a w:rPr tag
+        node.xpath('.//w:r').each do |child|
+          child.prepend_child '<w:rPr></w:rPr>' unless child.at_xpath('./w:rPr')
+        end
+        #
+        # merge run props, only adding them if they aren't already defined
+        node.xpath('.//w:rPr').each do |pr_tag|
+          existing = pr_tag.children.map(&:node_name)
+          props.map { |pr| pr_tag << pr unless existing.include? pr.node_name }
+        end
       end
     end
 

@@ -18,7 +18,13 @@ class SablonHTMLTest < Sablon::TestCase
     template_path = @base_path + "fixtures/insertion_template.docx"
     output_path = @base_path + "sandbox/html.docx"
     template = Sablon.template template_path
-    context = { 'html:content' => content }
+    context = {
+      'html:content' => content,
+      inline_content: {
+        'html:should' => '<b><span style="color: #123456">should</span></b>',
+        'html:github' => '<a href="http://www.github.com" style="color: #0000FF">GitHub</a>'
+      }
+    }
     SecureRandom.stub(:uuid, uid_generator.method(:new_uid)) do
       template.render_to_file output_path, context
     end

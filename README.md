@@ -119,10 +119,26 @@ context = {
 }
 template.render_to_file File.expand_path("~/Desktop/output.docx"), context
 ```
+In the example above the entire paragraph will be replaced because all of the nodes being inserted aren't valid children of a paragraph (w:p) element. The example below shows inline insertion, where only runs are added and instead of replacing the entire paragraph only the merge field gets removed.
 
-IMPORTANT: This feature is very much *experimental*. Currently, the insertion
-    will replace the containing paragraph. This means that other content in the same
-    paragraph is discarded.
+**Important:** All text must be wrapped in a run tag for valid inline insertion because WordML is still inserted directly into the document "as is" without any structure transformations other than run properties being merged.
+
+```ruby
+word_processing_ml = <<-XML.gsub("\n", "")
+<w:r w:rsidRPr="00B97C39">
+<w:rPr>
+<w:b />
+</w:rPr>
+<w:t>this is bold text</w:t>
+</w:r>
+XML
+
+context = {
+  long_description: Sablon.content(:word_ml, word_processing_ml)
+}
+template.render_to_file File.expand_path("~/Desktop/output.docx"), context
+```
+
 
 ##### HTML
 
@@ -198,7 +214,7 @@ The currently supported styles are also defined in [configuration.rb](lib/sablon
 properties that aren't directly supported can be added using the
 `text-decoration: ` style attribute with the proper XML tag name as the
 value (i.e. `text-decoration: dstrike` for `w:dstrike`). Simple single value properties that do not need a conversion can be added using the XML property name directly, omitting the `w:` prefix i.e.
-(`highlight: cyan` for `w:hightlight`).
+(`highlight: cyan` for `w:highlight`).
 
 Table, Paragraph and Run property references can be found at:
   * http://officeopenxml.com/WPparagraphProperties.php
@@ -206,11 +222,25 @@ Table, Paragraph and Run property references can be found at:
   * http://officeopenxml.com/WPtableProperties.php
 
 The full Open Office XML specification used to develop the HTML converter
-can be found [here](https://www.ecma-international.org/publications/standards/Ecma-376.htm).
-The third edition was used.
+can be found [here](https://www.ecma-international.org/publications/standards/Ecma-376.htm) (3rd Edition).
 
-IMPORTANT: Currently, the insertion will replace the containing paragraph. This means that other content in the same paragraph is discarded.
 
+The example above shows an HTML insertion operation that will replace the entire paragraph. In the same fashion as WordML, inline HTML insertion is possible where only the merge field is replaced as long as only "inline" elements are used. "Inline" in this context does not necessarily mean the same thing as it does in CSS, in this case it means that once the HTML is converted to WordML only valid children of a paragraph (w:p) tag exist. Unlike WordML insertion plain text can be used without being wrapped in tags when working with HTML, see the example below:
+
+```ruby
+inline_html = <<-HTML.strip
+    This text can contain <em>additional formatting</em> according to the
+    <strong>HTML</strong> specification. As well as links to external
+    <a href="https://github.com/senny/sablon">websites</a>, don't forget
+    the "http/https" bit.
+HTML
+context = {
+  article: Sablon.content(:html, inline_html) }
+  # alternative method using special key format
+  # 'html:article' => html_body
+}
+template.render_to_file File.expand_path("~/Desktop/output.docx"), context
+```
 
 #### Conditionals
 

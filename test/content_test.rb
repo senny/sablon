@@ -1,6 +1,36 @@
 # -*- coding: utf-8 -*-
 require "test_helper"
 
+module XmlContentTestSetup
+  def setup
+    super
+    @template_text = '<w:p><w:r><w:t>template</w:t></w:r></w:p><w:p>AFTER</w:p>'
+    #
+    @document = Nokogiri::XML(doc_wrapper(@template_text))
+    @paragraph = @document.xpath('//w:p').first
+    @node = @paragraph.xpath('.//w:r').first.at_xpath('./w:t')
+    @env = Sablon::Environment.new(nil)
+  end
+
+  private
+
+  def doc_wrapper(content)
+    doc = <<-XML.gsub(/^\s+|\n/, '')
+      <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+        <w:body>
+          %<content>s
+        </w:body>
+      </w:document>
+    XML
+    format(doc, content: content)
+  end
+
+  def assert_xml_equal(expected, document)
+    expected = Nokogiri::XML(doc_wrapper(expected)).to_xml(indent: 0, save_with: 0)
+    assert_equal expected, document.to_xml(indent: 0, save_with: 0)
+  end
+end
+
 class ContentTest < Sablon::TestCase
   def test_can_build_content_objects
     content = Sablon.content(:string, "a string")
@@ -69,30 +99,14 @@ class CustomContentTest < Sablon::TestCase
   end
 end
 
-module ContentTestSetup
-  def setup
-    super
-    @template_text = '<w:p><span>template</span></w:p><w:p>AFTER</w:p>'
-    @document = Nokogiri::XML.fragment(@template_text)
-    @paragraph = @document.children.first
-    @node = @document.css("span").first
-    @env = Sablon::Environment.new(nil)
-  end
-
-  private
-  def assert_xml_equal(expected, document)
-    assert_equal expected, document.to_xml(indent: 0, save_with: 0)
-  end
-end
-
 class ContentStringTest < Sablon::TestCase
-  include ContentTestSetup
+  include XmlContentTestSetup
 
   def test_single_line_string
-    Sablon.content(:string, "a normal string").append_to @paragraph, @node, @env
+    Sablon.content(:string, 'a normal string').append_to @paragraph, @node, @env
 
     output = <<-XML.strip
-<w:p><span>template</span><span>a normal string</span></w:p><w:p>AFTER</w:p>
+      <w:p><w:r><w:t>template</w:t><w:t>a normal string</w:t></w:r></w:p><w:p>AFTER</w:p>
     XML
     assert_xml_equal output, @document
   end
@@ -101,7 +115,7 @@ class ContentStringTest < Sablon::TestCase
     Sablon.content(:string, 42).append_to @paragraph, @node, @env
 
     output = <<-XML.strip
-<w:p><span>template</span><span>42</span></w:p><w:p>AFTER</w:p>
+      <w:p><w:r><w:t>template</w:t><w:t>42</w:t></w:r></w:p><w:p>AFTER</w:p>
     XML
     assert_xml_equal output, @document
   end
@@ -109,53 +123,118 @@ class ContentStringTest < Sablon::TestCase
   def test_string_with_newlines
     Sablon.content(:string, "a\nmultiline\n\nstring").append_to @paragraph, @node, @env
 
-    output = <<-XML.strip.gsub("\n", "")
-<w:p>
-<span>template</span>
-<span>a</span>
-<w:br/>
-<span>multiline</span>
-<w:br/>
-<w:br/>
-<span>string</span>
-</w:p>
-<w:p>AFTER</w:p>
+    output = <<-XML.gsub(/\s/, '')
+      <w:p>
+        <w:r>
+          <w:t>template</w:t>
+          <w:t>a</w:t>
+          <w:br/>
+          <w:t>multiline</w:t>
+          <w:br/>
+          <w:br/>
+          <w:t>string</w:t>
+        </w:r>
+      </w:p><w:p>AFTER</w:p>
     XML
 
     assert_xml_equal output, @document
   end
 
   def test_blank_string
-    Sablon.content(:string, "").append_to @paragraph, @node, @env
+    Sablon.content(:string, '').append_to @paragraph, @node, @env
 
     assert_xml_equal @template_text, @document
   end
 end
 
 class ContentWordMLTest < Sablon::TestCase
-  include ContentTestSetup
+  include XmlContentTestSetup
 
   def test_blank_word_ml
-    Sablon.content(:word_ml, "").append_to @paragraph, @node, @env
-
-    assert_xml_equal "<w:p>AFTER</w:p>", @document
+    # blank strings in word_ml are an odd corner case, they get treated
+    # as inline so the paragraph is retained but the display node is still
+    # removed with nothing being inserted in it's place. Nokogiri automatically
+    # collapsed the empty <w:p></w:P> tag into a <w:/p> form.
+    Sablon.content(:word_ml, '').append_to @paragraph, @node, @env
+    assert_xml_equal "<w:p/><w:p>AFTER</w:p>", @document
   end
 
-  def test_inserts_word_ml_into_the_document
+  def test_plain_text_word_ml
+    # text isn't a valid child element of a w:p tag, so the whole paragraph
+    # gets replaced.
+    Sablon.content(:word_ml, "test").append_to @paragraph, @node, @env
+    assert_xml_equal "test<w:p>AFTER</w:p>", @document
+  end
+
+  def test_inserts_paragraph_word_ml_into_the_document
     @word_ml = '<w:p><w:r><w:t xml:space="preserve">a </w:t></w:r></w:p>'
     Sablon.content(:word_ml, @word_ml).append_to @paragraph, @node, @env
 
-    output = <<-XML.strip.gsub("\n", "")
-<w:p>
-<w:r><w:t xml:space=\"preserve\">a </w:t></w:r>
-</w:p>
-<w:p>AFTER</w:p>
+    output = <<-XML.gsub(/^\s+|\n/, '')
+      <w:p>
+        <w:r><w:t xml:space=\"preserve\">a </w:t></w:r>
+      </w:p>
+      <w:p>AFTER</w:p>
+    XML
+
+    assert_xml_equal output, @document
+  end
+
+  def test_inserts_inline_word_ml_into_the_document
+    @word_ml = '<w:r><w:t xml:space="preserve">inline text </w:t></w:r>'
+    Sablon.content(:word_ml, @word_ml).append_to @paragraph, @node, @env
+
+    output = <<-XML.gsub(/^\s+|\n/, '')
+      <w:p>
+        <w:r><w:t xml:space="preserve">inline text </w:t></w:r>
+      </w:p>
+      <w:p>AFTER</w:p>
     XML
 
     assert_xml_equal output, @document
   end
 
   def test_inserting_word_ml_multiple_times_into_same_paragraph
-    skip "Content::WordML currently removes the paragraph..."
+    @word_ml = '<w:r><w:t xml:space="preserve">inline text </w:t></w:r>'
+    Sablon.content(:word_ml, @word_ml).append_to @paragraph, @node, @env
+    @word_ml = '<w:r><w:t xml:space="preserve">inline text2 </w:t></w:r>'
+    Sablon.content(:word_ml, @word_ml).append_to @paragraph, @node, @env
+    @word_ml = '<w:r><w:t xml:space="preserve">inline text3 </w:t></w:r>'
+    Sablon.content(:word_ml, @word_ml).append_to @paragraph, @node, @env
+
+    # Only a single insertion should work because the node that we insert
+    # the content afer contains a merge field that needs removed. That means
+    # in the next two appends the @node variable doesn't exist on the document
+    # tree
+    output = <<-XML.gsub(/^\s+|\n/, '')
+      <w:p>
+        <w:r><w:t xml:space="preserve">inline text </w:t></w:r>
+      </w:p>
+      <w:p>AFTER</w:p>
+    XML
+
+    assert_xml_equal output, @document
+  end
+
+  def test_inserting_multiple_runs_into_same_paragraph
+    @word_ml = <<-XML.gsub(/^\s+|\n/, '')
+      <w:r><w:t xml:space="preserve">inline text </w:t></w:r>
+      <w:r><w:t xml:space="preserve">inline text2 </w:t></w:r>
+      <w:r><w:t xml:space="preserve">inline text3 </w:t></w:r>
+    XML
+    Sablon.content(:word_ml, @word_ml).append_to @paragraph, @node, @env
+
+    # This works because all three runs are added as a single insertion
+    # event
+    output = <<-XML.gsub(/^\s+|\n/, '')
+      <w:p>
+        <w:r><w:t xml:space="preserve">inline text </w:t></w:r>
+        <w:r><w:t xml:space="preserve">inline text2 </w:t></w:r>
+        <w:r><w:t xml:space="preserve">inline text3 </w:t></w:r>
+      </w:p>
+      <w:p>AFTER</w:p>
+    XML
+
+    assert_xml_equal output, @document
   end
 end
