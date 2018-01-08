@@ -76,13 +76,14 @@ module Sablon
       end
 
       def append_to(paragraph, display_node, env)
+        # if all nodes are inline then add them to the existing paragraph
+        # otherwise replace the paragraph with the new content.
         if all_inline?
-          # Remove this line after checking the XML generated from a
-          # complex field
-          puts "\n#{'-'*80}\n#{paragraph}\n#{'='*80}\n#{display_node.parent}\n#{'*'*80}\n#{display_node}\n#{'-'*80}\n"
-          append_xml_to(display_node.parent)
+          pr_tag = display_node.parent.at_xpath('./w:rPr')
+          add_siblings_to(display_node.parent, pr_tag)
+          display_node.parent.remove
         else
-          append_xml_to(paragraph)
+          add_siblings_to(paragraph)
           paragraph.remove
         end
       end
@@ -103,14 +104,6 @@ module Sablon
 
       private
 
-      # Adds the XML to be inserted in the document as siblings to the
-      # node passed in.
-      def append_xml_to(node)
-        xml.children.reverse.each do |child|
-          node.add_next_sibling child
-        end
-      end
-
       # Returns `true` if all of the xml nodes to be inserted are
       def all_inline?
         (xml.children.map(&:node_name) - inline_tags).empty?
@@ -129,6 +122,34 @@ module Sablon
            w:moveFromRangeEnd w:moveFromRangeStart w:moveTo
            w:moveToRangeEnd w:moveToRangeStart m:oMath m:oMathPara
            w:pPr w:proofErr w:r w:sdt w:smartTag]
+      end
+
+      # Adds the XML to be inserted in the document as siblings to the
+      # node passed in. Run properties are merged here because of namespace
+      # issues when working with a document fragment
+      def add_siblings_to(node, rpr_tag = nil)
+        xml.children.reverse.each do |child|
+          node.add_next_sibling child
+          # merge properties
+          next unless rpr_tag
+          merge_rpr_tags(child, rpr_tag.children)
+        end
+      end
+
+      # Merges the provided properties into the run proprties of the
+      # node passed in. Properties are only added if they are not already
+      # defined on the node itself.
+      def merge_rpr_tags(node, props)
+        # first assert that all child runs (w:r tags) have a w:rPr tag
+        node.xpath('.//w:r').each do |child|
+          child.prepend_child '<w:rPr></w:rPr>' unless child.at_xpath('./w:rPr')
+        end
+        #
+        # merge run props, only adding them if they aren't already defined
+        node.xpath('.//w:rPr').each do |pr_tag|
+          existing = pr_tag.children.map(&:node_name)
+          props.map { |pr| pr_tag << pr unless existing.include? pr.node_name }
+        end
       end
     end
 
