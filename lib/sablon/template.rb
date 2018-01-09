@@ -1,7 +1,10 @@
+require 'sablon/document_object_model/dom'
+
 module Sablon
   class Template
     def initialize(path)
       @path = path
+      @document = Sablon::DOM::Model.new(Zip::File.open(@path))
     end
 
     # Same as +render_to_string+ but writes the processed template to +output_path+.
