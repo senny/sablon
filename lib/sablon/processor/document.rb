@@ -2,7 +2,7 @@
 module Sablon
   module Processor
     class Document
-      def self.process(xml_node, env, properties = {})
+      def self.process(xml_node, env, properties = {}, *_args)
         processor = new(parser)
         processor.manipulate xml_node, env
         processor.write_properties xml_node, properties if properties.any?
