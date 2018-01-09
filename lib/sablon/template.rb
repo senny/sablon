@@ -1,4 +1,4 @@
-require 'sablon/document_object_model/dom'
+require 'sablon/document_object_model/model'
 
 module Sablon
   class Template
