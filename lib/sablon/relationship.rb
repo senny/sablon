@@ -8,21 +8,17 @@ module Sablon
       @relationships = []
     end
 
-    def add_found_relationships(content, output_stream)
-      output_stream.put_next_entry('word/_rels/document.xml.rels')
+    def add_found_relationships(rels_doc)
+      return if @relationships.empty?
       #
-      unless @relationships.empty?
-        rels_doc = Nokogiri::XML(content)
-        rels_doc_root = rels_doc.root
-        # convert new rels to nodes
-        node_set = convert_relationships_to_node_set(rels_doc)
-        @relationships = []
-        # add new nodes to XML content
-        rels_doc_root.last_element_child.after(node_set)
-        content = rels_doc.to_xml(indent: 0, save_with: 0)
-      end
-      #
-      output_stream.write(content)
+      rels_doc_root = rels_doc.root
+      # convert new rels to nodes
+      node_set = convert_relationships_to_node_set(rels_doc)
+      @relationships = []
+      # add new nodes to XML content
+      rels_doc_root.last_element_child.after(node_set)
+      # return doc
+      rels_doc
     end
 
     private
