@@ -32,9 +32,6 @@ module Sablon
       process(%r{word/(?:header|footer)\d*\.xml}, env)
       process(%r{word/numbering.xml}, env)
       #
-      content = @document.zip_contents['word/_rels/document.xml.rels']
-      env.relationship.add_found_relationships(content)
-      #
       Zip::OutputStream.write_buffer(StringIO.new) do |out|
         generate_output_file(out, @document.zip_contents)
       end
