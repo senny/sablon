@@ -2,6 +2,8 @@ require 'sablon/document_object_model/model'
 
 module Sablon
   class Template
+    attr_reader :document
+
     def initialize(path)
       @path = path
       @document = Sablon::DOM::Model.new(Zip::File.open(@path))
@@ -51,6 +53,7 @@ module Sablon
     def process(entry_pattern, env, *args)
       @document.zip_contents.each do |entry_name, content|
         next unless entry_name =~ entry_pattern
+        @document.current_entry = entry_name
         processor = get_processor(entry_name)
         processor.process(content, env, *args)
       end

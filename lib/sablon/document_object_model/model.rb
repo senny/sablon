@@ -5,11 +5,12 @@ module Sablon
   module DOM
     # Object to represent an entire template and it's XML contents
     class Model
-      attr_reader :zip_contents
+      attr_reader :zip_contents, :current_entry
 
       # setup the DOM by reading and storing all XML files in the template
       # in memory
       def initialize(zip_io_stream)
+        @current_entry = nil
         @zip_contents = {}
         zip_io_stream.each do |entry|
           content = entry.get_input_stream.read
