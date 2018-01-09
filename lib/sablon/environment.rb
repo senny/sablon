@@ -13,6 +13,11 @@ module Sablon
       Environment.new(nil, new_context, self)
     end
 
+    # reader method for the DOM::Model instance stored on the template
+    def document
+      @template.document
+    end
+
     private
 
     def initialize(template, context = {}, parent_env = nil)
