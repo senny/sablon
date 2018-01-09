@@ -531,14 +531,13 @@ module Sablon
         @runs = Collection.new(@runs)
         @target = node.attributes['href'].value
         #
-        hyperlink_relation = {
-          Id: 'rId' + SecureRandom.uuid.delete('-'),
+        rel_attr = {
           Type: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
           Target: @target,
           TargetMode: 'External'
         }
-        env.relationship.relationships << hyperlink_relation
-        @attributes = { 'r:id' => hyperlink_relation[:Id] }
+        rid = env.document.add_relationship(rel_attr)
+        @attributes = { 'r:id' => rid }
       end
 
       def to_docx
