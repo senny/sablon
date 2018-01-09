@@ -1,3 +1,4 @@
+require "securerandom"
 require "sablon/html/ast_builder"
 require "sablon/html/node_properties"
 
