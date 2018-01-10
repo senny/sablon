@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 require "test_helper"
-require 'securerandom'
 
 class HTMLConverterASTTest < Sablon::TestCase
   def setup
