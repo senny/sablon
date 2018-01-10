@@ -4,7 +4,8 @@ require "test_helper"
 class HTMLConverterStyleTest < Sablon::TestCase
   def setup
     super
-    @env = Sablon::Environment.new(nil)
+    @template = MockTemplate.new
+    @env = Sablon::Environment.new(@template)
     @converter = Sablon::HTMLConverter.new
   end
 
@@ -75,14 +76,11 @@ class HTMLConverterStyleTest < Sablon::TestCase
 
   # test that styles defined on the <a> tag are passed down to runs
   def test_hyperlink_with_font_style
-    uid_generator = UIDTestGenerator.new
-    SecureRandom.stub(:uuid, uid_generator.method(:new_uid)) do |secure_random_instance|
-      uid_generator.reset
-      input = '<p><a href="http://www.google.com" style="font-style: italic">Google</a></p>'
-      expected_output = hyperlink_with_rpr('<w:i />', secure_random_instance.uuid)
-      uid_generator.reset
-      assert_equal normalize_wordml(expected_output), process(input)
-    end
+    @template.document.reset
+    input = '<p><a href="http://www.google.com" style="font-style: italic">Google</a></p>'
+    expected_output = hyperlink_with_rpr('<w:i />', @template.document.current_rid + 1)
+    @template.document.reset
+    assert_equal normalize_wordml(expected_output), process(input)
   end
 
   def test_run_with_background_color

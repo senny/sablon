@@ -4,7 +4,8 @@ require "test_helper"
 class HTMLConverterTest < Sablon::TestCase
   def setup
     super
-    @env = Sablon::Environment.new(nil)
+    @template = MockTemplate.new
+    @env = Sablon::Environment.new(@template)
     @numbering = @env.numbering
     @converter = Sablon::HTMLConverter.new
   end
@@ -32,50 +33,43 @@ class HTMLConverterTest < Sablon::TestCase
   end
 
   def test_convert_hyperlink_inside_div
-    uid_generator = UIDTestGenerator.new
-    SecureRandom.stub(:uuid, uid_generator.method(:new_uid)) do |secure_random_instance|
-
-      input = '<div>Lorem ipsum dolor sit amet; search it at <a href="http://www.google.com">google</a></div>'
-      expected_output = <<-DOCX.strip
-<w:p>
-  <w:pPr><w:pStyle w:val="Normal" /></w:pPr>
-  <w:r><w:t xml:space="preserve">Lorem ipsum dolor sit amet; search it at </w:t></w:r>
-  <w:hyperlink r:id=\"rId#{secure_random_instance.uuid}\">
-    <w:r>
-      <w:rPr>
-        <w:rStyle w:val=\"Hyperlink\" />
-      </w:rPr>
-      <w:t xml:space=\"preserve\">google</w:t>
-    </w:r>
-  </w:hyperlink>
-</w:p>
-      DOCX
-      uid_generator.reset
-      assert_equal normalize_wordml(expected_output), process(input)
-    end
+    input = '<div>Lorem ipsum dolor sit amet; search it at <a href="http://www.google.com">google</a></div>'
+    expected_output = <<-DOCX.strip
+      <w:p>
+        <w:pPr><w:pStyle w:val="Normal" /></w:pPr>
+        <w:r><w:t xml:space="preserve">Lorem ipsum dolor sit amet; search it at </w:t></w:r>
+        <w:hyperlink r:id=\"rId#{@template.document.current_rid + 1}\">
+          <w:r>
+            <w:rPr>
+              <w:rStyle w:val=\"Hyperlink\" />
+            </w:rPr>
+            <w:t xml:space=\"preserve\">google</w:t>
+          </w:r>
+        </w:hyperlink>
+      </w:p>
+    DOCX
+    @template.document.reset
+    assert_equal normalize_wordml(expected_output), process(input)
   end
 
   def test_convert_hyperlink_inside_p
-    uid_generator = UIDTestGenerator.new
-    SecureRandom.stub(:uuid, uid_generator.method(:new_uid)) do |secure_random_instance|
-      input = '<p>Lorem ipsum dolor sit amet; search it at <a href="http://www.google.com">google</a></p>'
-      expected_output = <<-DOCX.strip
-  <w:p>
-    <w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>
-    <w:r><w:t xml:space="preserve">Lorem ipsum dolor sit amet; search it at </w:t></w:r>
-    <w:hyperlink r:id=\"rId#{secure_random_instance.uuid}\">
-        <w:r>
-          <w:rPr>
-            <w:rStyle w:val=\"Hyperlink\" />
-          </w:rPr>
-          <w:t xml:space=\"preserve\">google</w:t>
-        </w:r>
-    </w:hyperlink>
-  </w:p>
-      DOCX
-      uid_generator.reset
-      assert_equal normalize_wordml(expected_output), process(input)
-    end
+    input = '<p>Lorem ipsum dolor sit amet; search it at <a href="http://www.google.com">google</a></p>'
+    expected_output = <<-DOCX.strip
+      <w:p>
+        <w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>
+        <w:r><w:t xml:space="preserve">Lorem ipsum dolor sit amet; search it at </w:t></w:r>
+        <w:hyperlink r:id=\"rId#{@template.document.current_rid + 1}\">
+            <w:r>
+              <w:rPr>
+                <w:rStyle w:val=\"Hyperlink\" />
+              </w:rPr>
+              <w:t xml:space=\"preserve\">google</w:t>
+            </w:r>
+        </w:hyperlink>
+      </w:p>
+    DOCX
+    @template.document.reset
+    assert_equal normalize_wordml(expected_output), process(input)
   end
 
   def test_convert_text_inside_multiple_divs
@@ -402,27 +396,24 @@ class HTMLConverterTest < Sablon::TestCase
   end
 
   def test_anchor_tag
-    uid_generator = UIDTestGenerator.new
     input = '<p><a href="www.github.com">GitHub</a></p>'
-    SecureRandom.stub(:uuid, uid_generator.method(:new_uid)) do |secure_random_instance|
-      expected_output = <<-DOCX.strip
-        <w:p>
-          <w:pPr>
-          <w:pStyle w:val="Paragraph" />
-          </w:pPr>
-          <w:hyperlink r:id="rId#{secure_random_instance.uuid}">
-            <w:r>
-            <w:rPr>
-              <w:rStyle w:val="Hyperlink" />
-            </w:rPr>
-            <w:t xml:space="preserve">GitHub</w:t>
-            </w:r>
-          </w:hyperlink>
-        </w:p>
-      DOCX
-      uid_generator.reset
-      assert_equal normalize_wordml(expected_output), process(input)
-    end
+    expected_output = <<-DOCX.strip
+      <w:p>
+        <w:pPr>
+        <w:pStyle w:val="Paragraph" />
+        </w:pPr>
+        <w:hyperlink r:id="rId#{@template.document.current_rid + 1}">
+          <w:r>
+          <w:rPr>
+            <w:rStyle w:val="Hyperlink" />
+          </w:rPr>
+          <w:t xml:space="preserve">GitHub</w:t>
+          </w:r>
+        </w:hyperlink>
+      </w:p>
+    DOCX
+    assert_equal normalize_wordml(expected_output), process(input)
+    @template.document.reset
   end
 
   def test_table_tag

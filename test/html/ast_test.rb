@@ -5,8 +5,10 @@ require 'securerandom'
 class HTMLConverterASTTest < Sablon::TestCase
   def setup
     super
+    @template = MockTemplate.new
+    @env = Sablon::Environment.new(@template)
     @converter = Sablon::HTMLConverter.new
-    @converter.instance_variable_set(:@env, Sablon::Environment.new(nil))
+    @converter.instance_variable_set(:@env, @env)
   end
 
   def test_div
