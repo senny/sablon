@@ -10,6 +10,10 @@ class HTMLConverterASTTest < Sablon::TestCase
     @converter.instance_variable_set(:@env, @env)
   end
 
+  def teardown
+    @template.document.reset
+  end
+
   def test_div
     input = '<div>Lorem ipsum dolor sit amet</div>'
     ast = @converter.processed_ast(input)
@@ -96,18 +100,18 @@ class HTMLConverterASTTest < Sablon::TestCase
 
   def test_num_id
     ast = @converter.processed_ast('<ol><li>Some</li><li>Lorem</li></ol><ul><li>ipsum</li></ul><ol><li>dolor</li><li>sit</li></ol>')
-    assert_equal %w[1001 1001 1002 1003 1003], get_numpr_prop_from_ast(ast, :numId)
+    assert_equal %w[1 1 2 3 3], get_numpr_prop_from_ast(ast, :numId)
   end
 
   def test_nested_lists_have_the_same_numid
     ast = @converter.processed_ast('<ul><li>Lorem<ul><li>ipsum<ul><li>dolor</li></ul></li></ul></li></ul>')
-    assert_equal %w[1001 1001 1001], get_numpr_prop_from_ast(ast, :numId)
+    assert_equal %w[1 1 1], get_numpr_prop_from_ast(ast, :numId)
   end
 
   def test_keep_nested_list_order
     input = '<ul><li>1<ul><li>1.1<ul><li>1.1.1</li></ul></li><li>1.2</li></ul></li><li>2<ul><li>1.3<ul><li>1.3.1</li></ul></li></ul></li></ul>'
     ast = @converter.processed_ast(input)
-    assert_equal %w[1001], get_numpr_prop_from_ast(ast, :numId).uniq
+    assert_equal %w[1], get_numpr_prop_from_ast(ast, :numId).uniq
     assert_equal %w[0 1 2 1 0 1 2], get_numpr_prop_from_ast(ast, :ilvl)
   end
 
