@@ -10,19 +10,29 @@ module Sablon
       def self.extend_model(model_klass)
         super do
           #
-          # determines the proper rels file based on the entry name
-          define_method(:rels_entry_name_for) do |entry_name|
-            par_dir = Pathname.new(File.dirname(entry_name))
-            par_dir.join('_rels', "#{File.basename(entry_name)}.rels").to_s
-          end
-          #
           # adds a relationship to the rels file for the current entry
           define_method(:add_relationship) do |rel_attr|
-            rels_name = rels_entry_name_for(@current_entry)
-            # this wil fail if the rels file doesn't exist yet
+            # detemine name of rels file to augment
+            rels_name = Relationships.rels_entry_name_for(@current_entry)
+
+            # create the file if needed and update DOM
+            create_entry_if_not_exist(rels_name, Relationships.file_template)
             @dom[rels_name].add_relationship(rel_attr)
           end
         end
+      end
+
+      def self.file_template
+        <<-XML.gsub(/^\s+|\n/, '')
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+          </Relationships>
+        XML
+      end
+
+      def self.rels_entry_name_for(entry_name)
+        par_dir = Pathname.new(File.dirname(entry_name))
+        par_dir.join('_rels', "#{File.basename(entry_name)}.rels").to_s
       end
 
       # Sets up the class instance to handle new relationships for a document.
