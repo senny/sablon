@@ -23,35 +23,52 @@ require "sablon"
 module Minitest
   module Assertions
     def assert_docx_equal(expected_path, actual_path)
-      msg = <<-MSG.gsub(/^ +/, '')
-        The generated document does not match the sample. Please investigate file(s): %s.
+      #
+      # Parse document archives and generate a diff
+      xml_diffs = diff_docx_files(expected_path, actual_path)
+      #
+      # build error message
+      msg = 'The generated document does not match the sample. Please investigate file(s): '
+      msg += xml_diffs.keys.sort.join(', ')
+      xml_diffs.each do |name, diff_text|
+        msg += "\n#{'-' * 72}\nFile: #{name}\n#{diff_text}\n"
+      end
+      msg += '-' * 72 + "\n"
+      msg += "If the generated document is correct, the sample needs to be updated:\n"
+      msg += "\t cp #{actual_path} #{expected_path}"
+      #
+      raise Minitest::Assertion, msg unless xml_diffs.empty?
+    end
 
-        If the generated document is correct, the sample needs to be updated:
-        \t cp #{actual_path} #{expected_path}
-      MSG
+    # Returns a hash of all XML files that differ in the docx file. This
+    # only checks files that have the extension ".xml" or ".rels".
+    def diff_docx_files(expected_path, actual_path)
+      expected = parse_docx(expected_path)
+      actual = parse_docx(actual_path)
+      xml_diffs = {}
       #
-      expected_contents = parse_docx(expected_path)
-      actual_contents = parse_docx(actual_path)
-      #
-      mismatch = []
-      expected_contents.each do |entry_name, exp_cnt|
-        next unless exp_cnt != actual_contents[entry_name]
-        mismatch << entry_name
+      expected.each do |entry_name, expect|
         next unless entry_name =~ /.xml$|.rels$/
-        puts diff Nokogiri::XML(exp_cnt).to_xml, Nokogiri::XML(actual_contents[entry_name]).to_xml
+        next unless expect != actual[entry_name]
+        #
+        xml_diffs[entry_name] = diff(expect, actual[entry_name])
       end
       #
-      msg = format(msg, mismatch.join(', '))
-      raise Minitest::Assertion, msg unless mismatch.empty?
+      xml_diffs
     end
 
     def parse_docx(path)
       contents = {}
-      Zip::File.open(path) do |zip_file|
-        zip_file.each do |entry|
-          next unless entry.file?
-          contents[entry.name] = entry.get_input_stream.read
+      #
+      # step over all entries adding them to the hash to diff against
+      Zip::File.open(path).each do |entry|
+        next unless entry.file?
+        content = entry.get_input_stream.read
+        # normalize xml content
+        if entry.name =~ /.xml$|.rels$/
+          content = Nokogiri::XML(content).to_xml(indent: 2)
         end
+        contents[entry.name] = content
       end
       #
       contents
