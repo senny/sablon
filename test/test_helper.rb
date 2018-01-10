@@ -97,14 +97,22 @@ class Sablon::TestCase < MiniTest::Test
     def initialize
       @current_rid = 1234
       @current_rid_start = @current_rid
+      @current_numid = 0
+      @current_numid_start = @current_numid
     end
 
     def add_relationship(*)
       "rId#{@current_rid += 1}"
     end
 
+    def add_list_definition(style)
+      @current_numid += 1
+      Struct.new(:style, :numid).new(style, @current_numid)
+    end
+
     def reset
       @current_rid = @current_rid_start
+      @current_numid = @current_numid_start
     end
   end
 end
