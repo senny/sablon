@@ -203,8 +203,8 @@ module Sablon
         #
         @definition = nil
         if node.ancestors(".//#{@list_tag}").length.zero?
-          # Only register a definition when upon the first list tag encountered
-          @definition = env.numbering.register(properties[:pStyle])
+          # Only register a definition upon the first list tag encountered
+          @definition = env.document.add_list_definition(properties[:pStyle])
         end
 
         # update attributes of all child nodes
@@ -212,10 +212,6 @@ module Sablon
 
         # Move any list tags that are a child of a list item up one level
         process_child_nodes(node)
-
-        # strip text nodes from the list level element, this is typically
-        # extra whitespace from indenting the markup
-        node.search('./text()').remove
 
         # convert children from HTML to AST nodes
         super(ASTBuilder.html_to_ast(env, node.children, properties))
