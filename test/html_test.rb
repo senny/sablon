@@ -3,7 +3,6 @@ require "test_helper"
 require "support/html_snippets"
 
 class SablonHTMLTest < Sablon::TestCase
-  include Sablon::Test::Assertions
   include HTMLSnippets
 
   def setup

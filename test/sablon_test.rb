@@ -3,7 +3,6 @@ require "test_helper"
 require "support/xml_snippets"
 
 class SablonTest < Sablon::TestCase
-  include Sablon::Test::Assertions
   include XMLSnippets
 
   def setup
@@ -86,7 +85,6 @@ class SablonTest < Sablon::TestCase
 end
 
 class SablonTest < Sablon::TestCase
-  include Sablon::Test::Assertions
   include XMLSnippets
 
   def setup
