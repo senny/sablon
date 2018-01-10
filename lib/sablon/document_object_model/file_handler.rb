@@ -8,9 +8,9 @@ module Sablon
         model_klass.instance_eval(&block)
       end
 
-      # All subclasses should be initialized only accepting the XML
-      # node as a single argument
-      def initialize(xml_node); end
+      # All subclasses should be initialized only accepting the content
+      # as a single argument.
+      def initialize(content); end
     end
   end
 end
