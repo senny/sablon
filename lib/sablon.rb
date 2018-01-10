@@ -1,6 +1,5 @@
 require 'zip'
 require 'nokogiri'
-require 'pry'
 
 require "sablon/version"
 require "sablon/configuration/configuration"
