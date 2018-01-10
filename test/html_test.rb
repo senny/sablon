@@ -37,7 +37,7 @@ class SablonHTMLTest < Sablon::TestCase
     e = assert_raises(ArgumentError) do
       template.render_to_file output_path, context
     end
-    assert_equal 'Could not find w:abstractNum definition for style: "ListNumber"', e.message
+    assert_equal "Could not find w:abstractNum definition for style: 'ListNumber'", e.message
 
     skip 'implement default styles'
   end
