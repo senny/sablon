@@ -14,7 +14,6 @@ class SablonHTMLTest < Sablon::TestCase
   end
 
   def test_generate_document_from_template_with_styles_and_html
-    uid_generator = UIDTestGenerator.new
     template_path = @base_path + "fixtures/insertion_template.docx"
     output_path = @base_path + "sandbox/html.docx"
     template = Sablon.template template_path
@@ -25,9 +24,7 @@ class SablonHTMLTest < Sablon::TestCase
         'html:github' => '<a href="http://www.github.com" style="color: #0000FF">GitHub</a>'
       }
     }
-    SecureRandom.stub(:uuid, uid_generator.method(:new_uid)) do
-      template.render_to_file output_path, context
-    end
+    template.render_to_file output_path, context
     #
     assert_docx_equal @sample_path, output_path
   end
