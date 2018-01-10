@@ -47,8 +47,11 @@ module Sablon
       end
     end
 
+    # Processes all of te entries searching for ones that match the pattern.
+    # The hash is converted into an array first to avoid any possible
+    # modification during iteration errors (i.e. creation of a new rels file).
     def process(entry_pattern, env, *args)
-      @document.zip_contents.each do |entry_name, content|
+      @document.zip_contents.to_a.each do |(entry_name, content)|
         next unless entry_name =~ entry_pattern
         @document.current_entry = entry_name
         processor = get_processor(entry_name)
