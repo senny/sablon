@@ -25,19 +25,30 @@ class Sablon::TestCase < MiniTest::Test
     super
   end
 
-  class UIDTestGenerator
+  class MockTemplate
+    attr_reader :document
+
     def initialize
-      @current_id = 1234
-      @current_id_start = @current_id
+      @path = nil
+      @document = MockDomModel.new
+    end
+  end
+
+  # catch all for method stubs that are needed during testing
+  class MockDomModel
+    attr_reader :current_rid
+
+    def initialize
+      @current_rid = 1234
+      @current_rid_start = @current_rid
     end
 
-    def new_uid
-      @current_id += 1
-      @current_id.to_s
+    def add_relationship(*)
+      "rId#{@current_rid += 1}"
     end
 
     def reset
-      @current_id = @current_id_start
+      @current_rid = @current_rid_start
     end
   end
 end
