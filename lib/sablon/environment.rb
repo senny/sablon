@@ -3,7 +3,6 @@ module Sablon
   # to manage data during template processing.
   class Environment
     attr_reader :template
-    attr_reader :numbering
     attr_reader :context
 
     # returns a new environment with merged contexts
@@ -22,14 +21,10 @@ module Sablon
     def initialize(template, context = {}, parent_env = nil)
       # pass attributes of the supplied environment to the new one or
       # create new references
-      if parent_env
-        @template = parent_env.template
-        @numbering = parent_env.numbering
-      else
-        @template = template
-        @numbering = Numbering.new
-      end
-      #
+
+      # I can replace this by just always passing in a valid template
+      # in alter_context
+      @template = parent_env ? parent_env.template : template
       @context = Context.transform_hash(context)
     end
   end

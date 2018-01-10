@@ -30,7 +30,6 @@ module Sablon
       # process files
       process(%r{word/document.xml}, env, properties)
       process(%r{word/(?:header|footer)\d*\.xml}, env)
-      process(%r{word/numbering.xml}, env)
       #
       Zip::OutputStream.write_buffer(StringIO.new) do |out|
         generate_output_file(out, @document.zip_contents)
