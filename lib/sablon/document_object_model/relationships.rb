@@ -1,25 +1,26 @@
 require 'pathname'
+require 'sablon/document_object_model/file_handler'
 
 module Sablon
   module DOM
     # Adds new relationships to the entry's corresponding relionships file
-    class Relationships
+    class Relationships < FileHandler
       #
       # extends the Model class so it now has an "add_relationship" method
       def self.extend_model(model_klass)
-        model_klass.instance_eval do
+        super do
           #
           # determines the proper rels file based on the entry name
-          define_method(:fetch_rels_file) do |entry|
-            par_dir = Pathname.new(File.dirname(entry))
-            par_dir.join('_rels', "#{File.basename(entry)}.rels").to_s
+          define_method(:rels_entry_name_for) do |entry_name|
+            par_dir = Pathname.new(File.dirname(entry_name))
+            par_dir.join('_rels', "#{File.basename(entry_name)}.rels").to_s
           end
           #
           # adds a relationship to the rels file for the current entry
           define_method(:add_relationship) do |rel_attr|
-            rels_entry = fetch_rels_file(@current_entry)
+            rels_name = rels_entry_name_for(@current_entry)
             # this wil fail if the rels file doesn't exist yet
-            @dom[rels_entry].add_relationship(rel_attr)
+            @dom[rels_name].add_relationship(rel_attr)
           end
         end
       end
@@ -27,6 +28,8 @@ module Sablon
       # Sets up the class instance to handle new relationships for a document.
       # I only care about tags that have an integer component
       def initialize(xml_node)
+        super
+        #
         @relationships = xml_node.root
         @max_rid = @relationships.css('Relationship').inject(0) do |max, node|
           next max unless (match = node.attr(:Id).match(/rId(\d+)/))
