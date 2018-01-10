@@ -62,11 +62,19 @@ module Sablon
       # constructs the dom model using helper clases defined under this
       # namespace.
       def build_dom(entries)
-        key_values = entries.map do |entry_name, xml|
-          [entry_name, Sablon::DOM.wrap_with_handler(entry_name, xml)]
+        key_values = entries.map do |entry_name, content|
+          [entry_name, Sablon::DOM.wrap_with_handler(entry_name, content)]
         end
         #
         Hash[key_values]
+      end
+
+      def create_entry_if_not_exist(name, init_content = '')
+        return unless @zip_contents[name].nil?
+        #
+        # create the entry and add it to the dom
+        @zip_contents[name] = wrap_entry(name, init_content)
+        @dom[name] = Sablon::DOM.wrap_with_handler(name, @zip_contents[name])
       end
     end
 
