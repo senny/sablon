@@ -41,6 +41,7 @@ module Sablon
         @current_entry = nil
         @zip_contents = {}
         zip_io_stream.each do |entry|
+          next unless entry.file?
           content = entry.get_input_stream.read
           @zip_contents[entry.name] = wrap_entry(entry.name, content)
         end
