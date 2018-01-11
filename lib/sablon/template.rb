@@ -1,8 +1,20 @@
 require 'sablon/document_object_model/model'
+require 'sablon/processor/document'
 
 module Sablon
+  # Creates a template from an MS Word doc that can be easily manipulated
   class Template
     attr_reader :document
+
+    class << self
+      def register_processor(pattern, klass, priority)
+        processors[pattern] = { klass: klass, priority: priority }
+      end
+
+      def processors
+        @processors || {}
+      end
+    end
 
     def initialize(path)
       @path = path
@@ -94,4 +106,8 @@ module Sablon
       end
     end
   end
+
+  # Register the standard processors
+  Template.register_processor(%r{word/document.xml}, Sablon::Processor::Document, 0)
+  Template.register_processor(%r{word/(?:header|footer)\d*\.xml}, Sablon::Processor::Document, 100)
 end
