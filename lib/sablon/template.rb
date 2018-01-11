@@ -41,8 +41,6 @@ module Sablon
         Processor::Document
       elsif entry_name =~ %r{word/(?:header|footer)\d*\.xml}
         Processor::Document
-      elsif entry_name == 'word/numbering.xml'
-        Processor::Numbering
       end
     end
 
