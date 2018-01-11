@@ -10,9 +10,17 @@ module Sablon
         @properties_node = xml_node.at_xpath(".//w:sectPr")
       end
 
-      def write_properties(properties)
+      def write_properties(properties = {})
         return unless properties["start_page_number"]
-        find_or_add_pg_num_type["w:start"] = properties["start_page_number"]
+        self.start_page_number = properties["start_page_number"]
+      end
+
+      def start_page_number
+        pg_num_type && pg_num_type["w:start"]
+      end
+
+      def start_page_number=(number)
+        find_or_add_pg_num_type["w:start"] = number
       end
 
       private
