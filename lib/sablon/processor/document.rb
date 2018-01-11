@@ -2,11 +2,9 @@
 module Sablon
   module Processor
     class Document
-      def self.process(xml_node, env, properties = {})
+      def self.process(xml_node, env)
         processor = new(parser)
         processor.manipulate xml_node, env
-        processor.write_properties xml_node, properties if properties.any?
-        xml_node
       end
 
       def self.parser
@@ -26,14 +24,8 @@ module Sablon
         xml_node
       end
 
-      def write_properties(xml_node, properties)
-        if start_page_number = properties[:start_page_number] || properties["start_page_number"]
-          section_properties = SectionProperties.from_document(xml_node)
-          section_properties.start_page_number = start_page_number
-        end
-      end
-
       private
+
       def build_operations(fields)
         OperationConstruction.new(fields).operations
       end
