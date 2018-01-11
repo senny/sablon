@@ -21,9 +21,9 @@ module Sablon
         end
       end
 
-      # Returns the first processor class with a pattern matching the
+      # Returns the processor classes with a pattern matching the
       # entry name. If none match nil is returned.
-      def get_processor(entry_name)
+      def get_processors(entry_name)
         key = processors.keys.detect { |pattern| entry_name =~ pattern }
         processors[key]
       end
@@ -79,6 +79,7 @@ module Sablon
     def process(env)
       @document.zip_contents.to_a.each do |(entry_name, content)|
         @document.current_entry = entry_name
+        processors = Template.get_processors(entry_name)
         processors.each { |processor| processor.process(content, env) }
       end
     end
