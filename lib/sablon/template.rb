@@ -47,9 +47,10 @@ module Sablon
       # initialize environment
       @document = Sablon::DOM::Model.new(Zip::File.open(@path))
       env = Sablon::Environment.new(self, context)
+      env.section_properties = properties
       #
       # process files
-      process(env, properties)
+      process(env)
       #
       Zip::OutputStream.write_buffer(StringIO.new) do |out|
         generate_output_file(out, @document.zip_contents)
@@ -67,12 +68,10 @@ module Sablon
     # Processes all of te entries searching for ones that match the pattern.
     # The hash is converted into an array first to avoid any possible
     # modification during iteration errors (i.e. creation of a new rels file).
-    def process(env, properties)
+    def process(env)
       @document.zip_contents.to_a.each do |(entry_name, content)|
-        next unless (processor = Template.get_processor(entry_name))
-        #
         @document.current_entry = entry_name
-        processor.process(content, env, properties)
+        processors.each { |processor| processor.process(content, env) }
       end
     end
 

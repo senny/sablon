@@ -4,6 +4,7 @@ module Sablon
   class Environment
     attr_reader :template
     attr_reader :context
+    attr_accessor :section_properties
 
     # returns a new environment with merged contexts
     def alter_context(context = {})
