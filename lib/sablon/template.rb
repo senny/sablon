@@ -21,7 +21,7 @@ module Sablon
       end
 
       def processors
-        @processors || {}
+        @processors ||= {}
       end
     end
 
@@ -67,12 +67,12 @@ module Sablon
     # Processes all of te entries searching for ones that match the pattern.
     # The hash is converted into an array first to avoid any possible
     # modification during iteration errors (i.e. creation of a new rels file).
-    def process(env, *args)
+    def process(env, properties)
       @document.zip_contents.to_a.each do |(entry_name, content)|
         next unless (processor = Template.get_processor(entry_name))
         #
         @document.current_entry = entry_name
-        processor.process(content, env, *args)
+        processor.process(content, env, properties)
       end
     end
 
@@ -116,6 +116,6 @@ module Sablon
   end
 
   # Register the standard processors
-  Template.register_processor(%r{word/document.xml}, Sablon::Processor::Document, 0)
-  Template.register_processor(%r{word/(?:header|footer)\d*\.xml}, Sablon::Processor::Document, 100)
+  Template.register_processor(%r{word/document.xml}, Sablon::Processor::Document)
+  Template.register_processor(%r{word/(?:header|footer)\d*\.xml}, Sablon::Processor::Document)
 end
