@@ -1,5 +1,6 @@
 require 'sablon/document_object_model/model'
 require 'sablon/processor/document'
+require 'sablon/processor/section_properties'
 
 module Sablon
   # Creates a template from an MS Word doc that can be easily manipulated
@@ -8,9 +9,16 @@ module Sablon
 
     class << self
       # Adds a new processor to the processors hash. The +pattern+ is used
-      # to select which files the processor should handle.
-      def register_processor(pattern, klass)
-        processors[pattern] = klass
+      # to select which files the processor should handle. Multiple processors
+      # can be added for the same pattern.
+      def register_processor(pattern, klass, replace_all: false)
+        processors[pattern] = [] if replace_all
+        #
+        if processors[pattern].empty?
+          processors[pattern] = [klass]
+        else
+          processors[pattern] << klass
+        end
       end
 
       # Returns the first processor class with a pattern matching the
@@ -21,7 +29,7 @@ module Sablon
       end
 
       def processors
-        @processors ||= {}
+        @processors ||= Hash.new([])
       end
     end
 
@@ -47,7 +55,7 @@ module Sablon
       # initialize environment
       @document = Sablon::DOM::Model.new(Zip::File.open(@path))
       env = Sablon::Environment.new(self, context)
-      env.section_properties = properties
+      env.section_properties = Context.transform_hash(properties)
       #
       # process files
       process(env)
@@ -116,5 +124,6 @@ module Sablon
 
   # Register the standard processors
   Template.register_processor(%r{word/document.xml}, Sablon::Processor::Document)
+  Template.register_processor(%r{word/document.xml}, Sablon::Processor::SectionProperties)
   Template.register_processor(%r{word/(?:header|footer)\d*\.xml}, Sablon::Processor::Document)
 end
