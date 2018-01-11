@@ -7,8 +7,17 @@ module Sablon
     attr_reader :document
 
     class << self
-      def register_processor(pattern, klass, priority)
-        processors[pattern] = { klass: klass, priority: priority }
+      # Adds a new processor to the processors hash. The +pattern+ is used
+      # to select which files the processor should handle.
+      def register_processor(pattern, klass)
+        processors[pattern] = klass
+      end
+
+      # Returns the first processor class with a pattern matching the
+      # entry name. If none match nil is returned.
+      def get_processor(entry_name)
+        key = processors.keys.detect { |pattern| entry_name =~ pattern }
+        processors[key]
       end
 
       def processors
@@ -40,8 +49,7 @@ module Sablon
       env = Sablon::Environment.new(self, context)
       #
       # process files
-      process(%r{word/document.xml}, env, properties)
-      process(%r{word/(?:header|footer)\d*\.xml}, env)
+      process(env, properties)
       #
       Zip::OutputStream.write_buffer(StringIO.new) do |out|
         generate_output_file(out, @document.zip_contents)
@@ -59,11 +67,11 @@ module Sablon
     # Processes all of te entries searching for ones that match the pattern.
     # The hash is converted into an array first to avoid any possible
     # modification during iteration errors (i.e. creation of a new rels file).
-    def process(entry_pattern, env, *args)
+    def process(env, *args)
       @document.zip_contents.to_a.each do |(entry_name, content)|
-        next unless entry_name =~ entry_pattern
+        next unless (processor = Template.get_processor(entry_name))
+        #
         @document.current_entry = entry_name
-        processor = get_processor(entry_name)
         processor.process(content, env, *args)
       end
     end
