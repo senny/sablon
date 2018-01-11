@@ -55,7 +55,7 @@ module Sablon
       # initialize environment
       @document = Sablon::DOM::Model.new(Zip::File.open(@path))
       env = Sablon::Environment.new(self, context)
-      env.section_properties = Context.transform_hash(properties)
+      env.section_properties = properties
       #
       # process files
       process(env)

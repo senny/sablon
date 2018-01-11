@@ -4,7 +4,7 @@ module Sablon
   class Environment
     attr_reader :template
     attr_reader :context
-    attr_accessor :section_properties
+    attr_reader :section_properties
 
     # returns a new environment with merged contexts
     def alter_context(context = {})
@@ -15,6 +15,10 @@ module Sablon
     # reader method for the DOM::Model instance stored on the template
     def document
       @template.document
+    end
+
+    def section_properties=(properties)
+      @section_properties = Context.transform_hash(properties)
     end
 
     private
