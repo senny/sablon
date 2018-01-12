@@ -41,10 +41,13 @@ module Sablon
         super
         #
         @relationships = xml_node.root
-        @max_rid = @relationships.css('Relationship').inject(0) do |max, node|
-          next max unless (match = node.attr(:Id).match(/rId(\d+)/))
-          [max, match[1].to_i].max
-        end
+        @max_rid = max_attribute_value('Relationship', 'Id')
+      end
+
+      # Finds the maximum value of an attribute by converting it to an
+      # integer. Non numeric portions of values are ignored.
+      def max_attribute_value(selector, attr_name)
+        super(@relationships, selector, attr_name, query_method: :css)
       end
 
       # adds a new relationship and returns the corresponding rId for it

@@ -24,11 +24,10 @@ module Sablon
         #
         @numbering = xml_node.root
         #
-        nodes = @numbering.xpath('//w:num')
-        @max_numid = max_attribute_value(nodes, 'w:numId')
+        @max_numid = max_attribute_value('//w:num', 'w:numId')
         #
-        nodes = @numbering.xpath('//w:abstractNum')
-        @max_abstract_id = max_attribute_value(nodes, 'w:abstractNumId')
+        selector = '//w:abstractNum'
+        @max_abstract_id = max_attribute_value(selector, 'w:abstractNumId')
       end
 
       # adds a new relationship and returns the corresponding rId for it
@@ -49,11 +48,8 @@ module Sablon
 
       # Finds the maximum value of an attribute by converting it to an
       # integer. Non numeric portions of values are ignored.
-      def max_attribute_value(nodes, attr_name)
-        nodes.inject(0) do |max, node|
-          next max unless (match = node.attr(attr_name).match(/(\d+)/))
-          [max, match[1].to_i].max
-        end
+      def max_attribute_value(selector, attr_name)
+        super(@numbering, selector, attr_name)
       end
 
       # Creates a new list definition tag to define a list
