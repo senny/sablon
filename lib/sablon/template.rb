@@ -65,14 +65,6 @@ module Sablon
       end
     end
 
-    def get_processor(entry_name)
-      if entry_name == 'word/document.xml'
-        Processor::Document
-      elsif entry_name =~ %r{word/(?:header|footer)\d*\.xml}
-        Processor::Document
-      end
-    end
-
     # Processes all of te entries searching for ones that match the pattern.
     # The hash is converted into an array first to avoid any possible
     # modification during iteration errors (i.e. creation of a new rels file).
