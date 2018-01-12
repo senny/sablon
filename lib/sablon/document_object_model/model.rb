@@ -1,3 +1,4 @@
+require 'sablon/document_object_model/file_handler'
 require 'sablon/document_object_model/numbering'
 require 'sablon/document_object_model/relationships'
 
@@ -15,12 +16,12 @@ module Sablon
         klass.extend_model(Sablon::DOM::Model)
       end
 
-      def wrap_with_handler(entry_name, xml)
+      def wrap_with_handler(entry_name, content)
         key = handlers.keys.detect { |pat| entry_name =~ pat }
         if key
-          handlers[key].new(xml)
+          handlers[key].new(content)
         else
-          xml
+          Sablon::DOM::FileHandler.new(content)
         end
       end
 
