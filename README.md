@@ -225,14 +225,14 @@ The full Open Office XML specification used to develop the HTML converter
 can be found [here](https://www.ecma-international.org/publications/standards/Ecma-376.htm) (3rd Edition).
 
 
-The example above shows an HTML insertion operation that will replace the entire paragraph. In the same fashion as WordML, inline HTML insertion is possible where only the merge field is replaced as long as only "inline" elements are used. "Inline" in this context does not necessarily mean the same thing as it does in CSS, in this case it means that once the HTML is converted to WordML only valid children of a paragraph (w:p) tag exist. Unlike WordML insertion plain text can be used without being wrapped in tags when working with HTML, see the example below:
+The example above shows an HTML insertion operation that will replace the entire paragraph. In the same fashion as WordML, inline HTML insertion is possible where only the merge field is replaced as long as only "inline" elements are used. "Inline" in this context does not necessarily mean the same thing as it does in CSS, in this case it means that once the HTML is converted to WordML only valid children of a paragraph (w:p) tag exist. As with WordML all plain text needs to be wrapped in a HTML tag. A simple `<span>..</span>` tag enclosing all other elements will suffice. See the example below:
 
 ```ruby
 inline_html = <<-HTML.strip
-    This text can contain <em>additional formatting</em> according to the
+    <span>This text can contain <em>additional formatting</em> according to the
     <strong>HTML</strong> specification. As well as links to external
     <a href="https://github.com/senny/sablon">websites</a>, don't forget
-    the "http/https" bit.
+    the "http/https" bit.</span>
 HTML
 context = {
   article: Sablon.content(:html, inline_html) }
