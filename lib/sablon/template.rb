@@ -1,5 +1,9 @@
+require 'sablon/document_object_model/model'
+
 module Sablon
   class Template
+    attr_reader :document
+
     def initialize(path)
       @path = path
     end
@@ -19,63 +23,75 @@ module Sablon
     private
 
     def render(context, properties = {})
-      created_dirs = []
-      relations_file_content = nil
+      # initialize environment
+      @document = Sablon::DOM::Model.new(Zip::File.open(@path))
       env = Sablon::Environment.new(self, context)
-      Zip.sort_entries = true # required to process document.xml before numbering.xml
+      #
+      # process files
+      process(%r{word/document.xml}, env, properties)
+      process(%r{word/(?:header|footer)\d*\.xml}, env)
+      #
       Zip::OutputStream.write_buffer(StringIO.new) do |out|
-        Zip::File.open(@path).each do |entry|
-          entry_name = entry.name
-          created_dirs = create_dirs_in_zipfile(created_dirs, entry_name, out)
-          out.put_next_entry(entry_name)
-          content = entry.get_input_stream.read
-          if entry_name == 'word/document.xml'
-            out.write(process(Processor::Document, content, env, properties))
-          elsif entry_name =~ /word\/header\d*\.xml/ || entry_name =~ /word\/footer\d*\.xml/
-            out.write(process(Processor::Document, content, env))
-          elsif entry_name == 'word/numbering.xml'
-            out.write(process(Processor::Numbering, content, env))
-          elsif entry_name == 'word/_rels/document.xml.rels'
-            relations_file_content = content
-          else
-            out.write(content)
-          end
-        end
-        if relations_file_content
-          env.relationship.add_found_relationships(relations_file_content, out)
-        end
+        generate_output_file(out, @document.zip_contents)
       end
     end
 
-    # creates directories of the unzipped docx file in the newly created docx file e.g. in case of
-    # word/_rels/document.xml.rels it creates word/ and _rels directories to apply recursive zipping.
-    # This is a hack to fix the issue of getting a corrupted file when any referencing between the
-    # xml files happen like in the case of implementing hyperlinks
-    #
-    def create_dirs_in_zipfile(previous_created_dirs, entry_name, output_stream)
-      created_dirs = previous_created_dirs
-      entry_name_tokens = entry_name.split('/')
-      entry_name_tokens.pop()
-      if entry_name_tokens.length > 1
-        prev_dir = ''
-        entry_name_tokens.each do |dir_name|
-          prev_dir += dir_name + '/'
-          unless created_dirs.include? prev_dir
-            output_stream.put_next_entry(prev_dir)
-            created_dirs << prev_dir
-          end
-        end
+    def get_processor(entry_name)
+      if entry_name == 'word/document.xml'
+        Processor::Document
+      elsif entry_name =~ %r{word/(?:header|footer)\d*\.xml}
+        Processor::Document
       end
-      created_dirs
     end
 
-    # process the sablon xml template with the given +context+.
-    #
+    # Processes all of te entries searching for ones that match the pattern.
+    # The hash is converted into an array first to avoid any possible
+    # modification during iteration errors (i.e. creation of a new rels file).
+    def process(entry_pattern, env, *args)
+      @document.zip_contents.to_a.each do |(entry_name, content)|
+        next unless entry_name =~ entry_pattern
+        @document.current_entry = entry_name
+        processor = get_processor(entry_name)
+        processor.process(content, env, *args)
+      end
+    end
+
     # IMPORTANT: Open Office does not ignore whitespace around tags.
     # We need to render the xml without indent and whitespace.
-    def process(processor, content, *args)
-      document = Nokogiri::XML(content)
-      processor.process(document, *args).to_xml(indent: 0, save_with: 0)
+    def generate_output_file(zip_out, contents)
+      # output entries to zip file
+      created_dirs = []
+      contents.each do |entry_name, content|
+        create_dirs_in_zipfile(created_dirs, File.dirname(entry_name), zip_out)
+        zip_out.put_next_entry(entry_name)
+        #
+        # convert Nokogiri XML to string
+        if content.instance_of? Nokogiri::XML::Document
+          content = content.to_xml(indent: 0, save_with: 0)
+        end
+        #
+        zip_out.write(content)
+      end
+    end
+
+    # creates directories of the unzipped docx file in the newly created
+    # docx file e.g. in case of word/_rels/document.xml.rels it creates
+    # word/ and _rels directories to apply recursive zipping. This is a
+    # hack to fix the issue of getting a corrupted file when any referencing
+    # between the xml files happen like in the case of implementing hyperlinks.
+    # The created_dirs array is augmented in place using '<<'
+    def create_dirs_in_zipfile(created_dirs, entry_path, output_stream)
+      entry_path_tokens = entry_path.split('/')
+      return created_dirs unless entry_path_tokens.length > 1
+      #
+      prev_dir = ''
+      entry_path_tokens.each do |dir_name|
+        prev_dir += dir_name + '/'
+        next if created_dirs.include? prev_dir
+        #
+        output_stream.put_next_entry(prev_dir)
+        created_dirs << prev_dir
+      end
     end
   end
 end

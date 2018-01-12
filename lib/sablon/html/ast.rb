@@ -204,8 +204,8 @@ module Sablon
         #
         @definition = nil
         if node.ancestors(".//#{@list_tag}").length.zero?
-          # Only register a definition when upon the first list tag encountered
-          @definition = env.numbering.register(properties[:pStyle])
+          # Only register a definition upon the first list tag encountered
+          @definition = env.document.add_list_definition(properties[:pStyle])
         end
 
         # update attributes of all child nodes
@@ -213,10 +213,6 @@ module Sablon
 
         # Move any list tags that are a child of a list item up one level
         process_child_nodes(node)
-
-        # strip text nodes from the list level element, this is typically
-        # extra whitespace from indenting the markup
-        node.search('./text()').remove
 
         # convert children from HTML to AST nodes
         super(ASTBuilder.html_to_ast(env, node.children, properties))
@@ -532,14 +528,13 @@ module Sablon
         @runs = Collection.new(@runs)
         @target = node.attributes['href'].value
         #
-        hyperlink_relation = {
-          Id: 'rId' + SecureRandom.uuid.delete('-'),
+        rel_attr = {
           Type: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
           Target: @target,
           TargetMode: 'External'
         }
-        env.relationship.relationships << hyperlink_relation
-        @attributes = { 'r:id' => hyperlink_relation[:Id] }
+        rid = env.document.add_relationship(rel_attr)
+        @attributes = { 'r:id' => rid }
       end
 
       def to_docx
