@@ -1,8 +1,37 @@
 require 'sablon/document_object_model/model'
+require 'sablon/processor/document'
+require 'sablon/processor/section_properties'
 
 module Sablon
+  # Creates a template from an MS Word doc that can be easily manipulated
   class Template
     attr_reader :document
+
+    class << self
+      # Adds a new processor to the processors hash. The +pattern+ is used
+      # to select which files the processor should handle. Multiple processors
+      # can be added for the same pattern.
+      def register_processor(pattern, klass, replace_all: false)
+        processors[pattern] = [] if replace_all
+        #
+        if processors[pattern].empty?
+          processors[pattern] = [klass]
+        else
+          processors[pattern] << klass
+        end
+      end
+
+      # Returns the processor classes with a pattern matching the
+      # entry name. If none match nil is returned.
+      def get_processors(entry_name)
+        key = processors.keys.detect { |pattern| entry_name =~ pattern }
+        processors[key]
+      end
+
+      def processors
+        @processors ||= Hash.new([])
+      end
+    end
 
     def initialize(path)
       @path = path
@@ -26,33 +55,24 @@ module Sablon
       # initialize environment
       @document = Sablon::DOM::Model.new(Zip::File.open(@path))
       env = Sablon::Environment.new(self, context)
+      env.section_properties = properties
       #
       # process files
-      process(%r{word/document.xml}, env, properties)
-      process(%r{word/(?:header|footer)\d*\.xml}, env)
+      process(env)
       #
       Zip::OutputStream.write_buffer(StringIO.new) do |out|
         generate_output_file(out, @document.zip_contents)
       end
     end
 
-    def get_processor(entry_name)
-      if entry_name == 'word/document.xml'
-        Processor::Document
-      elsif entry_name =~ %r{word/(?:header|footer)\d*\.xml}
-        Processor::Document
-      end
-    end
-
     # Processes all of te entries searching for ones that match the pattern.
     # The hash is converted into an array first to avoid any possible
     # modification during iteration errors (i.e. creation of a new rels file).
-    def process(entry_pattern, env, *args)
+    def process(env)
       @document.zip_contents.to_a.each do |(entry_name, content)|
-        next unless entry_name =~ entry_pattern
         @document.current_entry = entry_name
-        processor = get_processor(entry_name)
-        processor.process(content, env, *args)
+        processors = Template.get_processors(entry_name)
+        processors.each { |processor| processor.process(content, env) }
       end
     end
 
@@ -94,4 +114,9 @@ module Sablon
       end
     end
   end
+
+  # Register the standard processors
+  Template.register_processor(%r{word/document.xml}, Sablon::Processor::Document)
+  Template.register_processor(%r{word/document.xml}, Sablon::Processor::SectionProperties)
+  Template.register_processor(%r{word/(?:header|footer)\d*\.xml}, Sablon::Processor::Document)
 end
