@@ -16,24 +16,24 @@ class ConfigurationTest < Sablon::TestCase
     }
     # test initialization without type
     tag = @config.register_html_tag(:test_tag, **options)
-    assert_equal @config.permitted_html_tags[:test_tag], tag
-    assert_equal tag.name, :test_tag
-    assert_equal tag.type, :inline
-    assert_equal tag.ast_class, Sablon::HTMLConverter::Paragraph
-    assert_equal tag.attributes, dummy: 'value'
-    assert_equal tag.properties, pstyle: 'ListBullet'
-    assert_equal tag.allowed_children, %i[_inline ol ul li]
+    assert_equal tag, @config.permitted_html_tags[:test_tag]
+    assert_equal :test_tag, tag.name
+    assert_equal :inline, tag.type
+    assert_equal Sablon::HTMLConverter::Paragraph, tag.ast_class
+    assert_equal({ dummy: 'value' }, tag.attributes)
+    assert_equal({ 'pstyle' => 'ListBullet' }, tag.properties)
+    assert_equal %i[_inline ol ul li], tag.allowed_children
 
     # test initialization with type
     tag = @config.register_html_tag('test_tag2', :block, **options)
-    assert_equal @config.permitted_html_tags[:test_tag2], tag
-    assert_equal tag.name, :test_tag2
-    assert_equal tag.type, :block
+    assert_equal tag, @config.permitted_html_tags[:test_tag2]
+    assert_equal :test_tag2, tag.name
+    assert_equal :block, tag.type
   end
 
   def test_remove_tag
     tag = @config.register_html_tag(:test)
-    assert_equal @config.remove_html_tag(:test), tag
+    assert_equal tag, @config.remove_html_tag(:test)
     assert_nil @config.permitted_html_tags[:test]
   end
 
@@ -77,9 +77,9 @@ class ConfigurationHTMLTagTest < Sablon::TestCase
   def test_html_tag_full_init
     args = ['a', 'inline', ast_class: Sablon::HTMLConverter::Run]
     tag = Sablon::Configuration::HTMLTag.new(*args)
-    assert_equal tag.name, :a
-    assert_equal tag.type, :inline
-    assert_equal tag.ast_class, Sablon::HTMLConverter::Run
+    assert_equal :a, tag.name
+    assert_equal :inline, tag.type
+    assert_equal Sablon::HTMLConverter::Run, tag.ast_class
     #
     options = {
       ast_class: :run,
@@ -89,12 +89,12 @@ class ConfigurationHTMLTagTest < Sablon::TestCase
     }
     tag = Sablon::Configuration::HTMLTag.new('a', 'inline', **options)
     #
-    assert_equal tag.name, :a
-    assert_equal tag.type, :inline
-    assert_equal tag.ast_class, Sablon::HTMLConverter::Run
-    assert_equal tag.attributes, dummy: 'value1'
-    assert_equal tag.properties, dummy2: 'value2'
-    assert_equal tag.allowed_children, [:text]
+    assert_equal :a, tag.name
+    assert_equal :inline, tag.type
+    assert_equal Sablon::HTMLConverter::Run, tag.ast_class
+    assert_equal({ dummy: 'value1' }, tag.attributes)
+    assert_equal({ 'dummy2' => 'value2' }, tag.properties)
+    assert_equal [:text], tag.allowed_children
   end
 
   def test_html_tag_init_block_without_class
@@ -113,10 +113,10 @@ class ConfigurationHTMLTagTest < Sablon::TestCase
     # test default allowances
     assert div.allowed_child?(text) # all inline elements allowed
     assert div.allowed_child?(olist) # tag name is included even though it is bock leve
-    assert_equal div.allowed_child?(div), false # other block elms are not allowed
+    assert_equal false, div.allowed_child?(div) # other block elms are not allowed
 
     # test olist with allowances for all blocks but no inline
     assert olist.allowed_child?(div) # all block elements allowed
-    assert_equal olist.allowed_child?(text), false # no inline elements
+    assert_equal false, olist.allowed_child?(text) # no inline elements
   end
 end

@@ -30,8 +30,11 @@ module Sablon
         # process the styles as a hash and store values
         style_attrs = {}
         properties.each do |key, value|
+          key = key.strip if key.respond_to? :strip
+          value = value.strip if value.respond_to? :strip
+          #
           unless key.is_a? Symbol
-            key, value = *convert_style_property(key.strip, value.strip)
+            key, value = *convert_style_property(key, value)
           end
           style_attrs[key] = value if key
         end
@@ -205,7 +208,7 @@ module Sablon
         @definition = nil
         if node.ancestors(".//#{@list_tag}").length.zero?
           # Only register a definition upon the first list tag encountered
-          @definition = env.document.add_list_definition(properties[:pStyle])
+          @definition = env.document.add_list_definition(properties['pStyle'])
         end
 
         # update attributes of all child nodes
