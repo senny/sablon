@@ -21,7 +21,7 @@ class ConfigurationTest < Sablon::TestCase
     assert_equal :inline, tag.type
     assert_equal Sablon::HTMLConverter::Paragraph, tag.ast_class
     assert_equal({ dummy: 'value' }, tag.attributes)
-    assert_equal({ pstyle: 'ListBullet' }, tag.properties)
+    assert_equal({ 'pstyle' => 'ListBullet' }, tag.properties)
     assert_equal %i[_inline ol ul li], tag.allowed_children
 
     # test initialization with type
@@ -93,7 +93,7 @@ class ConfigurationHTMLTagTest < Sablon::TestCase
     assert_equal :inline, tag.type
     assert_equal Sablon::HTMLConverter::Run, tag.ast_class
     assert_equal({ dummy: 'value1' }, tag.attributes)
-    assert_equal({ dummy2: 'value2' }, tag.properties)
+    assert_equal({ 'dummy2' => 'value2' }, tag.properties)
     assert_equal [:text], tag.allowed_children
   end
 

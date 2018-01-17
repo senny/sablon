@@ -81,13 +81,13 @@ class NodePropertiesTest < Sablon::TestCase
     props = {}
     props = Sablon::HTMLConverter::NodeProperties.new('w:pPr', props, @inc_props.new)
     props['rStyle'] = 'FootnoteText'
-    assert_equal({ 'rStyle' => 'FootnoteText' }, props.instance_variable_get(:@properties))
+    assert_equal({ rStyle: 'FootnoteText' }, props.instance_variable_get(:@properties))
   end
 
   def test_properties_filtered_on_init
     props = { 'pStyle' => 'Paragraph', 'rStyle' => 'EndnoteText' }
     props = Sablon::HTMLConverter::NodeProperties.new('w:rPr', props, %w[rStyle])
-    assert_equal({ 'rStyle' => 'EndnoteText' }, props.instance_variable_get(:@properties))
+    assert_equal({ rStyle: 'EndnoteText' }, props.instance_variable_get(:@properties))
   end
 
   def test_transferred_properties
