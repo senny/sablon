@@ -30,8 +30,11 @@ module Sablon
         # process the styles as a hash and store values
         style_attrs = {}
         properties.each do |key, value|
+          key = key.strip if key.respond_to? :strip
+          value = value.strip if value.respond_to? :strip
+          #
           unless key.is_a? Symbol
-            key, value = *convert_style_property(key.strip, value.strip)
+            key, value = *convert_style_property(key, value)
           end
           style_attrs[key] = value if key
         end
