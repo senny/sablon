@@ -35,11 +35,11 @@ module Sablon
       end
 
       def [](key)
-        @properties[key]
+        @properties[key.to_sym]
       end
 
       def []=(key, value)
-        @properties[key] = value
+        @properties[key.to_sym] = value
       end
 
       def to_docx
@@ -57,7 +57,7 @@ module Sablon
         #
         properties.each do |key, value|
           if whitelist.include? key.to_s
-            @properties[key] = value
+            @properties[key.to_sym] = value
           else
             @transferred_properties[key] = value
           end
