@@ -49,7 +49,7 @@ module Sablon
         # etc. All the keys need to be symbols to avoid getting reparsed
         # with the element's CSS attributes.
         @properties = options.fetch(:properties, {})
-        @properties = Hash[@properties.map { |k, v| [k.to_sym, v] }]
+        @properties = Hash[@properties.map { |k, v| [k.to_s, v] }]
         # Set permitted child tags or tag groups
         self.allowed_children = options[:allowed_children]
       end
