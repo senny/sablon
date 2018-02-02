@@ -446,7 +446,7 @@ class ProcessorDocumentTest < Sablon::TestCase
     assert_xml_equal <<-document, result
     <w:r><w:t xml:space="preserve">Before </w:t></w:r>
     <w:r><w:t xml:space="preserve">After </w:t></w:r>
-    <w:p>           
+    <w:p>
       <w:r w:rsidR="004B49F0">
         <w:rPr><w:noProof/></w:rPr>
         <w:t>Contents of comment key</w:t>
@@ -458,7 +458,8 @@ class ProcessorDocumentTest < Sablon::TestCase
   private
 
   def process(document, context)
-    env = Sablon::Environment.new(nil, context)
+    env = Sablon::Environment.new(MockTemplate.new, context)
+    env.document.current_entry = 'word/document.xml'
     @processor.process(wrap(document), env).to_xml
   end
 end
