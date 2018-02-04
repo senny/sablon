@@ -23,7 +23,7 @@ class SablonTest < Sablon::TestCase
     referee = Struct.new(:name, :company, :position, :phone)
 
     context = {
-      current_time: Time.now.strftime("%d.%m.%Y %H:%M"),
+      current_time: '15.04.2015 14:57',
       metadata: { generator: "Sablon" },
       title: "Resume",
       person: OpenStruct.new("first_name" => "Ronald", "last_name" => "Anderson",
