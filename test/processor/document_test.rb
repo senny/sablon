@@ -311,7 +311,6 @@ class ProcessorDocumentTest < Sablon::TestCase
         </w:tc>
       </w:tr>
     </w:tbl>
-
     document
   end
 
@@ -346,6 +345,22 @@ class ProcessorDocumentTest < Sablon::TestCase
       process(snippet("loop_without_ending"), {})
     end
     assert_equal "Could not find end field for «technologies:each(technology)». Was looking for «technologies:endEach»", e.message
+  end
+
+  def test_loop_incrementing_unique_ids
+    context = {
+      fruits: %w[Apple Blueberry Cranberry Date].map { |i| { name: i } },
+      cars: %w[Silverado Serria Ram Tundra].map { |i| { name: i } }
+    }
+    #
+    xml = Nokogiri::XML(process(snippet('loop_with_unique_ids'), context))
+    #
+    # all unique ids should get incremented to stay unique
+    ids = xml.xpath("//*[local-name() = 'docPr']").map { |n| n.attr('id') }
+    assert_equal %w[1 2 3 4], ids
+    #
+    ids = xml.xpath("//*[local-name() = 'cNvPr']").map { |n| n.attr('id') }
+    assert_equal %w[1 2 3 4], ids
   end
 
   def test_conditional_with_missing_end_raises_error
