@@ -84,7 +84,7 @@ class SablonTest < Sablon::TestCase
   end
 end
 
-class SablonTest < Sablon::TestCase
+class SablonConditionalsTest < Sablon::TestCase
   include XMLSnippets
 
   def setup
@@ -97,7 +97,14 @@ class SablonTest < Sablon::TestCase
 
   def test_generate_document_from_template
     template = Sablon.template @template_path
-    context = {paragraph: true, inline: true, table: true, table_inline: true, content: "Some Content"}
+    context = {
+      paragraph: true,
+      inline: true,
+      table: true,
+      table_inline: true,
+      content: "Some Content"
+    }
+    #
     template.render_to_file @output_path, context
     assert_docx_equal @sample_path, @output_path
   end
