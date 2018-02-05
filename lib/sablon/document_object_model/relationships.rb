@@ -19,6 +19,22 @@ module Sablon
             create_entry_if_not_exist(rels_name, Relationships.file_template)
             @dom[rels_name].add_relationship(rel_attr)
           end
+          #
+          # adds file to the /word/media folder without overwriting an
+          # existing file
+          define_method(:add_media) do |name, data, rel_attr|
+            rel_attr[:Target] = "media/#{name}"
+            if @zip_contents["word/#{rel_attr[:Target]}"]
+              names = @zip_contents.keys.map { |n| File.basename(n) }
+              pattern = "^(\\d+)-#{name}"
+              max_val = names.collect { |n| n.match(pattern).to_a[1].to_i }.max
+              rel_attr[:Target] = "media/#{max_val + 1}-#{name}"
+            end
+            #
+            # add the content to the zip and create the relationship
+            @zip_contents["word/#{rel_attr[:Target]}"] = data
+            add_relationship(rel_attr)
+          end
         end
       end
 
