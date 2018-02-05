@@ -170,8 +170,29 @@ module Sablon
       end
     end
 
+    # Handles reading image data and inserting it into the document
+    class Image < Struct.new(:name, :data, :rid, :attributes)
+      def self.id; :image end
+      def self.wraps?(value) false end
+
+      def inspect
+        "#<Image #{name}:#{rid}"
+      end
+
+      def initialize(path, attributes = {})
+        # I'll need to check if the name already exists in /word/media
+        # but that can be managed when the rId is ascertained
+        # and if so add a numeric suffix (i.e. plot-1.jpg, plot-2.jpg, etc.)
+        super File.basename(path), IO.binread(path)
+        @attributes = attributes
+      end
+
+      def append_to(paragraph, display_node, env) end
+    end
+
     register Sablon::Content::String
     register Sablon::Content::WordML
     register Sablon::Content::HTML
+    register Sablon::Content::Image
   end
 end
