@@ -24,6 +24,9 @@ module Sablon
           # existing file
           define_method(:add_media) do |name, data, rel_attr|
             rel_attr[:Target] = "media/#{name}"
+            extension = name.match(/(\.\w+?)$/).to_a[0]
+            type = rel_attr[:Type].match(%r{/(\w+?)$}).to_a[1] + "/#{extension}"
+            #
             if @zip_contents["word/#{rel_attr[:Target]}"]
               names = @zip_contents.keys.map { |n| File.basename(n) }
               pattern = "^(\\d+)-#{name}"
@@ -33,6 +36,7 @@ module Sablon
             #
             # add the content to the zip and create the relationship
             @zip_contents["word/#{rel_attr[:Target]}"] = data
+            add_content_type(extension, type)
             add_relationship(rel_attr)
           end
         end
