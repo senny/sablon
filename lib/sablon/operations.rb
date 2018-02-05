@@ -90,9 +90,8 @@ module Sablon
           image.rid = env.document.add_media(image.name, image.data, rel_attr)
         end
         #
-        # if image is nil the block is removed, otherwise the placeholder
-        # rId is replaced
-        block.replace([image].compact)
+        # image may be nil here and that case is handled in the ImageBlock
+        block.replace(image)
       end
     end
   end

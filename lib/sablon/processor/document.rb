@@ -111,26 +111,43 @@ module Sablon
 
       class ImageBlock < ParagraphBlock
         def self.parent(node)
-          node.ancestors
+          node.ancestors(".//w:p").first
         end
 
         def self.encloses?(start_field, end_field)
           start_field.expression.start_with?('@')
         end
 
-        def replace(content)
-          unless content.first
-            start_field.remove
-            end_field.remove
-            return
+        def replace(image)
+          #
+          if image
+            nodes_between_fields.each do |node|
+              pic_prop = node.at_xpath('.//pic:cNvPr', pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture')
+              pic_prop.attributes['name'].value = image.name if pic_prop
+              blip = node.at_xpath('.//a:blip', a: 'http://schemas.openxmlformats.org/drawingml/2006/main')
+              blip.attributes['embed'].value = image.rid if blip
+            end
           end
-
-          pic_prop = self.class.parent(start_field).at_xpath('.//pic:cNvPr', pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture')
-          pic_prop.attributes['name'].value = content.first.name
-          blip = self.class.parent(start_field).at_xpath('.//a:blip', a: 'http://schemas.openxmlformats.org/drawingml/2006/main')
-          blip.attributes['embed'].value = content.first.rid
+          #
           start_field.remove
           end_field.remove
+        end
+
+        private
+
+        # Collects all nodes between the two nodes provided into an array.
+        # Each entry in the array should be a paragraph tag.
+        # https://stackoverflow.com/a/820776
+        def nodes_between_fields
+          first = self.class.parent(start_field).next
+          last = self.class.parent(end_field)
+          #
+          result = []
+          until first == last
+            result << first
+            first = first.next
+          end
+          result
         end
       end
 
