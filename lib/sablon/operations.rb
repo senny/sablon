@@ -78,6 +78,23 @@ module Sablon
         block.replace []
       end
     end
+
+    class Image < Struct.new(:image_reference, :block)
+      def evaluate(env)
+        image = image_reference.evaluate(env.context)
+        if image && image.rid.nil?
+          # Only register the image once, afterwards rId is reused
+          rel_attr = {
+            Type: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'
+          }
+          image.rid = env.document.add_media(image.name, image.data, rel_attr)
+        end
+        #
+        # if image is nil the block is removed, otherwise the placeholder
+        # rId is replaced
+        block.replace([image].compact)
+      end
+    end
   end
 
   module Expression
