@@ -1,0 +1,152 @@
+<w:p>
+  <w:pPr>
+    <w:rPr>
+      <w:noProof/>
+    </w:rPr>
+  </w:pPr>
+</w:p>
+<w:p>
+  <w:pPr>
+    <w:rPr>
+      <w:noProof/>
+    </w:rPr>
+  </w:pPr>
+</w:p>
+<w:p>
+  <w:r>
+    <w:fldChar w:fldCharType="begin"/>
+  </w:r>
+  <w:r>
+    <w:instrText xml:space="preserve"> MERGEFIELD </w:instrText>
+  </w:r>
+  <w:r>
+    <w:instrText>cars</w:instrText>
+  </w:r>
+  <w:r>
+    <w:instrText xml:space="preserve">:each(item) \* MERGEFORMAT </w:instrText>
+  </w:r>
+  <w:r>
+    <w:fldChar w:fldCharType="separate"/>
+  </w:r>
+  <w:r>
+    <w:rPr>
+      <w:noProof/>
+    </w:rPr>
+    <w:t>«cars:each(item)»</w:t>
+  </w:r>
+  <w:r>
+    <w:rPr>
+      <w:noProof/>
+    </w:rPr>
+    <w:fldChar w:fldCharType="end"/>
+  </w:r>
+</w:p>
+<w:p>
+  <w:pPr>
+    <w:pStyle w:val="ListParagraph"/>
+    <w:numPr>
+      <w:ilvl w:val="0"/>
+      <w:numId w:val="1"/>
+    </w:numPr>
+  </w:pPr>
+  <w:r>
+    <w:fldChar w:fldCharType="begin"/>
+  </w:r>
+  <w:r>
+    <w:instrText xml:space="preserve"> MERGEFIELD =item.name \* MERGEFORMAT </w:instrText>
+  </w:r>
+  <w:r>
+    <w:fldChar w:fldCharType="separate"/>
+  </w:r>
+  <w:r>
+    <w:rPr>
+      <w:noProof/>
+    </w:rPr>
+    <w:t>«=item.name»</w:t>
+  </w:r>
+  <w:r>
+    <w:fldChar w:fldCharType="end"/>
+  </w:r>
+  <w:r>
+    <w:t xml:space="preserve">
+    </w:t>
+  </w:r>
+  <w:r>
+    <w:rPr>
+      <w:noProof/>
+    </w:rPr>
+    <w:drawing>
+      <wp:inline distT="0" distB="0" distL="0" distR="0">
+        <wp:extent cx="1254868" cy="889278"/>
+        <wp:effectExtent l="0" t="0" r="2540" b="0"/>
+        <wp:docPr id="2" name="Picture 3"/>
+        <wp:cNvGraphicFramePr>
+          <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
+        </wp:cNvGraphicFramePr>
+        <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+          <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+            <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+              <pic:nvPicPr>
+                <pic:cNvPr id="3" name="MTF 500.pdf"/>
+                <pic:cNvPicPr/>
+              </pic:nvPicPr>
+              <pic:blipFill>
+                <a:blip r:embed="rId5" cstate="print">
+                  <a:extLst>
+                    <a:ext uri="{28A0092B-C50C-407E-A947-70E740481C1C}">
+                      <a14:useLocalDpi xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" val="0"/>
+                    </a:ext>
+                  </a:extLst>
+                </a:blip>
+                <a:stretch>
+                  <a:fillRect/>
+                </a:stretch>
+              </pic:blipFill>
+              <pic:spPr>
+                <a:xfrm>
+                  <a:off x="0" y="0"/>
+                  <a:ext cx="1286502" cy="911696"/>
+                </a:xfrm>
+                <a:prstGeom prst="rect">
+                  <a:avLst/>
+                </a:prstGeom>
+              </pic:spPr>
+            </pic:pic>
+          </a:graphicData>
+        </a:graphic>
+      </wp:inline>
+    </w:drawing>
+  </w:r>
+  <w:r>
+    <w:br/>
+  </w:r>
+</w:p>
+<w:p>
+  <w:r>
+    <w:fldChar w:fldCharType="begin"/>
+  </w:r>
+  <w:r>
+    <w:instrText xml:space="preserve"> MERGEFIELD </w:instrText>
+  </w:r>
+  <w:r>
+    <w:instrText>cars</w:instrText>
+  </w:r>
+  <w:r>
+    <w:instrText xml:space="preserve">:endEach \* MERGEFORMAT </w:instrText>
+  </w:r>
+  <w:r>
+    <w:fldChar w:fldCharType="separate"/>
+  </w:r>
+  <w:r>
+    <w:rPr>
+      <w:noProof/>
+    </w:rPr>
+    <w:t>«cars:endEach»</w:t>
+  </w:r>
+  <w:r>
+    <w:rPr>
+      <w:noProof/>
+    </w:rPr>
+    <w:fldChar w:fldCharType="end"/>
+  </w:r>
+</w:p>

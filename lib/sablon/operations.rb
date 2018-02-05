@@ -21,7 +21,35 @@ module Sablon
           iter_env = env.alter_context(iterator_name => item)
           block.process(iter_env)
         end
+        update_unique_ids(env, content)
         block.replace(content.reverse)
+      end
+
+      private
+
+      # updates all unique id's present in the xml being copied
+      def update_unique_ids(env, content)
+        doc_xml = env.document.zip_contents[env.document.current_entry]
+        dom_entry = env.document[env.document.current_entry]
+        #
+        # update all docPr tags created
+        selector = "//*[local-name() = 'docPr']"
+        init_id_val = dom_entry.max_attribute_value(doc_xml, selector, 'id')
+        update_tag_attribute(content, 'docPr', 'id', init_id_val)
+        #
+        # update all cNvPr tags created
+        selector = "//*[local-name() = 'cNvPr']"
+        init_id_val = dom_entry.max_attribute_value(doc_xml, selector, 'id')
+        update_tag_attribute(content, 'cNvPr', 'id', init_id_val)
+      end
+
+      # Increments the attribute value of each element with the id by 1
+      def update_tag_attribute(content, tag_name, attr_name, init_val)
+        content.each do |nodeset|
+          nodeset.xpath(".//*[local-name() = '#{tag_name}']").each do |node|
+            node[attr_name] = (init_val += 1).to_s
+          end
+        end
       end
     end
 

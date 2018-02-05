@@ -9,6 +9,23 @@ module Sablon
         builder.nodes
       end
 
+      # Checks if there are any block level tags in the current node set
+      # this is used at the root level to determine if top level text nodes
+      # should be removed
+      def self.any_block_tags?(nodes)
+        nodes.detect { |node| fetch_tag(node.name).type == :block }
+      end
+
+      # Retrieves a HTMLTag instance from the permitted_html_tags hash or
+      # raises an ArgumentError if the tag is not registered
+      def self.fetch_tag(tag_name)
+        tag_name = tag_name.to_sym
+        unless Sablon::Configuration.instance.permitted_html_tags[tag_name]
+          raise ArgumentError, "Don't know how to handle HTML tag: #{tag_name}"
+        end
+        Sablon::Configuration.instance.permitted_html_tags[tag_name]
+      end
+
       private
 
       def initialize(env, nodes, properties)
@@ -42,11 +59,7 @@ module Sablon
       # retrieves a HTMLTag instance from the cpermitted_html_tags hash or
       # raises an ArgumentError if the tag is not registered in the hash
       def fetch_tag(tag_name)
-        tag_name = tag_name.to_sym
-        unless Sablon::Configuration.instance.permitted_html_tags[tag_name]
-          raise ArgumentError, "Don't know how to handle HTML tag: #{tag_name}"
-        end
-        Sablon::Configuration.instance.permitted_html_tags[tag_name]
+        self.class.fetch_tag(tag_name)
       end
 
       # Checking that the current tag is an allowed child of the parent_tag.

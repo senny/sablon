@@ -51,6 +51,11 @@ module Sablon
         @dom = build_dom(@zip_contents)
       end
 
+      # Returns the corresponding DOM handled file
+      def [](entry_name)
+        @dom[entry_name]
+      end
+
       private
 
       # Determines how the content in the zip file entry should be wrapped

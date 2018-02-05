@@ -23,7 +23,7 @@ class SablonTest < Sablon::TestCase
     referee = Struct.new(:name, :company, :position, :phone)
 
     context = {
-      current_time: Time.now.strftime("%d.%m.%Y %H:%M"),
+      current_time: '15.04.2015 14:57',
       metadata: { generator: "Sablon" },
       title: "Resume",
       person: OpenStruct.new("first_name" => "Ronald", "last_name" => "Anderson",
@@ -84,7 +84,7 @@ class SablonTest < Sablon::TestCase
   end
 end
 
-class SablonTest < Sablon::TestCase
+class SablonConditionalsTest < Sablon::TestCase
   include XMLSnippets
 
   def setup
@@ -97,7 +97,38 @@ class SablonTest < Sablon::TestCase
 
   def test_generate_document_from_template
     template = Sablon.template @template_path
-    context = {paragraph: true, inline: true, table: true, table_inline: true, content: "Some Content"}
+    context = {
+      paragraph: true,
+      inline: true,
+      table: true,
+      table_inline: true,
+      content: "Some Content"
+    }
+    #
+    context = { paragraph: true, inline: true, table: true, table_inline: true, content: "Some Content" }
+    template.render_to_file @output_path, context
+    assert_docx_equal @sample_path, @output_path
+  end
+end
+
+class SablonLoopsTest < Sablon::TestCase
+  include XMLSnippets
+
+  def setup
+    super
+    @base_path = Pathname.new(File.expand_path("../", __FILE__))
+    @template_path = @base_path + "fixtures/loops_template.docx"
+    @output_path = @base_path + "sandbox/loops.docx"
+    @sample_path = @base_path + "fixtures/loops_sample.docx"
+  end
+
+  def test_generate_document_from_template
+    template = Sablon.template @template_path
+    context = {
+      fruits: %w[Apple Blueberry Cranberry Date].map { |i| { name: i } },
+      cars: %w[Silverado Serria Ram Tundra].map { |i| { name: i } }
+    }
+
     template.render_to_file @output_path, context
     assert_docx_equal @sample_path, @output_path
   end

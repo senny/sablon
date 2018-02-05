@@ -311,7 +311,6 @@ class ProcessorDocumentTest < Sablon::TestCase
         </w:tc>
       </w:tr>
     </w:tbl>
-
     document
   end
 
@@ -346,6 +345,22 @@ class ProcessorDocumentTest < Sablon::TestCase
       process(snippet("loop_without_ending"), {})
     end
     assert_equal "Could not find end field for «technologies:each(technology)». Was looking for «technologies:endEach»", e.message
+  end
+
+  def test_loop_incrementing_unique_ids
+    context = {
+      fruits: %w[Apple Blueberry Cranberry Date].map { |i| { name: i } },
+      cars: %w[Silverado Serria Ram Tundra].map { |i| { name: i } }
+    }
+    #
+    xml = Nokogiri::XML(process(snippet('loop_with_unique_ids'), context))
+    #
+    # all unique ids should get incremented to stay unique
+    ids = xml.xpath("//*[local-name() = 'docPr']").map { |n| n.attr('id') }
+    assert_equal %w[1 2 3 4], ids
+    #
+    ids = xml.xpath("//*[local-name() = 'cNvPr']").map { |n| n.attr('id') }
+    assert_equal %w[1 2 3 4], ids
   end
 
   def test_conditional_with_missing_end_raises_error
@@ -446,7 +461,7 @@ class ProcessorDocumentTest < Sablon::TestCase
     assert_xml_equal <<-document, result
     <w:r><w:t xml:space="preserve">Before </w:t></w:r>
     <w:r><w:t xml:space="preserve">After </w:t></w:r>
-    <w:p>           
+    <w:p>
       <w:r w:rsidR="004B49F0">
         <w:rPr><w:noProof/></w:rPr>
         <w:t>Contents of comment key</w:t>
@@ -458,7 +473,8 @@ class ProcessorDocumentTest < Sablon::TestCase
   private
 
   def process(document, context)
-    env = Sablon::Environment.new(nil, context)
+    env = Sablon::Environment.new(MockTemplate.new, context)
+    env.document.current_entry = 'word/document.xml'
     @processor.process(wrap(document), env).to_xml
   end
 end
