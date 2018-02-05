@@ -130,8 +130,11 @@ module Sablon
     class Root < Collection
       def initialize(env, node)
         # strip text nodes from the root level element, these are typically
-        # extra whitespace from indenting the markup
-        node.search('./text()').remove
+        # extra whitespace from indenting the markup if there are any
+        # block level tags at the top level
+        if ASTBuilder.any_block_tags?(node.children)
+          node.search('./text()').remove
+        end
 
         # convert children from HTML to AST nodes
         super(ASTBuilder.html_to_ast(env, node.children, {}))
