@@ -24,7 +24,7 @@ module Sablon
           # existing file
           define_method(:add_media) do |name, data, rel_attr|
             rel_attr[:Target] = "media/#{name}"
-            extension = name.match(/(\.\w+?)$/).to_a[0]
+            extension = name.match(/\.(\w+?)$/).to_a[1]
             type = rel_attr[:Type].match(%r{/(\w+?)$}).to_a[1] + "/#{extension}"
             #
             if @zip_contents["word/#{rel_attr[:Target]}"]
