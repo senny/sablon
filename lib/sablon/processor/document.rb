@@ -125,7 +125,7 @@ module Sablon
               pic_prop = node.at_xpath('.//pic:cNvPr', pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture')
               pic_prop.attributes['name'].value = image.name if pic_prop
               blip = node.at_xpath('.//a:blip', a: 'http://schemas.openxmlformats.org/drawingml/2006/main')
-              blip.attributes['embed'].value = image.rid if blip
+              blip.attributes['embed'].value = image.local_rid if blip
             end
           end
           #
@@ -139,13 +139,13 @@ module Sablon
         # Each entry in the array should be a paragraph tag.
         # https://stackoverflow.com/a/820776
         def nodes_between_fields
-          first = self.class.parent(start_field).next
+          first = self.class.parent(start_field)
           last = self.class.parent(end_field)
           #
-          result = []
+          result = [first]
           until first == last
-            result << first
             first = first.next
+            result << first
           end
           result
         end

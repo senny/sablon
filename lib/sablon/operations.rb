@@ -82,16 +82,31 @@ module Sablon
     class Image < Struct.new(:image_reference, :block)
       def evaluate(env)
         image = image_reference.evaluate(env.context)
-        if image && image.rid.nil?
-          # Only register the image once, afterwards rId is reused
+        set_local_rid(env, image) if image
+        block.replace(image)
+      end
+
+      private
+
+      def set_local_rid(env, image)
+        if image.rid_by_file.keys.empty?
+          # Only add the image once, it is reused afterwards
           rel_attr = {
             Type: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'
           }
-          image.rid = env.document.add_media(image.name, image.data, rel_attr)
+          rid = env.document.add_media(image.name, image.data, rel_attr)
+          image.rid_by_file[env.document.current_entry] = rid
+        elsif image.rid_by_file[env.document.current_entry].nil?
+          # locate an existing relationship and duplicate it
+          entry = image.rid_by_file.keys.first
+          value = image.rid_by_file[entry]
+          #
+          rel = env.document.find_relationship_by('Id', value, entry)
+          rid = env.document.add_relationship(rel.attributes)
+          image.rid_by_file[env.document.current_entry] = rid
         end
         #
-        # image may be nil here and that case is handled in the ImageBlock
-        block.replace(image)
+        image.local_rid = image.rid_by_file[env.document.current_entry]
       end
     end
   end

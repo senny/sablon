@@ -3,7 +3,7 @@ require 'sablon/document_object_model/file_handler'
 
 module Sablon
   module DOM
-    # Adds new relationships to the entry's corresponding relionships file
+    # Adds new relationships to the entry's corresponding relationships file
     class Relationships < FileHandler
       #
       # extends the Model class so it now has an "add_relationship" method
@@ -38,6 +38,16 @@ module Sablon
             @zip_contents["word/#{rel_attr[:Target]}"] = data
             add_content_type(extension, type)
             add_relationship(rel_attr)
+          end
+          #
+          # locates an existing rId in the approprirate rels file
+          define_method(:find_relationship_by) do |attribute, value, entry = nil|
+            entry = @current_entry if entry.nil?
+            # find the rels file and search it if it exists
+            rels_name = Relationships.rels_entry_name_for(entry)
+            return unless @dom[rels_name]
+            #
+            @dom[rels_name].find_relationship_by(attribute, value)
           end
         end
       end
@@ -76,6 +86,12 @@ module Sablon
         @relationships << relationship_tag(rel_attr)
         #
         rel_attr['Id']
+      end
+
+      # Reurns an XML node based on the attribute value or nil if one does
+      # not exist
+      def find_relationship_by(attribute, value)
+        @relationships.css(%(Relationship[#{attribute}="#{value}"])).first
       end
 
       private
