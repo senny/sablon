@@ -1,12 +1,12 @@
 # Sablon
 
-[![Gem Version](https://badge.fury.io/rb/sablon.svg)](http://badge.fury.io/rb/sablon) [![Build Status](https://travis-ci.org/senny/sablon.svg?branch=master)](https://travis-ci.org/senny/sablon)
+[![Gem Version](https://badge.fury.io/rb/sablon.svg)](http://badge.fury.io/rb/sablon)
+[![Build Status](https://travis-ci.org/senny/sablon.svg?branch=master)](https://travis-ci.org/senny/sablon)
 
 Is a document template processor for Word `docx` files. It leverages Word's
 built-in formatting and layouting capabilities to make template creation easy
 and efficient.
 
-*Note: Sablon is still in early development. Please report if you encounter any issues along the way.*
 
 #### Table of Contents
 * [Installation](#installation)
@@ -15,6 +15,7 @@ and efficient.
       * [Content Insertion](#content-insertion)
          * [WordProcessingML](#wordprocessingml)
          * [HTML](#html)
+         * [Images (Beta)](#images-beta)
       * [Conditionals](#conditionals)
       * [Loops](#loops)
       * [Nesting](#nesting)
@@ -242,6 +243,30 @@ context = {
 template.render_to_file File.expand_path("~/Desktop/output.docx"), context
 ```
 
+
+##### Images (beta)
+
+Images can be added to the document using a placeholder image wrapped in a
+pair of merge fields set up as `«@figure:start»` and `«@figure:end»`. Where
+in this case "figure" is the key of the context hash storing the image. An
+example inside a loop construct is shown below. Additional examples can be
+found in [images_template.docx](test/fixtures/images_template.docx) and
+in [sablon_test.rb](test/sablon_test.rb).
+
+Images are wrapped in an instance of a Sablon::Content class in the same
+fashion as HTML or WordML strings
+```ruby
+context = {
+  figure: Sablon.content(:image, 'fixtures/images/c3po.jpg') }
+  # alternative method using special key format
+  # 'image:figure' => 'fixtures/images/c3po.jpg'
+}
+```
+
+Example:
+![image merge fields example](misc/image-example.png)
+
+
 #### Conditionals
 
 Sablon can render parts of the template conditionally based on the value of a
@@ -264,6 +289,7 @@ For more complex conditionals you can use a predicate like so:
     ... arbitrary document markup ...
 «body:endIf»
 ```
+
 
 #### Loops
 
