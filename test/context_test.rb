@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 require "test_helper"
 
-class EnvironmentTest < Sablon::TestCase
+class ContextTest < Sablon::TestCase
   def test_converts_symbol_keys_to_string_keys
     context = Sablon::Context.transform_hash(a: 1, b: { c: 2, "d" => 3 })
     assert_equal({ "a" => 1, "b" => { "c" => 2, "d" => 3 } }, context)
@@ -38,5 +38,27 @@ class EnvironmentTest < Sablon::TestCase
     assert_equal({ "test" => "result",
                    "image" => Sablon.content(:image, img_path) },
                  context)
+  end
+
+  def test_converts_hashes_nested_in_arrays
+    input_context = {
+      test: 'result',
+      items: [
+        { name: 'Key1', value: 'Value1'  },
+        { 'name' => 'Key2', 'html:value' => '<b>Test</b>' }
+      ],
+      'word_ml:runs' => '<w:r><w:t>Text</w:t><w:r>'
+    }
+    expected_context = {
+      'test' => 'result',
+      'items' => [
+        { 'name' => 'Key1', 'value' => 'Value1'  },
+        { 'name' => 'Key2', 'value' => Sablon.content(:html, '<b>Test</b>') }
+      ],
+      'runs' => Sablon.content(:word_ml, '<w:r><w:t>Text</w:t><w:r>')
+    }
+    #
+    context = Sablon::Context.transform_hash(input_context)
+    assert_equal expected_context, context
   end
 end

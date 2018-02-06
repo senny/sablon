@@ -17,6 +17,8 @@ module Sablon
         case value
         when Hash
           [key, transform_hash(value)]
+        when Array
+          [key, value.map { |v| v.is_a?(Hash) ? transform_hash(v) : v }]
         else
           [key, value]
         end
