@@ -157,6 +157,9 @@ module Sablon
           when /([^ ]+):each\(([^ ]+)\)/
             block = consume_block("#{$1}:endEach")
             Statement::Loop.new(Expression.parse($1), $2, block)
+          when /([^ ]+):if\(((==|!=)(\d|'[\s\S]+')+)\)/
+            block = consume_block("#{$1}:endIf")
+            Statement::OperatorCondition.new(Expression.parse($1), block, $2)
           when /([^ ]+):if\(([^)]+)\)/
             block = consume_block("#{$1}:endIf")
             Statement::Condition.new(Expression.parse($1), block, $2)
