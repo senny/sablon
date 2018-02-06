@@ -238,3 +238,37 @@ class ContentWordMLTest < Sablon::TestCase
     assert_xml_equal output, @document
   end
 end
+
+class ContentImageTest < Sablon::TestCase
+  def setup
+    base_path = Pathname.new(File.expand_path('../', __FILE__))
+    fixture_dir = base_path.join('fixtures')
+    @image_path = fixture_dir.join('images', 'r2d2.jpg')
+    @expected = Sablon::Content::Image.new(@image_path.to_s)
+  end
+
+  def test_wraps_image_from_string_path
+    #
+    tested = Sablon.content(:image, @image_path.to_s)
+    assert_equal @expected, tested
+  end
+
+  def test_wraps_image_from_readable_object_that_can_be_basenamed
+    tested = Sablon.content(:image, open(@image_path.to_s, 'rb'))
+    assert_equal @expected, tested
+  end
+
+  def test_wraps_image_from_readable_object_with_filename_supplied
+    data = StringIO.new(IO.binread(@image_path.to_s))
+    tested = Sablon.content(:image, data, filename: File.basename(@image_path))
+    assert_equal @expected, tested
+  end
+
+  def test_wraps_readable_object_that_responds_to_filename
+    readable = Struct.new(:data, :filename) { alias read data }
+    #
+    readable = readable.new(IO.binread(@image_path.to_s), File.basename(@image_path))
+    tested = Sablon.content(:image, readable)
+    assert_equal @expected, tested
+  end
+end
