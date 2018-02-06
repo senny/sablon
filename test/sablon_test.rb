@@ -133,3 +133,44 @@ class SablonLoopsTest < Sablon::TestCase
     assert_docx_equal @sample_path, @output_path
   end
 end
+
+class SablonImagesTest < Sablon::TestCase
+  def setup
+    super
+    @base_path = Pathname.new(File.expand_path("../", __FILE__))
+    @template_path = @base_path + "fixtures/images_template.docx"
+    @output_path = @base_path + "sandbox/images.docx"
+    @sample_path = @base_path + "fixtures/images_sample.docx"
+    @image_fixtures = @base_path + "fixtures/images"
+  end
+
+  def test_generate_document_from_template
+    template = Sablon.template @template_path
+    #
+    # setup two image contents to allow quick reuse
+    r2d2 = Sablon.content(:image, @image_fixtures.join('r2d2.jpg'))
+    c3po = Sablon.content(:image, @image_fixtures.join('c3po.jpg'))
+    darth = Sablon.content(:image, @image_fixtures.join('darth_vader.jpg'))
+    trooper = Sablon.content(:image, @image_fixtures.join('clone.jpg'))
+    #
+    # with the following context setup all trooper should be reused and
+    # only a single file added to media. R2D2 should get duplicated in the
+    # media folder because it is used in two different context keys as
+    # separate instances. Darth Vader should not be duplicated because
+    # the ket "unused_darth" doesn't appear in the template
+    context = {
+      items: [
+        { title: 'C-3PO', image: c3po },
+        { title: 'R2-D2', image: r2d2 },
+        { title: 'Darth Vader', 'image:image' => @image_fixtures.join('darth_vader.jpg') },
+        { title: 'Storm Trooper', image: trooper }
+      ],
+      'image:r2d2' => @image_fixtures.join('r2d2.jpg'),
+      'unused_darth' => darth,
+      trooper: trooper
+    }
+
+    template.render_to_file @output_path, context
+    assert_docx_equal @sample_path, @output_path
+  end
+end
