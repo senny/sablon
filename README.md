@@ -248,17 +248,19 @@ template.render_to_file File.expand_path("~/Desktop/output.docx"), context
 
 Images can be added to the document using a placeholder image wrapped in a
 pair of merge fields set up as `«@figure:start»` and `«@figure:end»`. Where
-in this case "figure" is the key of the context hash storing the image. An
-example inside a loop construct is shown below. Additional examples can be
-found in [images_template.docx](test/fixtures/images_template.docx) and
-in [sablon_test.rb](test/sablon_test.rb).
+in this case "figure" is the key of the context hash storing the image.
 
-Images are wrapped in an instance of a Sablon::Content class in the same
-fashion as HTML or WordML strings
+Images are wrapped in an instance of a `Sablon::Content` class in the same
+fashion as HTML or WordML strings. An image may be initialized from multiple
+sources such as file paths, URLs, or any object that exposes a `#read`
+method that returns image data. When using a "readable object" if the object
+doesn't have a `#filename` method then a `filename: '...'` option
+needs to be added to the `Sablon.content` method call.
 ```ruby
 context = {
-  figure: Sablon.content(:image, 'fixtures/images/c3po.jpg') }
-  # alternative method using special key format
+  figure: Sablon.content(:image, 'fixtures/images/c3po.jpg'),
+  figure2: Sablon.content(:image, string_io_obj, filename: 'test.png')
+  # alternative method using special key format for simple paths and URLs
   # 'image:figure' => 'fixtures/images/c3po.jpg'
 }
 ```
@@ -266,6 +268,9 @@ context = {
 Example:
 ![image merge fields example](misc/image-example.png)
 
+Additional examples of usage can be found in
+[images_template.docx](test/fixtures/images_template.docx) and
+in [sablon_test.rb](test/sablon_test.rb).
 
 #### Conditionals
 
