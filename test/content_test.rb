@@ -247,6 +247,14 @@ class ContentImageTest < Sablon::TestCase
     @expected = Sablon::Content::Image.new(@image_path.to_s)
   end
 
+  def test_inspect
+    assert_equal '#<Image r2d2.jpg:{}>', @expected.inspect
+    #
+    # set some rid's and retest
+    @expected.rid_by_file['word/test.xml'] = 'rId1'
+    assert_equal '#<Image r2d2.jpg:{"word/test.xml"=>"rId1"}>', @expected.inspect
+  end
+
   def test_wraps_image_from_string_path
     #
     tested = Sablon.content(:image, @image_path.to_s)
@@ -270,5 +278,13 @@ class ContentImageTest < Sablon::TestCase
     readable = readable.new(IO.binread(@image_path.to_s), File.basename(@image_path))
     tested = Sablon.content(:image, readable)
     assert_equal @expected, tested
+  end
+
+  def test_raises_error_when_no_filename
+    data = StringIO.new(IO.binread(@image_path.to_s))
+    #
+    assert_raises ArgumentError do
+      Sablon.content(:image, data)
+    end
   end
 end
