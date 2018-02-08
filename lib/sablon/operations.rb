@@ -78,6 +78,37 @@ module Sablon
         block.replace []
       end
     end
+
+    class Image < Struct.new(:image_reference, :block)
+      def evaluate(env)
+        image = image_reference.evaluate(env.context)
+        set_local_rid(env, image) if image
+        block.replace(image)
+      end
+
+      private
+
+      def set_local_rid(env, image)
+        if image.rid_by_file.keys.empty?
+          # Only add the image once, it is reused afterwards
+          rel_attr = {
+            Type: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'
+          }
+          rid = env.document.add_media(image.name, image.data, rel_attr)
+          image.rid_by_file[env.document.current_entry] = rid
+        elsif image.rid_by_file[env.document.current_entry].nil?
+          # locate an existing relationship and duplicate it
+          entry = image.rid_by_file.keys.first
+          value = image.rid_by_file[entry]
+          #
+          rel = env.document.find_relationship_by('Id', value, entry)
+          rid = env.document.add_relationship(rel.attributes)
+          image.rid_by_file[env.document.current_entry] = rid
+        end
+        #
+        image.local_rid = image.rid_by_file[env.document.current_entry]
+      end
+    end
   end
 
   module Expression

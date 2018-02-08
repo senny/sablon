@@ -127,5 +127,7 @@ class Sablon::TestCase < MiniTest::Test
       @current_rid = @current_rid_start
       @current_numid = @current_numid_start
     end
+
+    alias add_media add_relationship
   end
 end

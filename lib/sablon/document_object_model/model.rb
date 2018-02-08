@@ -1,4 +1,5 @@
 require 'sablon/document_object_model/file_handler'
+require 'sablon/document_object_model/content_types'
 require 'sablon/document_object_model/numbering'
 require 'sablon/document_object_model/relationships'
 
@@ -88,5 +89,6 @@ module Sablon
 
     register_dom_handler(%r{word/numbering.xml}, Sablon::DOM::Numbering)
     register_dom_handler(/.rels$/, Sablon::DOM::Relationships)
+    register_dom_handler(/Content_Types/, Sablon::DOM::ContentTypes)
   end
 end

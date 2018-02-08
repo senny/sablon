@@ -43,7 +43,7 @@ module Sablon
 
       class Block < Struct.new(:start_field, :end_field)
         def self.enclosed_by(start_field, end_field)
-          @blocks ||= [RowBlock, ParagraphBlock, InlineParagraphBlock]
+          @blocks ||= [ImageBlock, RowBlock, ParagraphBlock, InlineParagraphBlock]
           block_class = @blocks.detect { |klass| klass.encloses?(start_field, end_field) }
           block_class.new start_field, end_field
         end
@@ -109,6 +109,48 @@ module Sablon
         end
       end
 
+      class ImageBlock < ParagraphBlock
+        def self.parent(node)
+          node.ancestors(".//w:p").first
+        end
+
+        def self.encloses?(start_field, end_field)
+          start_field.expression.start_with?('@')
+        end
+
+        def replace(image)
+          #
+          if image
+            nodes_between_fields.each do |node|
+              pic_prop = node.at_xpath('.//pic:cNvPr', pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture')
+              pic_prop.attributes['name'].value = image.name if pic_prop
+              blip = node.at_xpath('.//a:blip', a: 'http://schemas.openxmlformats.org/drawingml/2006/main')
+              blip.attributes['embed'].value = image.local_rid if blip
+            end
+          end
+          #
+          start_field.remove
+          end_field.remove
+        end
+
+        private
+
+        # Collects all nodes between the two nodes provided into an array.
+        # Each entry in the array should be a paragraph tag.
+        # https://stackoverflow.com/a/820776
+        def nodes_between_fields
+          first = self.class.parent(start_field)
+          last = self.class.parent(end_field)
+          #
+          result = [first]
+          until first == last
+            first = first.next
+            result << first
+          end
+          result
+        end
+      end
+
       class InlineParagraphBlock < Block
         def self.parent(node)
           node.ancestors ".//w:p"
@@ -163,6 +205,9 @@ module Sablon
           when /([^ ]+):if/
             block = consume_block("#{$1}:endIf")
             Statement::Condition.new(Expression.parse($1), block)
+          when /^@([^ ]+):start/
+            block = consume_block("@#{$1}:end")
+            Statement::Image.new(Expression.parse($1), block)
           when /^comment$/
             block = consume_block("endComment")
             Statement::Comment.new(block)

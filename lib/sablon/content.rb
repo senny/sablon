@@ -1,3 +1,5 @@
+require 'open-uri'
+
 module Sablon
   module Content
     class << self
@@ -170,8 +172,62 @@ module Sablon
       end
     end
 
+    # Handles reading image data and inserting it into the document
+    class Image < Struct.new(:name, :data, :local_rid)
+      attr_reader :rid_by_file
+
+      def self.id; :image end
+      def self.wraps?(value) false end
+
+      def inspect
+        "#<Image #{name}:#{@rid_by_file}>"
+      end
+
+      def initialize(source, attributes = {})
+        attributes = Hash[attributes.map { |k, v| [k.to_s, v] }]
+        # If the source object is readable, use it as such otherwise open
+        # and read the content
+        if source.respond_to?(:read)
+          name, img_data = process_readable(source, attributes)
+        else
+          name = File.basename(source)
+          img_data = IO.binread(source)
+        end
+        #
+        super name, img_data
+        @attributes = attributes
+        # rId's are separate for each XML file but I want to be able
+        # to reuse the actual image file itself.
+        @rid_by_file = {}
+      end
+
+      def append_to(paragraph, display_node, env) end
+
+      private
+
+      # Reads the data and attempts to find a filename from either the
+      # attributes hash or a #filename method on the source object itself.
+      # A filename is required inorder for MS Word to know the content type.
+      def process_readable(source, attributes)
+        if attributes['filename']
+          name = attributes['filename']
+        elsif source.respond_to?(:filename)
+          name = source.filename
+        else
+          begin
+            name = File.basename(source)
+          rescue TypeError
+            raise ArgumentError, "Error: Could not determine filename from source, try: `Sablon.content(readable_obj, filename: '...')`"
+          end
+        end
+        #
+        [File.basename(name), source.read]
+      end
+    end
+
     register Sablon::Content::String
     register Sablon::Content::WordML
     register Sablon::Content::HTML
+    register Sablon::Content::Image
   end
 end
