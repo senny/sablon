@@ -20,7 +20,8 @@ class SablonHTMLTest < Sablon::TestCase
       'html:content' => content,
       inline_content: {
         'html:should' => '<b><span style="color: #123456">should</span></b>',
-        'html:github' => '<a href="http://www.github.com" style="color: #0000FF">GitHub</a>'
+        'html:github' => '<a href="http://www.github.com" style="color: #0000FF">GitHub</a>',
+        'html:google' => '<a href="https://www.google.com.eg/?gfe_rd=cr&dcr=0&amp;ei=mSKcWqXgIIKZX9zomrAL" style="color: #0000FF">Google</a>'
       }
     }
     template.render_to_file output_path, context
