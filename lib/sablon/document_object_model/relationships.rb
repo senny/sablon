@@ -104,7 +104,7 @@ module Sablon
       # Builds the relationship WordML tag and returns it
       def relationship_tag(rel_attr)
         attr_str = rel_attr.map { |k, v| %(#{k}="#{v}") }.join(' ')
-        "<Relationship #{attr_str}/>"
+        "<Relationship #{attr_str}/>".gsub(/&(?!amp;)/, '&amp;')
       end
     end
   end
