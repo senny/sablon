@@ -6,6 +6,7 @@ module Sablon
   # Creates a template from an MS Word doc that can be easily manipulated
   class Template
     attr_reader :document
+    attr_accessor :inherit_styles, :keep_merge_fields
 
     class << self
       # Adds a new processor to the processors hash. The +pattern+ is used
@@ -35,6 +36,8 @@ module Sablon
 
     def initialize(path)
       @path = path
+      @inherit_styles= true
+      @keep_merge_fields = false
     end
 
     # Same as +render_to_string+ but writes the processed template to +output_path+.
@@ -56,6 +59,8 @@ module Sablon
       @document = Sablon::DOM::Model.new(Zip::File.open(@path))
       env = Sablon::Environment.new(self, context)
       env.section_properties = properties
+      env.inherit_styles = inherit_styles
+      env.keep_merge_fields = keep_merge_fields
       #
       # process files
       process(env)
