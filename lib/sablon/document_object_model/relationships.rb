@@ -24,7 +24,10 @@ module Sablon
           # existing file
           define_method(:add_media) do |name, data, rel_attr|
             rel_attr[:Target] = "media/#{name}"
-            extension = name.match(/\.(\w+?)$/).to_a[1]
+            # This matches any characters after the last "." in the filename
+            unless (extension = name.match(/.+\.(.+?$)/).to_a[1])
+              raise ArgumentError, "Filename: '#{name}' has no discernable extension"
+            end
             type = rel_attr[:Type].match(%r{/(\w+?)$}).to_a[1] + "/#{extension}"
             #
             if @zip_contents["word/#{rel_attr[:Target]}"]

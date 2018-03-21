@@ -174,5 +174,13 @@ class SablonImagesTest < Sablon::TestCase
 
     template.render_to_file @output_path, context
     assert_docx_equal @sample_path, @output_path
+
+    # try to render a document with an image that has no extension
+    trooper = Sablon.content(:image, im_data, filename: 'clone')
+    context = { items: [], trooper: trooper }
+    e = assert_raises ArgumentError do
+      template.render_to_file @output_path, context
+    end
+    assert_equal "Filename: 'clone' has no discernable extension", e.message
   end
 end
