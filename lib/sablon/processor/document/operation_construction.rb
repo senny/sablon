@@ -24,7 +24,7 @@ module Sablon
           return if handler.nil?
           #
           # process and return
-          handler.process(self, @field, allow_insertion: allow_insertion)
+          handler.build_statement(self, @field, allow_insertion: allow_insertion)
         end
 
         def consume_block(end_expression)

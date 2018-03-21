@@ -3,9 +3,9 @@ module Sablon
     class Document
       # This class is used to setup field handlers to process different
       # merge field expressions based on the expression text. The #handles?
-      # and #process methods form the standard FieldHandler API and can be
-      # implemented however they are needed to be as long as the call signature
-      # stays the same.
+      # and #build_statement methods form the standard FieldHandler API and can
+      # be implemented however they are needed to be as long as the call
+      # signature stays the same.
       class FieldHandler
         # Used when registering processors. The pattern tells the handler
         # what expression text to search for.
@@ -24,7 +24,7 @@ module Sablon
         # hash defines any other parameters passed in during
         # OperationConstruction#consume. Currently the only option passed is
         # `:allow_insertion`.
-        def process(constructor, field, options = {}); end
+        def build_statement(constructor, field, options = {}); end
       end
 
       # Handles simple text insertion
@@ -33,7 +33,7 @@ module Sablon
           super(/^=/)
         end
 
-        def process(_constructor, field, options = {})
+        def build_statement(_constructor, field, options = {})
           return unless options[:allow_insertion]
           #
           expr = Expression.parse(field.expression[1..-1])
@@ -47,7 +47,7 @@ module Sablon
           super(/([^ ]+):each\(([^ ]+)\)/)
         end
 
-        def process(constructor, field, _options = {})
+        def build_statement(constructor, field, _options = {})
           expr_name, item_name = field.expression.match(@pattern).to_a[1..2]
           block = constructor.consume_block("#{expr_name}:endEach")
           Statement::Loop.new(Expression.parse(expr_name), item_name, block)
@@ -60,7 +60,7 @@ module Sablon
           super(/([^ ]+):if(?:\(([^)]+)\))?/)
         end
 
-        def process(constructor, field, _options = {})
+        def build_statement(constructor, field, _options = {})
           expr_name, pred = field.expression.match(@pattern).to_a[1..2]
           block = constructor.consume_block("#{expr_name}:endIf")
           Statement::Condition.new(Expression.parse(expr_name), block, pred)
@@ -73,7 +73,7 @@ module Sablon
           super(/^@([^ ]+):start/)
         end
 
-        def process(constructor, field, _options = {})
+        def build_statement(constructor, field, _options = {})
           expr_name = field.expression.match(@pattern).to_a[1]
           block = constructor.consume_block("@#{expr_name}:end")
           Statement::Image.new(Expression.parse(expr_name), block)
@@ -86,7 +86,7 @@ module Sablon
           super(/^comment$/)
         end
 
-        def process(constructor, _field, _options = {})
+        def build_statement(constructor, _field, _options = {})
           block = constructor.consume_block('endComment')
           Statement::Comment.new(block)
         end
