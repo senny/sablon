@@ -2,8 +2,10 @@ module Sablon
   module Processor
     class Document
       class OperationConstruction
-        def initialize(fields)
+        def initialize(fields, field_handlers, default_handler)
           @fields = fields
+          @field_handlers = field_handlers
+          @default_handler = default_handler
           @operations = []
         end
 
@@ -13,29 +15,16 @@ module Sablon
         end
 
         def consume(allow_insertion)
-          @field = @fields.shift
-          return unless @field
-          case @field.expression
-          when /^=/
-            if allow_insertion
-              Statement::Insertion.new(Expression.parse(@field.expression[1..-1]), @field)
-            end
-          when /([^ ]+):each\(([^ ]+)\)/
-            block = consume_block("#{$1}:endEach")
-            Statement::Loop.new(Expression.parse($1), $2, block)
-          when /([^ ]+):if\(([^)]+)\)/
-            block = consume_block("#{$1}:endIf")
-            Statement::Condition.new(Expression.parse($1), block, $2)
-          when /([^ ]+):if/
-            block = consume_block("#{$1}:endIf")
-            Statement::Condition.new(Expression.parse($1), block)
-          when /^@([^ ]+):start/
-            block = consume_block("@#{$1}:end")
-            Statement::Image.new(Expression.parse($1), block)
-          when /^comment$/
-            block = consume_block("endComment")
-            Statement::Comment.new(block)
+          return unless (@field = @fields.shift)
+          #
+          # step over provided handlers to see if any can process the field
+          handler = @field_handlers.detect(proc { @default_handler }) do |fh|
+            fh.handles?(@field)
           end
+          return if handler.nil?
+          #
+          # process and return
+          handler.process(self, @field, allow_insertion: allow_insertion)
         end
 
         def consume_block(end_expression)
