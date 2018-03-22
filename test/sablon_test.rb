@@ -105,7 +105,6 @@ class SablonConditionalsTest < Sablon::TestCase
       content: "Some Content"
     }
     #
-    context = { paragraph: true, inline: true, table: true, table_inline: true, content: "Some Content" }
     template.render_to_file @output_path, context
     assert_docx_equal @sample_path, @output_path
   end
@@ -159,7 +158,7 @@ class SablonImagesTest < Sablon::TestCase
     # only a single file added to media. R2D2 should get duplicated in the
     # media folder because it is used in two different context keys as
     # separate instances. Darth Vader should not be duplicated because
-    # the ket "unused_darth" doesn't appear in the template
+    # the key "unused_darth" doesn't appear in the template
     context = {
       items: [
         { title: 'C-3PO', image: c3po },
