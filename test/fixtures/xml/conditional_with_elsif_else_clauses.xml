@@ -1,0 +1,41 @@
+<w:p>
+  <w:fldSimple w:instr=" MERGEFIELD object:if(method_a) \* MERGEFORMAT ">
+    <w:r>
+      <w:rPr><w:noProof/></w:rPr>
+      <w:t>object:if(method_a)»</w:t>
+    </w:r>
+  </w:fldSimple>
+</w:p>
+<w:p>
+  <w:t>Method A was true</w:t>
+</w:p>
+<w:p>
+  <w:fldSimple w:instr=" MERGEFIELD object:elsif(method_b) \* MERGEFORMAT ">
+    <w:r>
+      <w:rPr><w:noProof/></w:rPr>
+      <w:t>object:elsif(method_b)»</w:t>
+    </w:r>
+  </w:fldSimple>
+</w:p>
+<w:p>
+  <w:t>Method B was true</w:t>
+</w:p>
+<w:p>
+  <w:fldSimple w:instr=" MERGEFIELD object:else \* MERGEFORMAT ">
+    <w:r>
+      <w:rPr><w:noProof/></w:rPr>
+      <w:t>object:else»</w:t>
+    </w:r>
+  </w:fldSimple>
+</w:p>
+<w:p>
+  <w:t>Method A and B were false</w:t>
+</w:p>
+<w:p>
+  <w:fldSimple w:instr=" MERGEFIELD object:endIf \* MERGEFORMAT ">
+    <w:r>
+      <w:rPr><w:noProof/></w:rPr>
+      <w:t>object:endIf»</w:t>
+    </w:r>
+  </w:fldSimple>
+</w:p>

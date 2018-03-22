@@ -557,6 +557,73 @@ class ProcessorDocumentTest < Sablon::TestCase
     assert_equal "", text(result)
   end
 
+  def test_conditional_with_elsif_else_clauses
+    result = process(snippet("conditional_with_elsif_else_clauses"), {'object' => OpenStruct.new(method_a: true, method_b: true)})
+    assert_xml_equal <<-document, result
+      <w:p>
+        <w:t>Method A was true</w:t>
+      </w:p>
+    document
+
+    result = process(snippet("conditional_with_elsif_else_clauses"), {'object' => OpenStruct.new(method_a: false, method_b: true)})
+    assert_xml_equal <<-document, result
+      <w:p>
+        <w:t>Method B was true</w:t>
+      </w:p>
+    document
+
+    result = process(snippet("conditional_with_elsif_else_clauses"), {'object' => OpenStruct.new(method_a: false, method_b: false)})
+    assert_xml_equal <<-document, result
+      <w:p>
+        <w:t>Method A and B were false</w:t>
+      </w:p>
+    document
+  end
+
+  def test_inline_conditional_with_elsif_else_clauses
+    result = process(snippet("conditional_inline_with_elsif_else_clauses"), {'object' => OpenStruct.new(method_a: true, method_b: true)})
+    assert_xml_equal <<-document, result
+      <w:p>
+        <w:r><w:t>Before</w:t></w:r>
+        <w:r><w:t xml:space="preserve"> </w:t></w:r>
+        <w:r>
+          <w:t>Method A was true</w:t>
+        </w:r>
+        <w:r>
+          <w:t>After</w:t>
+        </w:r>
+      </w:p>
+    document
+
+    result = process(snippet("conditional_inline_with_elsif_else_clauses"), {'object' => OpenStruct.new(method_a: false, method_b: true)})
+    assert_xml_equal <<-document, result
+    <w:p>
+      <w:r><w:t>Before</w:t></w:r>
+      <w:r><w:t xml:space="preserve"> </w:t></w:r>
+      <w:r>
+        <w:t>Method B was true</w:t>
+      </w:r>
+      <w:r>
+        <w:t>After</w:t>
+      </w:r>
+    </w:p>
+    document
+
+    result = process(snippet("conditional_inline_with_elsif_else_clauses"), {'object' => OpenStruct.new(method_a: false, method_b: false)})
+    assert_xml_equal <<-document, result
+    <w:p>
+      <w:r><w:t>Before</w:t></w:r>
+      <w:r><w:t xml:space="preserve"> </w:t></w:r>
+      <w:r>
+        <w:t>Method A and B were false</w:t>
+      </w:r>
+      <w:r>
+        <w:t>After</w:t>
+      </w:r>
+    </w:p>
+    document
+  end
+
   def test_comment
     result = process(snippet("comment"), {})
     assert_equal "Before After", text(result)

@@ -69,7 +69,7 @@ module Sablon
         any_true = eval_conditional_blocks(env)
         #
         # clear the blocks for any remaining conditions
-        @conditions.map { |cond| cond.block.replace([]) }
+        @conditions.map { |cond| cond[:block].replace([]) }
         return unless @else_block
         #
         # apply the else clause if none of the conditions were true
