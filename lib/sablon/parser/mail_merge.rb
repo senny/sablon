@@ -2,7 +2,12 @@ module Sablon
   module Parser
     class MailMerge
       class MergeField
+        attr_accessor :block_reference_count
         KEY_PATTERN = /^\s*MERGEFIELD\s+([^ ]+)\s+\\\*\s+MERGEFORMAT\s*$/
+
+        def initialize
+          @block_reference_count = 0
+        end
 
         def valid?
           expression
@@ -28,6 +33,7 @@ module Sablon
 
       class ComplexField < MergeField
         def initialize(nodes)
+          super()
           @nodes = nodes
           @raw_expression = @nodes.flat_map {|n| n.search(".//w:instrText").map(&:content) }.join
         end
@@ -69,6 +75,7 @@ module Sablon
 
       class SimpleField < MergeField
         def initialize(node)
+          super()
           @node = node
           @raw_expression = @node["w:instr"]
         end
