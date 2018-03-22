@@ -8,8 +8,6 @@ module Sablon
     # that can contain mailmerge fields
     class Document
       class << self
-        attr_reader :default_field_handler
-
         # Adds a new handler to the OperationConstruction class. The handler
         # passed in should be an instance of the Handler class or implement
         # the same interface. Handlers cannot be replaced by this method,
@@ -19,7 +17,7 @@ module Sablon
         # handlers can use the provided field.
         def register_field_handler(name, handler)
           name = name.to_sym
-          if field_handlers[name] || (name == :default && !@default_field_handler.nil?)
+          if field_handlers[name] || (name == :default && !default_field_handler.nil?)
             msg = "Handler named: '#{name}' already exists. Use `replace_field_handler` instead."
             raise ArgumentError, msg
           end
@@ -27,7 +25,7 @@ module Sablon
           if name == :default
             @default_field_handler = handler
           else
-            @field_handlers[name] = handler
+            field_handlers[name] = handler
           end
         end
 
@@ -39,7 +37,7 @@ module Sablon
             @default_field_handler = nil
             handler
           else
-            @field_handlers.delete(name.to_sym)
+            field_handlers.delete(name)
           end
         end
 
@@ -51,6 +49,10 @@ module Sablon
 
         def field_handlers
           @field_handlers ||= {}
+        end
+
+        def default_field_handler
+          @default_field_handler ||= nil
         end
       end
 
