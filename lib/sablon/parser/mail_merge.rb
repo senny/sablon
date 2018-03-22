@@ -77,24 +77,32 @@ module Sablon
           remove_extra_runs!
           if content.is_a?(Sablon::Content::WordML)
             template_paragraph = @node.ancestors(".//w:p").first
-            if env.keep_merge_fields && template_paragraph.present?
-              template_paragraph.add_previous_sibling(template_paragraph.dup)
-            end
-            if env.inherit_styles && template_paragraph.present?
-              doc_fragment = content.xml
-              template_props = template_paragraph && template_paragraph.element_children.select { |child| child.name == "pPr" }.first
-              if template_props.present?
-                paragraph_children = doc_fragment.element_children.select { |child| child.name == "w:p" }
-                paragraph_children.each do |paragraph|
-                  props_node = paragraph.element_children.select { |child| child.name == "w:pPr" }.first
-                  props_node.remove if props_node.present?
-                  paragraph.children.first.add_previous_sibling(template_props.dup)
-                end
+            if env.remove_fields_only
+              template_paragraph.remove if template_paragraph.present?
+            else
+              if env.keep_merge_fields && template_paragraph.present?
+                template_paragraph.add_previous_sibling(template_paragraph.dup)
+              end
+              if env.inherit_styles && template_paragraph.present?
+                inherit_template_styles(content, template_paragraph)
               end
             end
           end
-          replace_field_display(@node, content, env)
+          replace_field_display(@node, content, env) unless env.remove_fields_only
           @node.replace(@node.children) unless env.keep_merge_fields
+        end
+
+        def inherit_template_styles(content, template_paragraph)
+          doc_fragment = content.xml
+          template_props = template_paragraph && template_paragraph.element_children.select { |child| child.name == "pPr" }.first
+          if template_props.present?
+            paragraph_children = doc_fragment.element_children.select { |child| child.name == "w:p" }
+            paragraph_children.each do |paragraph|
+              props_node = paragraph.element_children.select { |child| child.name == "w:pPr" }.first
+              props_node.remove if props_node.present?
+              paragraph.children.first.add_previous_sibling(template_props.dup)
+            end
+          end
         end
 
         def remove

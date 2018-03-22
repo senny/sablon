@@ -5,7 +5,7 @@ module Sablon
     attr_reader :template
     attr_reader :context
     attr_reader :section_properties
-    attr_accessor :inherit_styles, :keep_merge_fields
+    attr_accessor :inherit_styles, :keep_merge_fields, :remove_fields_only
 
     # returns a new environment with merged contexts
     def alter_context(context = {})
@@ -29,6 +29,7 @@ module Sablon
       @context = Context.transform_hash(context)
       @inherit_styles = true
       @keep_merge_fields = false
+      @remove_fields_only = false
     end
   end
 end
