@@ -36,7 +36,7 @@ module Sablon
         def build_statement(_constructor, field, options = {})
           return unless options[:allow_insertion]
           #
-          expr = Expression.parse(field.expression[1..-1])
+          expr = Expression.parse(field.expression.gsub(/^=/, ''))
           Statement::Insertion.new(expr, field)
         end
       end
