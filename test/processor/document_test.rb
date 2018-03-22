@@ -7,10 +7,117 @@ class ProcessorDocumentTest < Sablon::TestCase
   include DocumentXMLHelper
   include XMLSnippets
 
+  TestHandler = Struct.new(:handles, :statement) do
+    def handles?(*)
+      handles
+    end
+
+    def build_statement(*)
+      statement
+    end
+  end
+
   def setup
     super
     @processor = Sablon::Processor::Document
+    @processor.instance_variable_set(:@default_field_handler, nil)
   end
+
+  def teardown
+    super
+    @processor.instance_variable_set(:@default_field_handler, nil)
+  end
+
+  def test_register_field_handler
+    test_handlers = {}
+    handler = TestHandler.new(nil, nil)
+    #
+    @processor.stub(:field_handlers, test_handlers) do
+      @processor.register_field_handler 'test', handler
+      #
+      assert @processor.field_handlers.keys.include?(:test), 'handler was not added to handlers hash'
+      assert_equal handler, @processor.field_handlers[:test]
+      #
+      # try and re-register a handler
+      handler2 = 'test'
+      e = assert_raises(ArgumentError, 'Should not have been able to overwrite a handler using this method') do
+        @processor.register_field_handler 'test', handler2
+      end
+      #
+      assert_equal "Handler named: 'test' already exists. Use `replace_field_handler` instead.", e.message
+      assert_equal handler, @processor.field_handlers[:test], 'pre-existing handler should not have been changed'
+    end
+  end
+
+  def test_register_default_field_handler
+    handler = TestHandler.new(nil, nil)
+    @processor.register_field_handler :default, handler
+    #
+    assert !@processor.field_handlers.keys.include?(:default), 'default handler should not get added to the handlers hash'
+    assert_equal handler, @processor.default_field_handler
+    #
+    # try and re-register a handler
+    handler2 = 'test'
+    e = assert_raises(ArgumentError, 'Should not have been able to overwrite a handler using this method') do
+      @processor.register_field_handler 'default', handler2
+    end
+    #
+    assert_equal "Handler named: 'default' already exists. Use `replace_field_handler` instead.", e.message
+    assert_equal handler, @processor.default_field_handler, 'pre-existing default handler should not have been changed'
+  end
+
+  def test_remove_field_handler
+    handler = TestHandler.new(nil, nil)
+    test_handlers = { test: handler }
+    #
+    @processor.stub(:field_handlers, test_handlers) do
+      removed = @processor.remove_field_handler 'test'
+      #
+      assert !@processor.field_handlers.keys.include?(:test), 'handler was not removed from handlers hash'
+      assert_equal handler, removed, 'handler should have been returned after removal'
+      #
+      # try and remove a non-existant handler
+      removed = @processor.remove_field_handler '_i_do_not_exist_'
+      assert_nil removed, 'Removing a non-existant handler should just return nil'
+    end
+  end
+
+  def test_remove_default_field_handler
+    handler = TestHandler.new(nil, nil)
+    @processor.instance_variable_set(:@default_field_handler, handler)
+    #
+    removed = @processor.remove_field_handler :default
+    assert_equal handler, removed, 'default handler should have been returned after removal'
+    #
+    # try and remove the default handler again
+    removed = @processor.remove_field_handler :default
+    assert_nil removed, 'Removing a non-existant default handler should just return nil'
+  end
+
+
+  def test_replace_field_handler
+    handler = TestHandler.new(nil, nil)
+    handler2 = TestHandler.new(false, nil)
+    test_handlers = { test: handler }
+    #
+    @processor.stub(:field_handlers, test_handlers) do
+      assert @processor.field_handlers.keys.include?(:test), 'the test key has to already exist for this test to be meaningful'
+      @processor.replace_field_handler :test, handler2
+      #
+      assert @processor.field_handlers.keys.include?(:test), 'The test key remains in the hash'
+      assert_equal handler2, @processor.field_handlers[:test], 'The handler was not replaced'
+    end
+  end
+
+  def test_replace_default_field_handler
+    handler = TestHandler.new(nil, nil)
+    handler2 = TestHandler.new(false, nil)
+    @processor.instance_variable_set(:@default_field_handler, handler)
+    #
+    @processor.replace_field_handler 'default', handler2
+    assert_equal handler2, @processor.default_field_handler, 'The default handler was not replaced'
+  end
+
 
   def test_simple_field_replacement
     result = process(snippet("simple_field"), {"first_name" => "Jack"})
