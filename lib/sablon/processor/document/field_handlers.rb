@@ -61,9 +61,30 @@ module Sablon
         end
 
         def build_statement(constructor, field, _options = {})
-          expr_name, pred = field.expression.match(@pattern).to_a[1..2]
-          block = constructor.consume_block("#{expr_name}:endIf")
-          Statement::Condition.new(Expression.parse(expr_name), block, pred)
+          expr_name = field.expression.match(@pattern).to_a[1]
+          args = [
+            # end expression (first arg)
+            "#{expr_name}:endIf",
+            # sub block patterns to check for
+            /(#{expr_name}):els[iI]f(?:\(([^)]+)\))?/,
+            /(#{expr_name}):else/
+          ]
+          blocks = process_blocks(constructor.consume_multi_block(*args))
+          Statement::Condition.new(blocks)
+        end
+
+        private
+
+        # Processes the main expression from each start field block to
+        # simplify usage in Statement
+        def process_blocks(blocks)
+          blocks.map do |block|
+            pattern = /([^ ]+):(?:if|els[iI]f|else)(?:\(([^)]+)\))?/
+            expr, pred = block.start_field.expression.match(pattern).to_a[1..2]
+            expr = Expression.parse(expr)
+            #
+            { condition_expr: expr, predicate: pred, block: block }
+          end
         end
       end
 

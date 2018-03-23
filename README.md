@@ -295,6 +295,18 @@ For more complex conditionals you can use a predicate like so:
 «body:endIf»
 ```
 
+Finally, you can also mix in `elsif` and `else` clauses as well.
+
+```
+«body:if(present?)»
+    ... arbitrary document markup ...
+«body:elsif(nil?)»
+    ... arbitrary document markup ...
+[additional elsif blocks...]
+«body:else»
+    ... arbitrary document markup ...
+«body:endIf»
+```
 
 #### Loops
 

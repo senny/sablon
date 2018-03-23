@@ -39,6 +39,32 @@ module Sablon
           end
           Block.enclosed_by(start_field, end_field) if end_field
         end
+
+        # Creates multiple blocks based on the sub expression patterns supplied
+        # while searching for the end expresion. The start and end fields
+        # of adjacent blocks are shared. For example in an if-else-endif
+        # block the else field is the end for the if clause block and the
+        # start of the else clause block.
+        def consume_multi_block(end_expression, *sub_expr_patterns)
+          start_field = end_field = @field
+          blocks = []
+          while end_field && end_field.expression != end_expression
+            consume(false)
+            break unless (end_field = @field)
+            if sub_expr_patterns.any? { |pat| end_field.expression =~ pat }
+              blocks << Block.enclosed_by(start_field, end_field)
+              start_field = end_field
+            end
+          end
+
+          # raise error if no final end field
+          unless end_field
+            raise TemplateError, "Could not find end field for «#{start_field.expression}». Was looking for «#{end_expression}»"
+          end
+
+          # add final block and return
+          blocks << Block.enclosed_by(start_field, end_field)
+        end
       end
     end
   end

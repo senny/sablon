@@ -53,22 +53,64 @@ module Sablon
       end
     end
 
-    class Condition < Struct.new(:conditon_expr, :block, :predicate)
+    class Condition
+      def initialize(conditions)
+        @conditions = conditions
+        @else_block = nil
+        return unless @conditions.last[:block].start_field.expression =~ /:else/
+        #
+        # store the else block separately because it is always "true"
+        @else_block = @conditions.pop[:block]
+      end
+
       def evaluate(env)
-        value = conditon_expr.evaluate(env.context)
-        if truthy?(predicate ? value.public_send(predicate) : value)
-          block.replace(block.process(env).reverse)
-        else
-          block.replace([])
+        #
+        # process conditional blocks, if and elsif(s)
+        any_true = eval_conditional_blocks(env)
+        #
+        # clear the blocks for any remaining conditions
+        @conditions.map { |cond| cond[:block].replace([]) }
+        return unless @else_block
+        #
+        # apply the else clause if none of the conditions were true
+        if any_true
+          @else_block.replace([])
+        elsif @else_block
+          @else_block.replace(@else_block.process(env).reverse)
+        end
+      end
+
+      private
+
+      def eval_conditional_blocks(env)
+        #
+        # evaluate each expression until a true one is found, false blocks
+        # are cleared from the document.
+        until @conditions.empty?
+          condition = @conditions.shift
+          conditon_expr = condition[:condition_expr]
+          predicate = condition[:predicate]
+          block = condition[:block]
+          #
+          # fetch value optionally calling a predicate method
+          value = conditon_expr.evaluate(env.context)
+          value = value.public_send(predicate) if predicate
+          #
+          if truthy?(value)
+            block.replace(block.process(env).reverse)
+            break true
+          else
+            block.replace([])
+          end
         end
       end
 
       def truthy?(value)
         case value
-        when Array;
+        when Array
           !value.empty?
         else
-          !!value
+          value ? true : false
         end
       end
     end
