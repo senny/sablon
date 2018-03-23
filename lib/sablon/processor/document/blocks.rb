@@ -47,8 +47,8 @@ module Sablon
           body.each(&:remove)
           # we only want to remove the start and end nodes if they belong
           # to a single block.
-          remove_start_node
-          remove_end_node
+          start_field.remove_parent(self.class.parent_selector)
+          end_field.remove_parent(self.class.parent_selector)
         end
 
         def body
@@ -65,29 +65,8 @@ module Sablon
           @start_node ||= self.class.parent(start_field)
         end
 
-        # We can only remove the start field if it is being used by a single
-        # block
-        def remove_start_node
-          # TODO: Try and shift this reference logic to the MergeField superclass
-          if start_field.block_reference_count > 1
-            start_field.block_reference_count -= 1
-          else
-            start_node.remove
-          end
-        end
-
         def end_node
           @end_node ||= self.class.parent(end_field)
-        end
-
-        # We can only remove the end field if it is being used by a single
-        # block
-        def remove_end_node
-          if end_field.block_reference_count > 1
-            end_field.block_reference_count -= 1
-          else
-            end_node.remove
-          end
         end
       end
 
@@ -138,28 +117,8 @@ module Sablon
 
         def remove_control_elements
           body.each(&:remove)
-          remove_start_field
-          remove_end_field
-        end
-
-        # We can only remove the start field if it is being used by a single
-        # block
-        def remove_start_field
-          if start_field.block_reference_count > 1
-            start_field.block_reference_count -= 1
-          else
-            start_field.remove
-          end
-        end
-
-        # We can only remove the end field if it is being used by a single
-        # block
-        def remove_end_field
-          if end_field.block_reference_count > 1
-            end_field.block_reference_count -= 1
-          else
-            end_field.remove
-          end
+          start_field.remove
+          end_field.remove
         end
 
         def start_node

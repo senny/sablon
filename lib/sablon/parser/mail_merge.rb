@@ -19,6 +19,16 @@ module Sablon
 
         private
 
+        # removes all nodes associated with the merge field if the reference
+        # count is less than or equal to 1
+        def remove_or_decrement_ref(*nodes)
+          if @block_reference_count > 1
+            @block_reference_count -= 1
+          else
+            nodes.each(&:remove)
+          end
+        end
+
         def replace_field_display(node, content, env)
           paragraph = node.ancestors(".//w:p").first
           display_node = get_display_node(node)
@@ -47,8 +57,14 @@ module Sablon
           (@nodes - [pattern_node]).each(&:remove)
         end
 
+        # removes only the merge field in question
         def remove
-          @nodes.each(&:remove)
+          remove_or_decrement_ref(*@nodes)
+        end
+
+        def remove_parent(selector)
+          node = @nodes.first
+          remove_or_decrement_ref(node.ancestors(selector).first)
         end
 
         def ancestors(*args)
@@ -64,6 +80,7 @@ module Sablon
         end
 
         private
+
         def pattern_node
           separate_node.next_element
         end
@@ -86,8 +103,14 @@ module Sablon
           @node.replace(@node.children)
         end
 
+        # removes only the merge field in question
         def remove
-          @node.remove
+          remove_or_decrement_ref(@node)
+        end
+
+        # removes the parent node containing the merge field
+        def remove_parent(selector)
+          remove_or_decrement_ref(@node.ancestors(selector).first)
         end
 
         def ancestors(*args)
@@ -100,6 +123,7 @@ module Sablon
         alias_method :end_node, :start_node
 
         private
+
         def remove_extra_runs!
           @node.search(".//w:r")[1..-1].each(&:remove)
         end
