@@ -10,6 +10,18 @@ module Sablon
           block_class.new start_field, end_field
         end
 
+        def self.encloses?(start_field, end_field)
+          parent(start_field).any? && parent(end_field).any?
+        end
+
+        def self.parent(node)
+          node.ancestors(parent_selector)
+        end
+
+        def self.parent_selector
+          './/w:p'
+        end
+
         def initialize(start_field, end_field)
           @start_field = start_field
           @end_field = end_field
@@ -56,6 +68,7 @@ module Sablon
         # We can only remove the start field if it is being used by a single
         # block
         def remove_start_node
+          # TODO: Try and shift this reference logic to the MergeField superclass
           if start_field.block_reference_count > 1
             start_field.block_reference_count -= 1
           else
@@ -76,15 +89,11 @@ module Sablon
             end_node.remove
           end
         end
-
-        def self.encloses?(start_field, end_field)
-          parent(start_field).any? && parent(end_field).any?
-        end
       end
 
       class RowBlock < Block
-        def self.parent(node)
-          node.ancestors ".//w:tr"
+        def self.parent_selector
+          './/w:tr'
         end
 
         def self.encloses?(start_field, end_field)
@@ -93,10 +102,6 @@ module Sablon
       end
 
       class ParagraphBlock < Block
-        def self.parent(node)
-          node.ancestors ".//w:p"
-        end
-
         def self.encloses?(start_field, end_field)
           super && parent(start_field) != parent(end_field)
         end
@@ -145,8 +150,8 @@ module Sablon
       end
 
       class InlineParagraphBlock < Block
-        def self.parent(node)
-          node.ancestors ".//w:p"
+        def self.encloses?(start_field, end_field)
+          super && parent(start_field) == parent(end_field)
         end
 
         def remove_control_elements
@@ -181,10 +186,6 @@ module Sablon
 
         def end_node
           @end_node ||= end_field.start_node
-        end
-
-        def self.encloses?(start_field, end_field)
-          super && parent(start_field) == parent(end_field)
         end
       end
     end
