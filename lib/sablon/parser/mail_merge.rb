@@ -24,6 +24,27 @@ module Sablon
         def get_display_node(node)
           node.search(".//w:t").first
         end
+
+        def get_display_run_node(node)
+          node.search(".//w:r").first
+        end
+
+        def add_as_first_child(parent_node, child_node)
+          if parent_node.children.any?
+            parent_node.children.first.add_previous_sibling(child_node)
+          else
+            parent_node.add_child(child_node)
+          end
+        end
+
+        def combine_run_props(local_props, template_props)
+          local_child_names = local_props.children.map(&:name)
+          template_props.element_children.each do |child|
+            unless local_child_names.include?(child.name)
+              local_props.add_child(child.dup)
+            end
+          end
+        end
       end
 
       class ComplexField < MergeField
@@ -84,7 +105,7 @@ module Sablon
                 template_paragraph.add_previous_sibling(template_paragraph.dup)
               end
               if env.inherit_styles && template_paragraph.present?
-                inherit_template_styles(content, template_paragraph)
+                inherit_template_styles(content, template_paragraph, get_display_run_node(@node))
               end
             end
           end
@@ -92,15 +113,32 @@ module Sablon
           @node.replace(@node.children) unless env.keep_merge_fields
         end
 
-        def inherit_template_styles(content, template_paragraph)
+        def inherit_template_styles(content, template_paragraph, template_display_run_node)
           doc_fragment = content.xml
-          template_props = template_paragraph && template_paragraph.element_children.select { |child| child.name == "pPr" }.first
+          template_props = template_paragraph && template_paragraph.search(".//w:pPr").first
           if template_props.present?
             paragraph_children = doc_fragment.element_children.select { |child| child.name == "w:p" }
             paragraph_children.each do |paragraph|
               props_node = paragraph.element_children.select { |child| child.name == "w:pPr" }.first
               props_node.remove if props_node.present?
-              paragraph.children.first.add_previous_sibling(template_props.dup)
+              add_as_first_child(paragraph, template_props.dup)
+            end
+          end
+          template_run_props = template_display_run_node && template_display_run_node.search(".//w:rPr").first
+          if template_run_props.present?
+            doc_fragment.element_children.each do |child|
+              if child.name == "w:p"
+                child.element_children.each do |grandchild|
+                  if grandchild.name == "w:r"
+                    props_node = grandchild.element_children.select { |child| child.name == "w:rPr" }.first
+                    if props_node.present?
+                      combine_run_props(props_node, template_run_props)
+                    else
+                      add_as_first_child(grandchild, template_run_props.dup)
+                    end
+                  end
+                end
+              end
             end
           end
         end
