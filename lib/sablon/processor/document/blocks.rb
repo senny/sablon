@@ -11,11 +11,11 @@ module Sablon
         end
 
         def self.encloses?(start_field, end_field)
-          parent(start_field).any? && parent(end_field).any?
+          parent(start_field) && parent(end_field)
         end
 
         def self.parent(node)
-          node.ancestors(parent_selector)
+          node.ancestors(parent_selector).first
         end
 
         def self.parent_selector
@@ -62,7 +62,7 @@ module Sablon
         end
 
         def start_node
-          @start_node ||= self.class.parent(start_field).first
+          @start_node ||= self.class.parent(start_field)
         end
 
         # We can only remove the start field if it is being used by a single
@@ -77,7 +77,7 @@ module Sablon
         end
 
         def end_node
-          @end_node ||= self.class.parent(end_field).first
+          @end_node ||= self.class.parent(end_field)
         end
 
         # We can only remove the end field if it is being used by a single
