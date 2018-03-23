@@ -102,7 +102,10 @@ class SablonConditionalsTest < Sablon::TestCase
       inline: true,
       table: true,
       table_inline: true,
-      content: "Some Content"
+      object: OpenStruct.new(true_method: true, false_method: false),
+      success_content: '✓',
+      fail_content: '✗',
+      content: 'Some Content'
     }
     #
     template.render_to_file @output_path, context
