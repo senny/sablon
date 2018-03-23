@@ -4,18 +4,46 @@ class SablonCustomFieldHandlerTest < Sablon::TestCase
   #
   # This class supports more advanced conditional expressions and crafted
   # by @moritzgloeckl in PR #73
-  class OperatorCondition < Struct.new(:conditon_expr, :block, :operation)
-    def evaluate(env)
-      value = conditon_expr.evaluate(env.context)
-      if truthy?(operation[0..1], operation[2..-1].tr("'", ''), value.to_s)
-        block.replace(block.process(env).reverse)
-      else
-        block.replace([])
+  class OperatorCondition < Sablon::Statement::Condition
+    def eval_conditional_blocks(env)
+      #
+      # evaluate each expression until a true one is found, false blocks
+      # are cleared from the document.
+      until @conditions.empty?
+        condition = @conditions.shift
+        conditon_expr = condition[:condition_expr]
+        predicate = condition[:predicate]
+        block = condition[:block]
+        #
+        # determine valeu of conditional expression + predicate
+        value = eval_condition_expr(conditon_expr, predicate, env.context)
+        #
+        # manipulate block based on truthy-ness of value
+        if truthy?(value)
+          block.replace(block.process(env).reverse)
+          break true
+        else
+          block.replace([])
+        end
       end
     end
 
-    def truthy?(operation, value_a, value_b)
-      case operation
+    def eval_condition_expr(conditon_expr, predicate, context)
+      value = conditon_expr.evaluate(context)
+      #
+      if predicate.to_s =~ /^[!=]=/
+        operator = predicate[0..1]
+        cmpr_val = predicate[2..-1].tr("'", '')
+        compare_values(value.to_s, cmpr_val, operator)
+      elsif predicate
+        value.public_send(predicate)
+      else
+        value
+      end
+    end
+
+    def compare_values(value_a, value_b, operator)
+      case operator
       when '!='
         value_a != value_b
       when '=='
@@ -25,30 +53,18 @@ class SablonCustomFieldHandlerTest < Sablon::TestCase
   end
 
   # Handles conditional blocks in the template that use an operator
-  class OperatorConditionalHandler
-    def initialize
-      @pattern = /([^ ]+):if(?:\(([^)]+)\))?/
-      @op_pattern = /([^ ]+):if\(((==|!=)(\d|'[\s\S]+')+)\)/
-    end
-
-    # Returns a non-nil value if the field expression matches the pattern
-    def handles?(field)
-      field.expression.match(@pattern)
-    end
-
+  class OperatorConditionalHandler < Sablon::Processor::Document::ConditionalHandler
     def build_statement(constructor, field, _options = {})
-      expr_pattern = @pattern
-      stmt_klass = Sablon::Statement::Condition
-      #
-      if field.expression =~ @op_pattern
-        expr_pattern = @op_pattern
-        stmt_klass = OperatorCondition
-      end
-      #
-      expr_name, pred = field.expression.match(expr_pattern).to_a[1..2]
-      block = constructor.consume_block("#{expr_name}:endIf")
-      expr = Sablon::Expression.parse(expr_name)
-      stmt_klass.new(expr, block, pred)
+      expr_name = field.expression.match(@pattern).to_a[1]
+      args = [
+        # end expression (first arg)
+        "#{expr_name}:endIf",
+        # sub block patterns to check for
+        /(#{expr_name}):els[iI]f(?:\(([^)]+)\))?/,
+        /(#{expr_name}):else/
+      ]
+      blocks = process_blocks(constructor.consume_multi_block(*args))
+      OperatorCondition.new(blocks)
     end
   end
 
