@@ -117,7 +117,7 @@ module Sablon
           doc_fragment = content.xml
           template_props = template_paragraph && template_paragraph.search(".//w:pPr").first
           if template_props.present?
-            paragraph_children = doc_fragment.element_children.select { |child| child.name == "w:p" }
+            paragraph_children = doc_fragment.search(".//*").select { |child| child.name == "w:p" }
             paragraph_children.each do |paragraph|
               props_node = paragraph.element_children.select { |child| child.name == "w:pPr" }.first
               props_node.remove if props_node.present?
@@ -126,18 +126,13 @@ module Sablon
           end
           template_run_props = template_display_run_node && template_display_run_node.search(".//w:rPr").first
           if template_run_props.present?
-            doc_fragment.element_children.each do |child|
-              if child.name == "w:p"
-                child.element_children.each do |grandchild|
-                  if grandchild.name == "w:r"
-                    props_node = grandchild.element_children.select { |child| child.name == "w:rPr" }.first
-                    if props_node.present?
-                      combine_run_props(props_node, template_run_props)
-                    else
-                      add_as_first_child(grandchild, template_run_props.dup)
-                    end
-                  end
-                end
+            run_children = doc_fragment.search(".//*").select { |child| child.name == "w:r" }
+            run_children.each do |run|
+              props_node = run.element_children.select { |child| child.name == "w:rPr" }.first
+              if props_node.present?
+                combine_run_props(props_node, template_run_props)
+              else
+                add_as_first_child(run, template_run_props.dup)
               end
             end
           end
