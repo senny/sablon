@@ -17,7 +17,14 @@ module Sablon
         def replace_field_display(node, content, env)
           paragraph = node.ancestors(".//w:p").first
           display_node = get_display_node(node)
-          content.append_to(paragraph, display_node, env)
+          if content.is_a?(Sablon::Content::WordML)
+            xml_clone = content.xml.clone
+            content_clone = content.clone
+            content_clone.xml = xml_clone
+            content_clone.append_to(paragraph, display_node, env)
+          else
+            content.append_to(paragraph, display_node, env)
+          end
           display_node.remove
         end
 
