@@ -25,7 +25,7 @@ module Sablon
       end
 
       def transform_pair(key, value)
-        if key =~ /\A([^:]+):(.+)\z/
+        if key =~ /\A([^:]+):(.+)\z/ && !(key.start_with?("<") && key.end_with?(">"))
           if value.nil?
             [Regexp.last_match[2], value]
           else

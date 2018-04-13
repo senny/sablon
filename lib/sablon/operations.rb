@@ -142,7 +142,7 @@ module Sablon
     end
 
     def self.parse(expression)
-      if expression.include?(".")
+      if expression.include?(".") && !(expression.start_with?("<") && expression.end_with?(">"))
         parts = expression.split(".")
         LookupOrMethodCall.new(Variable.new(parts.shift), parts.join("."))
       else
