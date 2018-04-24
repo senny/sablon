@@ -55,9 +55,16 @@ module Sablon
           replaced_node.children
         end
 
-        def replace(content)
-          content.each { |n| start_node.add_next_sibling n }
-          remove_control_elements
+        def replace(content, keep_merge_fields = false, separator = nil)
+          if keep_merge_fields
+            if separator.present?
+              end_node.add_next_sibling(end_node.parse(separator))
+            end
+            content.each { |n| end_node.add_next_sibling n }
+          else
+            content.each { |n| start_node.add_next_sibling n }
+            remove_control_elements
+          end
         end
 
         def remove_control_elements

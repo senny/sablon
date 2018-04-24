@@ -22,7 +22,7 @@ module Sablon
           block.process(iter_env)
         end
         update_unique_ids(env, content)
-        block.replace(content.reverse)
+        block.replace(content.reverse, env.keep_merge_fields, env.separator)
       end
 
       private
