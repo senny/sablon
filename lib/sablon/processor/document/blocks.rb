@@ -102,6 +102,17 @@ module Sablon
               pic_prop.attributes['name'].value = image.name if pic_prop
               blip = node.at_xpath('.//a:blip', a: 'http://schemas.openxmlformats.org/drawingml/2006/main')
               blip.attributes['embed'].value = image.local_rid if blip
+              drawing_size = node.at_xpath('.//wp:extent')
+
+          # if image properties are defined, the size of the placeholder image
+          # should be replaced with the actual values
+              if image.width && image.height
+                drawing_size.attributes['cx'].value = image.width.to_s if drawing_size
+                drawing_size.attributes['cy'].value = image.height.to_s if drawing_size
+                pic_size = node.at_xpath('.//a:xfrm//a:ext', a: 'http://schemas.openxmlformats.org/drawingml/2006/main')
+                pic_size.attributes['cx'].value = image.width.to_s if pic_size
+                pic_size.attributes['cy'].value = image.height.to_s if pic_size
+              end
             end
           end
           #

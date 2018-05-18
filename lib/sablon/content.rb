@@ -173,8 +173,9 @@ module Sablon
     end
 
     # Handles reading image data and inserting it into the document
-    class Image < Struct.new(:name, :data, :local_rid)
+    class Image < Struct.new(:name, :data, :local_rid, :properties)
       attr_reader :rid_by_file
+      attr_accessor :properties
 
       def self.id; :image end
       def self.wraps?(value) false end
@@ -196,6 +197,22 @@ module Sablon
         #
         super name, img_data
         @attributes = attributes
+
+        def width
+          if @attributes["properties"]
+            unconverted_width = @attributes["properties"][:width]
+            unit = @attributes["properties"][:unit]
+            convert_to_emu(unit, unconverted_width.to_i)
+          end
+        end
+        def height
+          if @attributes["properties"]
+            unconverted_height = @attributes["properties"][:height]
+            unit = @attributes["properties"][:unit]
+            convert_to_emu(unit, unconverted_height.to_i)
+          end
+        end
+
         # rId's are separate for each XML file but I want to be able
         # to reuse the actual image file itself.
         @rid_by_file = {}
@@ -222,6 +239,15 @@ module Sablon
         end
         #
         [File.basename(name), source.read]
+      end
+
+      # Convert centimeters or inches to Word specific emu format
+      def convert_to_emu(unit, value)
+        if unit == "cm"
+          value * 360000
+        elsif unit == "in"
+          value * 914400
+        end
       end
     end
 
