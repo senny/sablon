@@ -173,9 +173,9 @@ module Sablon
     end
 
     # Handles reading image data and inserting it into the document
-    class Image < Struct.new(:name, :data, :local_rid, :properties)
+    class Image < Struct.new(:name, :data, :properties)
       attr_reader :rid_by_file
-      attr_accessor :properties
+      attr_accessor :local_rid
 
       def self.id; :image end
       def self.wraps?(value) false end
@@ -198,24 +198,27 @@ module Sablon
         super name, img_data
         @attributes = attributes
 
-        def width
-          if @attributes["properties"]
-            unconverted_width = @attributes["properties"][:width]
-            unit = @attributes["properties"][:unit]
-            convert_to_emu(unit, unconverted_width.to_i)
-          end
-        end
-        def height
-          if @attributes["properties"]
-            unconverted_height = @attributes["properties"][:height]
-            unit = @attributes["properties"][:unit]
-            convert_to_emu(unit, unconverted_height.to_i)
-          end
-        end
-
         # rId's are separate for each XML file but I want to be able
         # to reuse the actual image file itself.
         @rid_by_file = {}
+      end
+
+      def width
+        if @attributes["properties"]
+          width_with_unit_array = @attributes["properties"][:width].split(/(\d+)/)
+          unconverted_width = width_with_unit_array[1].to_i
+          unit = width_with_unit_array[2]
+          convert_to_emu(unit, unconverted_width)
+        end
+      end
+
+      def height
+        if @attributes["properties"]
+          height_with_unit_array = @attributes["properties"][:height].split(/(\d+)/)
+          unconverted_height = height_with_unit_array[1].to_i
+          unit = height_with_unit_array[2]
+          convert_to_emu(unit, unconverted_height)
+        end
       end
 
       def append_to(paragraph, display_node, env) end
