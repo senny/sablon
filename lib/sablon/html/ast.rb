@@ -480,7 +480,7 @@ module Sablon
     class Run < Node
       PROPERTIES = %w[b i caps color dstrike emboss imprint highlight outline
                       rStyle shadow shd smallCaps strike sz u vanish
-                      vertAlign].freeze
+                      vertAlign rFonts].freeze
 
       def initialize(_env, node, properties)
         super
