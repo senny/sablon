@@ -53,14 +53,14 @@ module Sablon
 
     def render(context, properties = {})
       # initialize environment
-      @document = Sablon::DOM::Model.new(Zip::File.open(@path))
+      @document = Sablon::DOM::Model.new(RubyZip::File.open(@path))
       env = Sablon::Environment.new(self, context)
       env.section_properties = properties
       #
       # process files
       process(env)
       #
-      Zip::OutputStream.write_buffer(StringIO.new) do |out|
+      RubyZip::OutputStream.write_buffer(StringIO.new) do |out|
         generate_output_file(out, @document.zip_contents)
       end
     end

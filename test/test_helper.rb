@@ -50,7 +50,7 @@ module Minitest
       contents = {}
       #
       # step over all entries adding them to the hash to diff against
-      Zip::File.open(path).each do |entry|
+      RubyZip::File.open(path).each do |entry|
         next unless entry.file?
         content = entry.get_input_stream.read
         # normalize xml content

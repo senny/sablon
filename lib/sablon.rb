@@ -1,4 +1,4 @@
-require 'zip'
+require 'ruby_zip'
 require 'nokogiri'
 
 require "sablon/version"

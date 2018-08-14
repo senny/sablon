@@ -1,3 +1,10 @@
+GIT
+  remote: https://github.com/dabidski/rubyzip.git
+  revision: 08bc9d00145402411f60032b60b074786b03ced6
+  tag: v1.2.2
+  specs:
+    rubyzip (1.2.2)
+
 PATH
   remote: .
   specs:
@@ -13,7 +20,6 @@ GEM
     nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
     rake (12.3.0)
-    rubyzip (1.2.1)
     xml-simple (1.1.5)
 
 PLATFORMS
@@ -23,6 +29,7 @@ DEPENDENCIES
   bundler (>= 1.6)
   minitest (~> 5.4)
   rake (~> 12.0)
+  rubyzip!
   sablon!
   xml-simple
 
