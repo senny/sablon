@@ -246,6 +246,8 @@ module Sablon
           value = value * 360000
         elsif unit == "in"
           value = value * 914400
+        else
+          throw ArgumentError, "Unsupported unit '#{unit}', only 'cm' and 'in' are permitted."
         end
 
         value.round()
