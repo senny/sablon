@@ -287,4 +287,23 @@ class ContentImageTest < Sablon::TestCase
       Sablon.content(:image, data)
     end
   end
+
+  def test_width_conversion
+    img = Sablon.content(:image, @image_path.to_s, properties: {width: '1.0cm'})
+    assert_equal 360000, img.width
+    assert_nil img.height
+  end
+
+  def test_height_conversion
+    img = Sablon.content(:image, @image_path.to_s, properties: {height: '1.0in'})
+    assert_nil img.width
+    assert_equal 914400, img.height
+  end
+
+  def test_invalid_unit_conversion
+    img = Sablon.content(:image, @image_path.to_s, properties: {width: '100px'})
+    assert_raises ArgumentError do
+      img.width
+    end
+  end
 end

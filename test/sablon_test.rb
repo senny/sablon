@@ -150,12 +150,12 @@ class SablonImagesTest < Sablon::TestCase
     template = Sablon.template @template_path
     #
     # setup two image contents to allow quick reuse
-    r2d2 = Sablon.content(:image, @image_fixtures.join('r2d2.jpg').to_s)
+    r2d2 = Sablon.content(:image, @image_fixtures.join('r2d2.jpg').to_s, properties: {height: '1cm', width: '1cm'})
     c3po = Sablon.content(:image, @image_fixtures.join('c3po.jpg'))
     darth = Sablon.content(:image, @image_fixtures.join('darth_vader.jpg'))
     #
     im_data = StringIO.new(IO.binread(@image_fixtures.join('clone.jpg')))
-    trooper = Sablon.content(:image, im_data, filename: 'clone.jpg')
+    trooper = Sablon.content(:image, im_data, filename: 'clone.jpg', properties: {height: '8cm', width: '4cm'})
     #
     # with the following context setup all trooper should be reused and
     # only a single file added to media. R2D2 should get duplicated in the

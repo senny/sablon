@@ -173,8 +173,9 @@ module Sablon
     end
 
     # Handles reading image data and inserting it into the document
-    class Image < Struct.new(:name, :data, :local_rid)
+    class Image < Struct.new(:name, :data, :properties)
       attr_reader :rid_by_file
+      attr_accessor :local_rid
 
       def self.id; :image end
       def self.wraps?(value) false end
@@ -196,9 +197,21 @@ module Sablon
         #
         super name, img_data
         @attributes = attributes
+        @properties = @attributes.fetch("properties", {})
+
         # rId's are separate for each XML file but I want to be able
         # to reuse the actual image file itself.
         @rid_by_file = {}
+      end
+
+      def width
+        return unless (width_str = @properties[:width])
+        convert_to_emu(width_str)
+      end
+
+      def height
+        return unless (height_str = @properties[:height])
+        convert_to_emu(height_str)
       end
 
       def append_to(paragraph, display_node, env) end
@@ -222,6 +235,22 @@ module Sablon
         end
         #
         [File.basename(name), source.read]
+      end
+
+      # Convert centimeters or inches to Word specific emu format
+      def convert_to_emu(dim_str)
+        value, unit = dim_str.match(/(^\.?\d+\.?\d*)(\w+)/).to_a[1..-1]
+        value = value.to_f
+
+        if unit == "cm"
+          value = value * 360000
+        elsif unit == "in"
+          value = value * 914400
+        else
+          throw ArgumentError, "Unsupported unit '#{unit}', only 'cm' and 'in' are permitted."
+        end
+
+        value.round()
       end
     end
 
