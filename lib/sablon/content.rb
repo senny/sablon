@@ -206,16 +206,12 @@ module Sablon
 
       def width
         return unless (width_str = @properties[:width])
-        #
-        value, unit = extract_number_and_unit(width_str)
-        convert_to_emu(unit, value)
+        convert_to_emu(width_str)
       end
 
       def height
         return unless (height_str = @properties[:height])
-        #
-        value, unit = extract_number_and_unit(height_str)
-        convert_to_emu(unit, value)
+        convert_to_emu(height_str)
       end
 
       def append_to(paragraph, display_node, env) end
@@ -241,19 +237,18 @@ module Sablon
         [File.basename(name), source.read]
       end
 
-      # extract the value and unit from a size string, i.e. 1cm -> 1, "cm"
-      def extract_number_and_unit(value)
-        value, unit = value.split(/(\d+)/)
-        value.to_i, unit
-      end
-
       # Convert centimeters or inches to Word specific emu format
-      def convert_to_emu(unit, value)
+      def convert_to_emu(dim_str)
+        value, unit = dim_str.match(/(^\.?\d+\.?\d*)(\w+)/).to_a[1..-1]
+        value = value.to_f
+
         if unit == "cm"
-          value * 360000
+          value = value * 360000
         elsif unit == "in"
-          value * 914400
+          value = value * 914400
         end
+
+        value.round()
       end
     end
 
