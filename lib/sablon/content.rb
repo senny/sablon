@@ -197,6 +197,7 @@ module Sablon
         #
         super name, img_data
         @attributes = attributes
+        @properties = @attributes.fetch("properties", {})
 
         # rId's are separate for each XML file but I want to be able
         # to reuse the actual image file itself.
@@ -204,21 +205,17 @@ module Sablon
       end
 
       def width
-        if @attributes["properties"]
-          width_with_unit_array = @attributes["properties"][:width].split(/(\d+)/)
-          unconverted_width = width_with_unit_array[1].to_i
-          unit = width_with_unit_array[2]
-          convert_to_emu(unit, unconverted_width)
-        end
+        return unless (width_str = @properties[:width])
+        #
+        value, unit = extract_number_and_unit(width_str)
+        convert_to_emu(unit, value)
       end
 
       def height
-        if @attributes["properties"]
-          height_with_unit_array = @attributes["properties"][:height].split(/(\d+)/)
-          unconverted_height = height_with_unit_array[1].to_i
-          unit = height_with_unit_array[2]
-          convert_to_emu(unit, unconverted_height)
-        end
+        return unless (height_str = @properties[:height])
+        #
+        value, unit = extract_number_and_unit(height_str)
+        convert_to_emu(unit, value)
       end
 
       def append_to(paragraph, display_node, env) end
@@ -242,6 +239,12 @@ module Sablon
         end
         #
         [File.basename(name), source.read]
+      end
+
+      # extract the value and unit from a size string, i.e. 1cm -> 1, "cm"
+      def extract_number_and_unit(value)
+        value, unit = value.split(/(\d+)/)
+        value.to_i, unit
       end
 
       # Convert centimeters or inches to Word specific emu format
