@@ -257,7 +257,7 @@ method that returns image data. When using a "readable object" if the object
 doesn't have a `#filename` method then a `filename: '...'` option
 needs to be added to the `Sablon.content` method call.
 
-By default the inserted image takes the dimensions of the placeholder. The size of an image can also be defined dynamically by specifying the unit (cm or in), width and height in a properties hash like `properties: {height: "2cm", width: "20cm"}`
+By default the inserted image takes the dimensions of the placeholder. The size of an image can also be defined dynamically by specifying width and height with unit (cm or in) in a properties hash like  `properties: {height: "2cm", width: "20cm"}`
 
 ```ruby
 context = {
