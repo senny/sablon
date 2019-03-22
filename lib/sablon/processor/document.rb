@@ -62,7 +62,7 @@ module Sablon
       end
 
       def self.parse_field_codes(xml_node)
-        fields = @parser.parse_fields(xml_node)
+        fields = parser.parse_fields(xml_node)
         fields.map(&:expression)
       end
 
