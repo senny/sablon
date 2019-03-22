@@ -61,6 +61,11 @@ module Sablon
         processor.manipulate xml_node, env
       end
 
+      def self.parse_field_codes(xml_node)
+        fields = @parser.parse_fields(xml_node)
+        fields.map(&:expression)
+      end
+
       def self.parser
         @parser ||= Sablon::Parser::MailMerge.new
       end

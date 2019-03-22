@@ -6,6 +6,10 @@ module Sablon
         processor.write_properties(env.section_properties)
       end
 
+      def self.parse_field_codes(xml_node)
+        []
+      end
+
       def initialize(xml_node)
         @properties_node = xml_node.at_xpath(".//w:sectPr")
       end
