@@ -192,9 +192,10 @@ html_body = <<-HTML.strip
 </table>
 HTML
 context = {
-  article: Sablon.content(:html, html_body) }
-  # alternative method using special key format
-  # 'html:article' => html_body
+  article: Sablon.content(:html, html_body) },
+  # Or use html: prefix to make sablon parse the value as HTML.
+  # Does the same as above.
+  'html:article' => html_body
 }
 template.render_to_file File.expand_path("~/Desktop/output.docx"), context
 ```
