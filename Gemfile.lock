@@ -2,18 +2,18 @@ PATH
   remote: .
   specs:
     sablon (0.3.1)
-      nokogiri (>= 1.6.0)
+      nokogiri (>= 1.8.5)
       rubyzip (>= 1.1.1)
 
 GEM
   remote: https://rubygems.org/
   specs:
-    mini_portile2 (2.3.0)
+    mini_portile2 (2.4.0)
     minitest (5.10.3)
-    nokogiri (1.8.5)
-      mini_portile2 (~> 2.3.0)
+    nokogiri (1.9.1)
+      mini_portile2 (~> 2.4.0)
     rake (12.3.0)
-    rubyzip (1.2.2)
+    rubyzip (1.2.3)
     xml-simple (1.1.5)
 
 PLATFORMS
@@ -27,4 +27,4 @@ DEPENDENCIES
   xml-simple
 
 BUNDLED WITH
-   1.16.0
+   1.16.1
