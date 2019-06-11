@@ -126,6 +126,28 @@ module Sablon
           super && parent(start_field) == parent(end_field)
         end
 
+        def process(env)
+          # Create a mock document structure so xpath queries will work
+          # correctly on block level content (i.e. searching for the first
+          # ancestor paragraph)
+          doc_node = Nokogiri::XML::Node.new('document', start_node.document)
+          doc_node.namespace = start_node.parent.namespace
+          p_node = Nokogiri::XML::Node.new('p', doc_node.document)
+          p_node.namespace = start_node.parent.namespace
+          p_node.children = Nokogiri::XML::NodeSet.new(p_node.document,
+                                                       body.map(&:dup))
+          doc_node.children = Nokogiri::XML::NodeSet.new(p_node.document,
+                                                         [p_node])
+          Processor::Document.process doc_node, env
+
+          if p_node.parent.nil?
+            replace_parent_node(doc_node.children)
+            []
+          else
+            p_node.children
+          end
+        end
+
         def remove_control_elements
           body.each(&:remove)
           start_field.remove
@@ -138,6 +160,16 @@ module Sablon
 
         def end_node
           @end_node ||= end_field.start_node
+        end
+
+        private
+
+        # A block level insertion has occurred which must replace the
+        # parent paragraph of the start node.
+        def replace_parent_node(content)
+          node = start_node.ancestors('.//w:p').first
+          content.each { |n| node.add_next_sibling n }
+          node.remove
         end
       end
     end
