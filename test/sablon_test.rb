@@ -105,7 +105,8 @@ class SablonConditionalsTest < Sablon::TestCase
       object: OpenStruct.new(true_method: true, false_method: false),
       success_content: '✓',
       fail_content: '✗',
-      content: 'Some Content'
+      content: 'Some Content',
+      block_content: Sablon.content(:html, '<p>HTML paragraph injected</p>')
     }
     #
     template.render_to_file @output_path, context
@@ -155,7 +156,7 @@ class SablonImagesTest < Sablon::TestCase
     darth = Sablon.content(:image, @image_fixtures.join('darth_vader.jpg'))
     #
     im_data = StringIO.new(IO.binread(@image_fixtures.join('clone.jpg')))
-    trooper = Sablon.content(:image, im_data, filename: 'clone.jpg', properties: {height: '8cm', width: '4cm'})
+    trooper = Sablon.content(:image, im_data, filename: 'clone.jpg', properties: {height: '1cm', width: '4cm'})
     #
     # with the following context setup all trooper should be reused and
     # only a single file added to media. R2D2 should get duplicated in the
