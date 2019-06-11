@@ -105,7 +105,8 @@ class SablonConditionalsTest < Sablon::TestCase
       object: OpenStruct.new(true_method: true, false_method: false),
       success_content: '✓',
       fail_content: '✗',
-      content: 'Some Content'
+      content: 'Some Content',
+      block_content: Sablon.content(:html, '<p>HTML paragraph injected</p>')
     }
     #
     template.render_to_file @output_path, context
