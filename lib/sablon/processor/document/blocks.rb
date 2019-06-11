@@ -86,7 +86,7 @@ module Sablon
         end
       end
 
-      class ImageBlock < ParagraphBlock
+      class ImageBlock < Block
         def self.encloses?(start_field, end_field)
           start_field.expression.start_with?('@')
         end
@@ -104,8 +104,8 @@ module Sablon
               blip.attributes['embed'].value = image.local_rid if blip
               drawing_size = node.at_xpath('.//wp:extent')
 
-          # if image properties are defined, the size of the placeholder image
-          # should be replaced with the actual values
+              # if image properties are defined, the size of the placeholder
+              # image should be replaced with the actual values
               if image.width && image.height
                 drawing_size.attributes['cx'].value = image.width.to_s if drawing_size
                 drawing_size.attributes['cy'].value = image.height.to_s if drawing_size
