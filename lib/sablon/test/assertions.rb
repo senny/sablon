@@ -1,7 +1,9 @@
 module Sablon
   module Test
     module Assertions
-      def assert_docx_equal(expected_path, actual_path)
+      def assert_docx_equal(expected_path, actual_path, update_expected=ENV['UPDATE_SNAPSHOT'])
+        FileUtils.cp(actual_path, expected_path) if update_expected
+        puts " > Snapshot updated: #{expected_path}" if update_expected
         #
         # Parse document archives and generate a diff
         xml_diffs = diff_docx_files(expected_path, actual_path)
