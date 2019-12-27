@@ -1,6 +1,8 @@
-### Creating a Simple Template
+## Creating a Simple Template
+
 Creating a template is as easy as creating a normal Word document (`.docx`). Yet it could be confusing to people who haven't used the [Mail Merge](https://support.office.com/en-us/article/Use-mail-merge-to-send-bulk-email-messages-0f123521-20ce-4aa8-8b62-ac211dedefa4) feature in Microsoft Word. The steps are as follows:
 
+### Setup
 - Create a new word document
 
 ![Step 1](/misc/step_1.png)
@@ -10,6 +12,22 @@ Creating a template is as easy as creating a normal Word document (`.docx`). Yet
 ![Step 2](/misc/step_2.png)
 
 - Add mail merge fields
+
+See [How to add a mail merge field](#how-to-add-a-mail-merge-field) for specific instructions for your operating system.
+
+- You should then have something like this:
+
+![Step 6](/misc/step_6.png)
+
+- A complete template might look like this:
+
+![Step 7](/misc/step_7.png)
+
+NOTE: When adding variables, those that display a value are preceded with an equals sign `=`. Those that just perform logics, such as loops and conditionals, do not need a preceding equals sign.
+
+### How to add a mail merge field
+
+#### Microsoft Windows
 
 - Click the `Insert` tab on the ribbon
 
@@ -33,12 +51,10 @@ Creating a template is as easy as creating a normal Word document (`.docx`). Yet
 
 ![Step 5](/misc/step_5.png)
 
-- You should then have something like this:
-
-![Step 6](/misc/step_6.png)
-
-- A complete template might look like this:
-
-![Step 7](/misc/step_7.png)
-
-NOTE: When adding variables, those that display a value are preceded with an equals sign `=`. Those that just perform logics, such as loops and conditionals, do not need a preceding equals sign.
+#### MacOS
+- From the menu bar, open the **Insert** menu and select **Field...**
+- Under *Categories*, select **Mail Merge**
+- Under *Field names*, select **MergeField**
+- Add your variable name in the input box; make sure to leave a space after the word `MERGEFIELD`
+  - Example: `MERGEFIELD =person.first_name`
+- Click **OK**
