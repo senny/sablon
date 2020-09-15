@@ -188,7 +188,7 @@ class SablonImagesTest < Sablon::TestCase
   end
 end
 
-class SablonImagesTest < Sablon::TestCase
+class SablonSvgImagesTest < Sablon::TestCase
   def setup
     super
     @base_path = Pathname.new(File.expand_path("../", __FILE__))
