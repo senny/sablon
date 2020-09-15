@@ -187,3 +187,25 @@ class SablonImagesTest < Sablon::TestCase
     assert_equal "Filename: 'clone' has no discernable extension", e.message
   end
 end
+
+class SablonImagesTest < Sablon::TestCase
+  def setup
+    super
+    @base_path = Pathname.new(File.expand_path("../", __FILE__))
+    @template_path = @base_path + "fixtures/svg_images_template.docx"
+    @output_path = @base_path + "sandbox/svg_images.docx"
+    @sample_path = @base_path + "fixtures/svg_images_sample.docx"
+    @image_fixtures = @base_path + "fixtures/images"
+  end
+
+  def test_generate_document_from_template
+    template = Sablon.template @template_path
+
+    context = {
+      svg_sample: Sablon.content(:image, @image_fixtures.join('svg_sample.svg'))
+    }
+
+    template.render_to_file @output_path, context
+    assert_docx_equal @sample_path, @output_path
+  end
+end

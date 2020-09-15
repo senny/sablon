@@ -100,7 +100,11 @@ module Sablon
             nodes.each do |node|
               pic_prop = node.at_xpath('.//pic:cNvPr', pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture')
               pic_prop.attributes['name'].value = image.name if pic_prop
-              blip = node.at_xpath('.//a:blip', a: 'http://schemas.openxmlformats.org/drawingml/2006/main')
+              blip = if File.extname(image.name) == '.svg'
+                node.at_xpath('.//asvg:svgBlip', asvg: 'http://schemas.microsoft.com/office/drawing/2016/SVG/main')
+              else
+                node.at_xpath('.//a:blip', a: 'http://schemas.openxmlformats.org/drawingml/2006/main')
+              end
               blip.attributes['embed'].value = image.local_rid if blip
               drawing_size = node.at_xpath('.//wp:extent')
 
