@@ -186,6 +186,42 @@ class SablonImagesTest < Sablon::TestCase
     end
     assert_equal "Filename: 'clone' has no discernable extension", e.message
   end
+
+  def test_generate_two_documents_from_same_template
+    template = Sablon.template @template_path
+    #
+    # setup two image contents to allow quick reuse
+    r2d2 = Sablon.content(:image, @image_fixtures.join('r2d2.jpg').to_s, properties: {height: '1cm', width: '1cm'})
+    c3po = Sablon.content(:image, @image_fixtures.join('c3po.jpg'))
+    darth = Sablon.content(:image, @image_fixtures.join('darth_vader.jpg'))
+    #
+    im_data = StringIO.new(IO.binread(@image_fixtures.join('clone.jpg')))
+    trooper = Sablon.content(:image, im_data, filename: 'clone.jpg', properties: {height: '1cm', width: '4cm'})
+    #
+    # with the following context setup all trooper should be reused and
+    # only a single file added to media. R2D2 should get duplicated in the
+    # media folder because it is used in two different context keys as
+    # separate instances. Darth Vader should not be duplicated because
+    # the key "unused_darth" doesn't appear in the template
+    context = {
+      items: [
+        { title: 'C-3PO', image: c3po },
+        { title: 'R2-D2', image: r2d2 },
+        { title: 'Darth Vader', 'image:image' => @image_fixtures.join('darth_vader.jpg') },
+        { title: 'Storm Trooper', image: trooper }
+      ],
+      'image:r2d2' => @image_fixtures.join('r2d2.jpg'),
+      'unused_darth' => darth,
+      trooper: trooper
+    }
+
+    template.render_to_file @output_path, context
+    assert_docx_equal @sample_path, @output_path
+    # Having used the images once from the template, attempting to use them again 
+    # in the rendering of a second document fails
+    template.render_to_file @output_path, context
+    assert_docx_equal @sample_path, @output_path
+  end
 end
 
 class SablonSvgImagesTest < Sablon::TestCase
