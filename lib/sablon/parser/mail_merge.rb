@@ -86,7 +86,7 @@ module Sablon
         end
 
         def separate_node
-          @nodes.detect {|n| !n.search(".//w:fldChar[@w:fldCharType='separate']").empty? }
+          @nodes.detect {|n| !n.search(".//w:fldChar[@*[local-name()='fldCharType' and .='separate']]").empty? }
         end
       end
 
@@ -147,7 +147,7 @@ module Sablon
       def build_complex_field(node)
         possible_field_node = node.parent
         field_nodes = [possible_field_node]
-        while possible_field_node && possible_field_node.search(".//w:fldChar[@w:fldCharType='end']").empty?
+        while possible_field_node && possible_field_node.search(".//w:fldChar[@*[local-name()='fldCharType' and .='end']]").empty?
           possible_field_node = possible_field_node.next_element
           field_nodes << possible_field_node
         end
