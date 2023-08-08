@@ -3,7 +3,8 @@ module Sablon
   module Statement
     class Insertion < Struct.new(:expr, :field)
       def evaluate(env)
-        if content = expr.evaluate(env.context)
+        content = expr.evaluate(env.context)
+        if content
           field.replace(Sablon::Content.wrap(content), env)
         else
           field.remove
@@ -130,24 +131,31 @@ module Sablon
 
       private
 
+      def add_media(env, image)
+        rel_attr = {
+          Type: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'
+        }
+        rid = env.document.add_media(image.name, image.data_for(block), rel_attr)
+        image.rid_by_file[env.document.current_entry] = rid
+      end
+
+      # locate an existing relationship and duplicate it
+      def dup_media(env, image)
+        entry = image.rid_by_file.keys.first
+        value = image.rid_by_file[entry]
+
+        rel = env.document.find_relationship_by('Id', value, entry)
+        rid = env.document.add_relationship(rel.attributes)
+        image.rid_by_file[env.document.current_entry] = rid
+      end
+
       def set_local_rid(env, image)
-        if image.rid_by_file.keys.empty?
-          # Only add the image once, it is reused afterwards
-          rel_attr = {
-            Type: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'
-          }
-          rid = env.document.add_media(image.name, image.data_for(block), rel_attr)
-          image.rid_by_file[env.document.current_entry] = rid
+        if !image.reuse_media? || image.rid_by_file.keys.empty?
+          add_media(env, image)
         elsif image.rid_by_file[env.document.current_entry].nil?
-          # locate an existing relationship and duplicate it
-          entry = image.rid_by_file.keys.first
-          value = image.rid_by_file[entry]
-          #
-          rel = env.document.find_relationship_by('Id', value, entry)
-          rid = env.document.add_relationship(rel.attributes)
-          image.rid_by_file[env.document.current_entry] = rid
+          dup_media(env, image)
         end
-        #
+
         image.local_rid = image.rid_by_file[env.document.current_entry]
       end
     end
@@ -166,7 +174,8 @@ module Sablon
 
     class LookupOrMethodCall < Struct.new(:receiver_expr, :expression)
       def evaluate(context)
-        if receiver = receiver_expr.evaluate(context)
+        receiver = receiver_expr.evaluate(context)
+        if receiver
           expression.split(".").inject(receiver) do |local, m|
             case local
             when Hash

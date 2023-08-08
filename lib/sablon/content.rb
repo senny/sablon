@@ -8,7 +8,8 @@ module Sablon
         when Sablon::Content
           value
         else
-          if type = type_wrapping(value)
+          type = type_wrapping(value)
+          if type
             type.new(value)
           else
             raise ArgumentError, "Could not find Sablon content type to wrap #{value.inspect}"
@@ -54,7 +55,7 @@ module Sablon
         super value.to_s
       end
 
-      def append_to(paragraph, display_node, env)
+      def append_to(_paragraph, display_node, _env)
         string.scan(/[^\n]+|\n/).reverse.each do |part|
           if part == "\n"
             display_node.add_next_sibling Nokogiri::XML::Node.new "w:br", display_node.document
@@ -70,14 +71,14 @@ module Sablon
     # handles direct addition of WordML to the document template
     class WordML < Struct.new(:xml)
       include Sablon::Content
-      def self.id; :word_ml end
-      def self.wraps?(value) false end
+      def self.id = :word_ml
+      def self.wraps?(_value) = false
 
       def initialize(value)
         super Nokogiri::XML.fragment(value)
       end
 
-      def append_to(paragraph, display_node, env)
+      def append_to(paragraph, display_node, _env)
         # if all nodes are inline then add them to the existing paragraph
         # otherwise replace the paragraph with the new content.
         if all_inline?
@@ -158,8 +159,8 @@ module Sablon
     # Handles conversion of HTML -> WordML and addition into template
     class HTML < Struct.new(:html_content)
       include Sablon::Content
-      def self.id; :html end
-      def self.wraps?(value) false end
+      def self.id = :html
+      def self.wraps?(_value) = false
 
       def initialize(value)
         super value
@@ -177,8 +178,11 @@ module Sablon
       attr_reader :rid_by_file
       attr_accessor :local_rid
 
-      def self.id; :image end
-      def self.wraps?(value) false end
+      def self.id = :image
+      def self.wraps?(_value) = false
+
+      # Only add the image once, it is reused afterwards
+      def reuse_media? = true
 
       def inspect
         "#<Image #{name}:#{@rid_by_file}>"
@@ -247,14 +251,14 @@ module Sablon
         value = value.to_f
 
         if unit == "cm"
-          value = value * 360000
+          value = value * 360_000
         elsif unit == "in"
-          value = value * 914400
+          value = value * 914_400
         else
           throw ArgumentError, "Unsupported unit '#{unit}', only 'cm' and 'in' are permitted."
         end
 
-        value.round()
+        value.round
       end
     end
 
