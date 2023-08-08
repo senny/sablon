@@ -136,7 +136,7 @@ module Sablon
           rel_attr = {
             Type: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'
           }
-          rid = env.document.add_media(image.name, image.data, rel_attr)
+          rid = env.document.add_media(image.name, image.data_for(block), rel_attr)
           image.rid_by_file[env.document.current_entry] = rid
         elsif image.rid_by_file[env.document.current_entry].nil?
           # locate an existing relationship and duplicate it

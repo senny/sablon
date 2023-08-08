@@ -214,7 +214,11 @@ module Sablon
         convert_to_emu(height_str)
       end
 
-      def append_to(paragraph, display_node, env) end
+      def append_to(_paragraph, _display_node, _env) end
+
+      def data_for(_block)
+        data
+      end
 
       private
 
