@@ -130,11 +130,16 @@ module Sablon
       # node passed in. Run properties are merged here because of namespace
       # issues when working with a document fragment
       def add_siblings_to(node, rpr_tag = nil)
-        xml.children.reverse.each do |child|
-          node.add_next_sibling child
-          # merge properties
-          next unless rpr_tag
-          merge_rpr_tags(child, rpr_tag.children)
+        # Since Nokogiri 1.11.0 adding siblings is only possible for nodes
+        # with a parent because the parent is used as the context node for
+        # parsing markup.
+        if !node.parent.nil?
+          xml.children.reverse.each do |child|
+            node.add_next_sibling child
+            # merge properties
+            next unless rpr_tag
+            merge_rpr_tags(child, rpr_tag.children)
+          end
         end
       end
 
