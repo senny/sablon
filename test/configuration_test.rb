@@ -75,8 +75,9 @@ class ConfigurationHTMLTagTest < Sablon::TestCase
 
   # Exercising more of the logic used to conform args into valid
   def test_html_tag_full_init
-    args = ['a', 'inline', ast_class: Sablon::HTMLConverter::Run]
-    tag = Sablon::Configuration::HTMLTag.new(*args)
+    args = ['a', 'inline']
+    kwargs = { ast_class: Sablon::HTMLConverter::Run }
+    tag = Sablon::Configuration::HTMLTag.new(*args, **kwargs)
     assert_equal :a, tag.name
     assert_equal :inline, tag.type
     assert_equal Sablon::HTMLConverter::Run, tag.ast_class
