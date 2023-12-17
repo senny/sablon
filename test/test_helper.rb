@@ -10,7 +10,7 @@ $: << File.expand_path('../../lib', __FILE__)
 require "sablon"
 require "sablon/test/assertions"
 
-class Sablon::TestCase < MiniTest::Test
+class Sablon::TestCase < Minitest::Test
   include Sablon::Test::Assertions
 
   def teardown
