@@ -39,7 +39,7 @@ class HTMLConverterASTBuilderTest < Sablon::TestCase
   def test_merge_properties
     @builder = new_builder
     node = Nokogiri::HTML.fragment('<span style="color: #F00; text-decoration: underline wavy">Test</span>').children[0]
-    tag = Struct.new(:properties).new(rStyle: 'Normal')
+    tag = Struct.new(:properties).new({ rStyle: 'Normal' })
     # test that properties are merged across all three arguments
     props = @builder.send(:merge_node_properties, node, tag, 'background-color' => '#00F')
     assert_equal({ 'background-color' => '#00F', rStyle: 'Normal', 'color' => '#F00', 'text-decoration' => 'underline wavy' }, props)
