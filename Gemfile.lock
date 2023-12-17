@@ -8,13 +8,15 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    mini_portile2 (2.4.0)
-    minitest (5.14.4)
-    nokogiri (1.10.8)
-      mini_portile2 (~> 2.4.0)
-    rake (13.0.3)
-    rubyzip (2.3.0)
-    xml-simple (1.1.8)
+    minitest (5.20.0)
+    nokogiri (1.15.5)
+      racc (~> 1.4)
+    racc (1.7.3)
+    rake (13.1.0)
+    rexml (3.2.6)
+    rubyzip (2.3.2)
+    xml-simple (1.1.9)
+      rexml
 
 PLATFORMS
   ruby
@@ -27,4 +29,4 @@ DEPENDENCIES
   xml-simple
 
 BUNDLED WITH
-   1.17.2
+   2.4.15
