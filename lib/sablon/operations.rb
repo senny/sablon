@@ -156,7 +156,9 @@ module Sablon
   module Expression
     class Variable < Struct.new(:name)
       def evaluate(context)
-        context[name]
+        Expression.reduce_arrays(name,context) do |new_name|
+        return context[new_name]
+        end
       end
 
       def inspect
@@ -168,11 +170,13 @@ module Sablon
       def evaluate(context)
         if receiver = receiver_expr.evaluate(context)
           expression.split(".").inject(receiver) do |local, m|
-            case local
-            when Hash
-              local[m]
-            else
-              local.public_send m if local.respond_to?(m)
+            Expression.reduce_arrays(m,context) do | new_m|
+              case local
+              when Hash
+                local[new_m]
+              else
+                local.public_send new_m if local.respond_to?(new_m)
+              end
             end
           end
         end
@@ -189,6 +193,37 @@ module Sablon
         LookupOrMethodCall.new(Variable.new(parts.shift), parts.join("."))
       else
         Variable.new(expression)
+      end
+    end
+
+    def self.reduce_arrays(expr, env, &block)
+      if expr.match(/([^\[]+)(\[.+\])$/)
+        left_expr_part=$1
+        array_access_str=$2
+        result=block.call left_expr_part
+        current_array_start=0
+        current_array_end=0
+        while (current_array_end+1) < array_access_str.length
+          current_array_end=array_access_str.index("]",current_array_start)
+          next_array_start=array_access_str.index("[",current_array_start+1)
+          while next_array_start && current_array_end > next_array_start do
+            next_array_start=array_access_str.index("[",next_array_start+1)
+            current_array_end=array_access_str.index("]",current_array_end+1)
+          end
+          current_str=array_access_str[(current_array_start+1)..(current_array_end-1)]
+          if current_str[0]=="=" 
+            expr=Expression.parse(current_str[1..])
+            index=expr.evaluate(env)
+            result=result[index]
+          elsif current_str.match(/^\d*$/)
+            result=result[current_str.to_i]
+          elsif result.match(/^'(.*)'$/)
+            result=result[$1]
+          end
+        end
+result
+      else
+        block.call expr
       end
     end
   end
