@@ -1,7 +1,7 @@
 # Sablon
 
 [![Gem Version](https://badge.fury.io/rb/sablon.svg)](http://badge.fury.io/rb/sablon)
-[![Build Status](https://travis-ci.org/senny/sablon.svg?branch=master)](https://travis-ci.org/senny/sablon)
+[![Build Status](https://github.com/senny/sablon/actions/workflows/ruby.yml/badge.svg)](https://github.com/senny/sablon/actions)
 
 Is a document template processor for Word `docx` files. It leverages Word's
 built-in formatting and layouting capabilities to make template creation easy
