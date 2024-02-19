@@ -213,7 +213,7 @@ module Sablon
           current_str=array_access_str[(current_array_start+1)..(current_array_end-1)]
           if current_str[0]=="=" 
             expr=Expression.parse(current_str[1..])
-            index=expr.evaluate(env)
+            index=expr.evaluate(env.context)
             result=result[index]
           elsif current_str.match(/^\d*$/)
             result=result[current_str.to_i]
