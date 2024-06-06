@@ -84,6 +84,48 @@ class SablonTest < Sablon::TestCase
   end
 end
 
+class SablonCustomContentTest < Sablon::TestCase
+  include XMLSnippets
+
+  class FormsUrn < Sablon::Content::String
+    # Typically, the initial part of the key is removed, but in this case we want to keep the full urn around, so we just override it
+    def key(keyRegex)
+      keyRegex.to_s
+    end
+
+    def self.id
+      :urn
+    end
+  end
+
+  def setup
+    super
+    Sablon::Content.register(FormsUrn)
+    @base_path = Pathname.new(File.expand_path("../", __FILE__))
+    @template_path = @base_path + "fixtures/custom_content.docx"
+    @output_path = @base_path + "sandbox/custom_content.docx"
+    @sample_path = @base_path + "fixtures/custom_content_sample.docx"
+  end
+
+  def teardown
+    Sablon::Content.remove(FormsUrn)
+  end
+
+  def test_generate_document_from_template
+    template = Sablon.template @template_path
+    context = {
+      "urn:example:fully:quailified:result" => "fully rendered name"
+    }
+    #
+    template.render_to_file @output_path, context
+    if ENV['WRITE_FIXTURES'] == 'true'
+      FileUtils.cp @output_path, @sample_path
+    end
+
+    assert_docx_equal @sample_path, @output_path
+  end
+end
+
 class SablonConditionalsTest < Sablon::TestCase
   include XMLSnippets
 

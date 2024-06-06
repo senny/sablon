@@ -26,11 +26,18 @@ module Sablon
 
       def transform_pair(key, value)
         if key =~ /\A([^:]+):(.+)\z/
+          regex_match = Regexp.last_match
+          new_key = regex_match[2]
+
           if value.nil?
-            [Regexp.last_match[2], value]
+            [new_key, value]
           else
-            key_sym = Regexp.last_match[1].to_sym
-            [Regexp.last_match[2], Content.make(key_sym, value)]
+            prefix = regex_match[1].to_sym
+            new_value = Content.make(prefix, value)
+            if new_value.respond_to?(:key)
+              new_key = new_value.key(regex_match)
+            end
+            [new_key, new_value]
           end
         else
           transform_standard_key(key, value)
