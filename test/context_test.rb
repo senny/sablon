@@ -61,4 +61,26 @@ class ContextTest < Sablon::TestCase
     context = Sablon::Context.transform_hash(input_context)
     assert_equal expected_context, context
   end
+
+  def test_tune_typed_content_regex
+    input_context = {
+      default: "string",
+      "word_ml:runs" => "<w:r><w:t>Text</w:t><w:r>",
+      "urn:some:example" => "string as well"
+    }
+    expected_context = {
+      "default" => "string",
+      "runs" => Sablon.content(:word_ml, "<w:r><w:t>Text</w:t><w:r>"),
+      "urn:some:example" => "string as well"
+    }
+
+    original_regex = Sablon::Context.content_regex
+    begin
+      Sablon::Context.content_regex = /\A((?!urn:)[^:]+):(.+)\z/
+      context = Sablon::Context.transform_hash(input_context)
+      assert_equal expected_context, context
+    ensure
+      Sablon::Context.content_regex = original_regex
+    end
+  end
 end

@@ -6,6 +6,9 @@ module Sablon
   # user supplied hash into a data structure suitable for rendering the
   # docx template.
   module Context
+    class << self; attr_accessor :content_regex end
+    self.content_regex = /\A([^:]+):(.+)\z/
+
     class << self
       def transform_hash(hash)
         Hash[hash.map { |k, v| transform_pair(k.to_s, v) }]
@@ -25,12 +28,12 @@ module Sablon
       end
 
       def transform_pair(key, value)
-        if key =~ /\A([^:]+):(.+)\z/
+        if match = content_regex.match(key)
           if value.nil?
-            [Regexp.last_match[2], value]
+            [match[2], value]
           else
-            key_sym = Regexp.last_match[1].to_sym
-            [Regexp.last_match[2], Content.make(key_sym, value)]
+            type_id = match[1].to_sym
+            [match[2], Content.make(type_id, value)]
           end
         else
           transform_standard_key(key, value)

@@ -9,9 +9,9 @@ GEM
   remote: https://rubygems.org/
   specs:
     minitest (5.20.0)
-    nokogiri (1.15.5)
+    nokogiri (1.16.5-arm64-darwin)
       racc (~> 1.4)
-    racc (1.7.3)
+    racc (1.8.0)
     rake (13.1.0)
     rexml (3.2.6)
     rubyzip (2.3.2)
@@ -19,7 +19,7 @@ GEM
       rexml
 
 PLATFORMS
-  ruby
+  arm64-darwin-23
 
 DEPENDENCIES
   bundler (>= 1.6)
