@@ -8,9 +8,14 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
+    mini_portile2 (2.8.7)
     minitest (5.20.0)
+    nokogiri (1.16.5)
+      mini_portile2 (~> 2.8.2)
+      racc (~> 1.4)
     nokogiri (1.16.5-arm64-darwin)
       racc (~> 1.4)
+    ostruct (0.6.0)
     racc (1.8.0)
     rake (13.1.0)
     rexml (3.2.6)
@@ -19,11 +24,12 @@ GEM
       rexml
 
 PLATFORMS
-  arm64-darwin-23
+  arm64-darwin
 
 DEPENDENCIES
   bundler (>= 1.6)
   minitest (~> 5.4)
+  ostruct
   rake (~> 13.0)
   sablon!
   xml-simple

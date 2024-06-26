@@ -5,6 +5,7 @@ require "minitest/mock"
 require "xmlsimple"
 require "json"
 require "pathname"
+require "ostruct"
 
 $: << File.expand_path('../../lib', __FILE__)
 require "sablon"
