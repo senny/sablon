@@ -30,4 +30,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "minitest", "~> 5.4"
   spec.add_development_dependency "xml-simple"
+  spec.add_development_dependency "ostruct"
 end
