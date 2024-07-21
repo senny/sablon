@@ -41,7 +41,7 @@ module Sablon
         end
 
         # Creates multiple blocks based on the sub expression patterns supplied
-        # while searching for the end expresion. The start and end fields
+        # while searching for the end expression. The start and end fields
         # of adjacent blocks are shared. For example in an if-else-endif
         # block the else field is the end for the if clause block and the
         # start of the else clause block.

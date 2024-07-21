@@ -113,7 +113,7 @@ class ConfigurationHTMLTagTest < Sablon::TestCase
 
     # test default allowances
     assert div.allowed_child?(text) # all inline elements allowed
-    assert div.allowed_child?(olist) # tag name is included even though it is bock leve
+    assert div.allowed_child?(olist) # tag name is included even though it is block level
     assert_equal false, div.allowed_child?(div) # other block elms are not allowed
 
     # test olist with allowances for all blocks but no inline

@@ -12,7 +12,7 @@ module Sablon
         # passed in should be an instance of the Handler class or implement
         # the same interface. Handlers cannot be replaced by this method,
         # instead the `replace_field_handler` method should be used which
-        # internally removes the existing hander and registers the one passed
+        # internally removes the existing handler and registers the one passed
         # in. The name 'default' is special and will be called if no other
         # handlers can use the provided field.
         def register_field_handler(name, handler)

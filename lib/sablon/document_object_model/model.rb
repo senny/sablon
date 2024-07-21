@@ -68,7 +68,7 @@ module Sablon
         end
       end
 
-      # constructs the dom model using helper clases defined under this
+      # constructs the dom model using helper classes defined under this
       # namespace.
       def build_dom(entries)
         key_values = entries.map do |entry_name, content|

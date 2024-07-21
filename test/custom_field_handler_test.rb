@@ -15,7 +15,7 @@ class SablonCustomFieldHandlerTest < Sablon::TestCase
         predicate = condition[:predicate]
         block = condition[:block]
         #
-        # determine valeu of conditional expression + predicate
+        # determine value of conditional expression + predicate
         value = eval_condition_expr(conditon_expr, predicate, env.context)
         #
         # manipulate block based on truthy-ness of value

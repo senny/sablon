@@ -92,7 +92,7 @@ module Sablon
         end
 
         def replace(image)
-          # we need to include the start and end nodes incase the image is
+          # we need to include the start and end nodes in case the image is
           # inline with the merge fields
           nodes = [start_node] + body + [end_node]
           #

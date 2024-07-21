@@ -50,7 +50,7 @@ module Sablon
 
       # processes properties adding those on the whitelist to the
       # properties instance variable and those not to the transferred_properties
-      # isntance variable
+      # instance variable
       def filter_properties(properties, whitelist)
         @transferred_properties = {}
         @properties = {}
