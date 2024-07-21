@@ -76,9 +76,9 @@ class ProcessorDocumentTest < Sablon::TestCase
       assert !@processor.field_handlers.keys.include?(:test), 'handler was not removed from handlers hash'
       assert_equal handler, removed, 'handler should have been returned after removal'
       #
-      # try and remove a non-existant handler
+      # try and remove a non-existent handler
       removed = @processor.remove_field_handler '_i_do_not_exist_'
-      assert_nil removed, 'Removing a non-existant handler should just return nil'
+      assert_nil removed, 'Removing a non-existent handler should just return nil'
     end
   end
 
@@ -91,7 +91,7 @@ class ProcessorDocumentTest < Sablon::TestCase
     #
     # try and remove the default handler again
     removed = @processor.remove_field_handler :default
-    assert_nil removed, 'Removing a non-existant default handler should just return nil'
+    assert_nil removed, 'Removing a non-existent default handler should just return nil'
   end
 
 

@@ -143,7 +143,7 @@ module Sablon
         end
       end
 
-      # Merges the provided properties into the run proprties of the
+      # Merges the provided properties into the run properties of the
       # node passed in. Properties are only added if they are not already
       # defined on the node itself.
       def merge_rpr_tags(node, props)

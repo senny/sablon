@@ -10,28 +10,28 @@ class HTMLConverterASTBuilderTest < Sablon::TestCase
   end
 
   def test_fetch_tag
-    @bulider = new_builder
+    @builder = new_builder
     tag = Sablon::Configuration.instance.permitted_html_tags[:span]
-    assert_equal @bulider.send(:fetch_tag, :span), tag
+    assert_equal @builder.send(:fetch_tag, :span), tag
     # check that strings are converted into symbols
-    assert_equal @bulider.send(:fetch_tag, 'span'), tag
-    # test uknown tag raises error
+    assert_equal @builder.send(:fetch_tag, 'span'), tag
+    # test unknown tag raises error
     e = assert_raises ArgumentError do
-      @bulider.send(:fetch_tag, :unknown_tag)
+      @builder.send(:fetch_tag, :unknown_tag)
     end
     assert_equal "Don't know how to handle HTML tag: unknown_tag", e.message
   end
 
   def test_validate_structure
-    @bulider = new_builder
+    @builder = new_builder
     root = Sablon::Configuration.instance.permitted_html_tags['#document-fragment'.to_sym]
     div = Sablon::Configuration.instance.permitted_html_tags[:div]
     span = Sablon::Configuration.instance.permitted_html_tags[:span]
     # test valid relationship
-    assert_nil @bulider.send(:validate_structure, div, span)
+    assert_nil @builder.send(:validate_structure, div, span)
     # test inverted relationship
     e = assert_raises ArgumentError do
-      @bulider.send(:validate_structure, span, div)
+      @builder.send(:validate_structure, span, div)
     end
     assert_equal "Invalid HTML structure: div is not a valid child element of span.", e.message
   end
@@ -43,7 +43,7 @@ class HTMLConverterASTBuilderTest < Sablon::TestCase
     # test that properties are merged across all three arguments
     props = @builder.send(:merge_node_properties, node, tag, 'background-color' => '#00F')
     assert_equal({ 'background-color' => '#00F', rStyle: 'Normal', 'color' => '#F00', 'text-decoration' => 'underline wavy' }, props)
-    # test that parent properties are overriden by tag properties
+    # test that parent properties are overridden by tag properties
     props = @builder.send(:merge_node_properties, node, tag, rStyle: 'Citation', 'background-color' => '#00F')
     assert_equal({ 'background-color' => '#00F', rStyle: 'Normal', 'color' => '#F00', 'text-decoration' => 'underline wavy' }, props)
     # test that inline properties override parent styles

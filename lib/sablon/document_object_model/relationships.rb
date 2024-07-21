@@ -12,7 +12,7 @@ module Sablon
           #
           # adds a relationship to the rels file for the current entry
           define_method(:add_relationship) do |rel_attr|
-            # detemine name of rels file to augment
+            # determine name of rels file to augment
             rels_name = Relationships.rels_entry_name_for(@current_entry)
 
             # create the file if needed and update DOM

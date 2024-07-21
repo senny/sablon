@@ -65,7 +65,7 @@ module Sablon
       end
     end
 
-    # Processes all of te entries searching for ones that match the pattern.
+    # Processes all of the entries searching for ones that match the pattern.
     # The hash is converted into an array first to avoid any possible
     # modification during iteration errors (i.e. creation of a new rels file).
     def process(env)
