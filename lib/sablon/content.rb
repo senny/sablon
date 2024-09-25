@@ -189,15 +189,23 @@ module Sablon
         "#<Image #{name}:#{@rid_by_file}>"
       end
 
+      # image data being lazily loaded by procs, we need to actually execute
+      # the procs to test that the generated images are the same
+      def ==(other)
+        self.class == other.class &&
+          name == other.name && properties == other.properties &&
+            data.call == other.data.call
+      end
+
       def initialize(source, attributes = {})
         attributes = Hash[attributes.map { |k, v| [k.to_s, v] }]
         # If the source object is readable, use it as such otherwise open
-        # and read the content
+        # and lazily read the content
         if source.respond_to?(:read)
           name, img_data = process_readable(source, attributes)
         else
           name = File.basename(source)
-          img_data = IO.binread(source)
+          img_data = -> { IO.binread(source) }
         end
         #
         super name, img_data
@@ -238,8 +246,8 @@ module Sablon
             raise ArgumentError, "Error: Could not determine filename from source, try: `Sablon.content(readable_obj, filename: '...')`"
           end
         end
-        #
-        [File.basename(name), source.read]
+        # delay loading the image with a lambda
+        [File.basename(name), -> { source.read } ]
       end
 
       # Convert centimeters or inches to Word specific emu format
