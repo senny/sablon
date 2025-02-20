@@ -119,6 +119,7 @@ module Sablon
       def get_bookmarks(node)
         node.children.filter_map do |field|
           next unless field.name =~ /bookmark/
+          field
         end
       end
 
