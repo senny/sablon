@@ -124,6 +124,7 @@ module Sablon
             inside_field = false if field.children.any? { |child| child.name == 'fldChar' && child['w:fldCharType'] == 'end' }
           end
         end
+        merge_fields
       end
 
       # This allows proper equality checks with other WordML content objects.
