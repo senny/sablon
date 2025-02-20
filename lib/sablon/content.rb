@@ -100,26 +100,21 @@ module Sablon
 
           # Get all merge fields for the parent paragraph
           merge_fields = get_merge_fields(paragraph)
-          bookmarks = get_bookmarks(paragraph)
-          if bookmarks.any?
-            bookmarks.each do |bookmark|
-              dummy_paragraph << bookmark
-            end
-          end
 
           # Find merge field this belongs to:
           current_field_idx = merge_fields.find_index { |child| child.any? { display_node.ancestors.include?(_1) } }
 
           # Only remove the paragraph parent if it doesn't contain any more merge fields,
           # otherwise leave it in place so those merge fields dont lose their parent
-          paragraph.remove if current_field_idx == merge_fields.length - 1
-        end
-      end
-
-      def get_bookmarks(node)
-        node.children.filter_map do |field|
-          next unless field.name =~ /bookmark/
-          field
+          if current_field_idx == merge_fields.length - 1
+            # Copy allowed fields over to the new paragraph,
+            # so we dont lose data
+            paragraph.children.each do |field|
+              next unless [field.try(:namespace).try(:prefix), field.node_name].compact.join(':').in?(inline_tags)
+              dummy_paragraph << field
+            end
+            paragraph.remove
+          end
         end
       end
 
