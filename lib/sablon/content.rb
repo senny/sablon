@@ -85,9 +85,68 @@ module Sablon
           add_siblings_to(display_node.parent, pr_tag)
           display_node.parent.remove
         else
-          add_siblings_to(paragraph)
-          paragraph.remove
+          # Insert a new paragraph before this paragraph
+          # and add nodes to that paragraph instead. It's inserted
+          # before so that the order is preserved, otherwise when
+          # fields are processed, they will be in reverse order if
+          # each is added as the next sibling of the paragraph.
+          preceding_paragraph = Nokogiri::XML::Node.new("w:p", display_node.document)
+
+          paragraph.add_previous_sibling preceding_paragraph
+
+          # Copy rPr tag if any
+          pr_tag = display_node.parent.at_xpath('./w:rPr')
+          add_siblings_to(preceding_paragraph, pr_tag)
+
+          # Get all merge fields for the parent paragraph
+          merge_fields = get_merge_fields(paragraph)
+
+          # Find merge field this belongs to:
+          current_field_idx = merge_fields.find_index { |child| child.any? { display_node.ancestors.include?(_1) } }
+
+          current_merge_field = merge_fields[current_field_idx]
+
+          # Get the current merge field in the paragraph
+          paragraph_child_index = paragraph.children.find_index { _1 == current_merge_field.first }
+          is_first_child = paragraph.children.reject { _1.name.in?(%w(pPr)) }.find_index { _1 == current_merge_field.first } == 1
+
+
+          # Split the parent paragraph into two paragraphs, one
+          # with all children *before* this merge field, and one
+          # with all children *after* this merge field
+
+          # Get all valid children *before* this merge field
+          paragraph.children[0..paragraph_child_index].each do |node|
+            node.remove
+            preceding_paragraph << node
+          end
+
+          # We can remove and skip the dummy paragraph if this was the first field (apart from pPr)
+          preceding_paragraph.remove if is_first_child
+
+          # Only remove the paragraph parent if it doesn't contain any more merge fields,
+          # otherwise leave it in place so those merge fields dont lose their parent
+          if !paragraph.children.reject { _1.name =~ /Pr$/ }.any?
+            paragraph.remove
+          end
         end
+      end
+
+      # Get all merge fields in a node
+      def get_merge_fields(node)
+        merge_fields = []
+
+        inside_field = false
+        node.children.each do |field|
+          if field.children.any? { |child| child.name == 'fldChar' && child['w:fldCharType'] == 'begin' }
+            merge_fields << [field]
+            inside_field = true
+          elsif inside_field
+            merge_fields.last << field
+            inside_field = false if field.children.any? { |child| child.name == 'fldChar' && child['w:fldCharType'] == 'end' }
+          end
+        end
+        merge_fields
       end
 
       # This allows proper equality checks with other WordML content objects.
@@ -143,7 +202,7 @@ module Sablon
         end
       end
 
-      # Merges the provided properties into the run properties of the
+      # Merges the provided properties into the run proprties of the
       # node passed in. Properties are only added if they are not already
       # defined on the node itself.
       def merge_rpr_tags(node, props)
