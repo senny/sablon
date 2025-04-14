@@ -4,15 +4,15 @@ module Sablon
   module DOM
     # Manages the creation of new list definitions
     class Numbering < FileHandler
-      Definition = Struct.new(:numid, :abstract_id, :style)
+      Definition = Struct.new(:numid, :abstract_id, :style, :start)
 
       # extends the Model class using instance eval with a block argument
       def self.extend_model(model_klass, &block)
         super do
           #
           # adds a list definition to the numbering.xml file
-          define_method(:add_list_definition) do |style|
-            @dom['word/numbering.xml'].add_list_definition(style)
+          define_method(:add_list_definition) do |style, start = nil|
+            @dom['word/numbering.xml'].add_list_definition(style, start)
           end
         end
       end
@@ -31,8 +31,8 @@ module Sablon
       end
 
       # adds a new relationship and returns the corresponding rId for it
-      def add_list_definition(style)
-        definition = create_definition(style)
+      def add_list_definition(style, start = nil)
+        definition = create_definition(style, start)
         #
         # update numbering file with new definitions
         node = @numbering.xpath('//w:abstractNum').last
@@ -54,11 +54,21 @@ module Sablon
 
       # Creates a new list definition tag to define a list
       def definition_tag(definition)
-        <<-XML.gsub(/^\s+|\n/, '')
+        xml = <<-XML.gsub(/^\s+|\n/, '')
           <w:num w:numId="#{definition.numid}">
             <w:abstractNumId w:val="#{definition.abstract_id}" />
-          </w:num>
         XML
+        
+        if definition.start
+          xml += <<-XML.gsub(/^\s+|\n/, '')
+            <w:lvlOverride w:ilvl="0">
+              <w:startOverride w:val="#{definition.start}"/>
+            </w:lvlOverride>
+          XML
+        end
+        
+        xml += "</w:num>"
+        xml
       end
 
       # Creates a new abstract numbering definition tag to style a list
@@ -84,10 +94,10 @@ module Sablon
 
       # Creates a new instance of the Definition struct, after incrementing
       # the max id values
-      def create_definition(style)
+      def create_definition(style, start = nil)
         @max_numid += 1
         @max_abstract_id += 1
-        Definition.new(@max_numid, @max_abstract_id, style)
+        Definition.new(@max_numid, @max_abstract_id, style, start)
       end
     end
   end

@@ -312,6 +312,40 @@ class HTMLConverterTest < Sablon::TestCase
     assert_equal normalize_wordml(expected_output), process(input)
   end
 
+  def test_ordered_lists_with_start_attribute
+    input = '<ol start="5"><li>Fifth</li><li>Sixth</li></ol>'
+    
+    mock_def = Struct.new(:style, :numid, :start).new("ListNumber", 1, 5)
+    @template.document.stub :add_list_definition, mock_def do
+      output = process(input)
+      
+      expected_output = <<-DOCX.strip
+        <w:p>
+          <w:pPr>
+            <w:pStyle w:val="ListNumber" />
+            <w:numPr>
+              <w:ilvl w:val="0" />
+              <w:numId w:val="1" />
+            </w:numPr>
+          </w:pPr>
+          <w:r><w:t xml:space="preserve">Fifth</w:t></w:r>
+        </w:p>
+
+        <w:p>
+          <w:pPr>
+            <w:pStyle w:val="ListNumber" />
+            <w:numPr>
+              <w:ilvl w:val="0" />
+              <w:numId w:val="1" />
+            </w:numPr>
+          </w:pPr>
+          <w:r><w:t xml:space="preserve">Sixth</w:t></w:r>
+        </w:p>
+      DOCX
+      assert_equal normalize_wordml(expected_output), output
+    end
+  end
+
   def test_mixed_lists
     input = '<ol><li>Lorem</li></ol><ul><li>ipsum</li></ul><ol><li>dolor</li></ol>'
     expected_output = <<-DOCX.strip
