@@ -478,7 +478,7 @@ module Sablon
     # Create a run of text in the document, runs cannot be nested within
     # each other
     class Run < Node
-      PROPERTIES = %w[b i caps color dstrike emboss imprint highlight outline
+      PROPERTIES = %w[b i caps color del dstrike emboss imprint highlight outline
                       rStyle shadow shd smallCaps strike sz u vanish
                       vertAlign rFonts].freeze
 

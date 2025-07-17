@@ -86,6 +86,7 @@ module Sablon
         i: { type: :inline, ast_class: nil, properties: { i: nil } },
         u: { type: :inline, ast_class: nil, properties: { u: 'single' } },
         s: { type: :inline, ast_class: nil, properties: { strike: 'true' } },
+        del: { type: :inline, ast_class: nil, properties: { strike: 'true' } },
         sub: { type: :inline, ast_class: nil, properties: { vertAlign: 'subscript' } },
         sup: { type: :inline, ast_class: nil, properties: { vertAlign: 'superscript' } },
 
