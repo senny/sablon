@@ -561,6 +561,22 @@ class HTMLConverterTest < Sablon::TestCase
     assert_match(/Don't know how to handle HTML tag:/, e.message)
   end
 
+  def test_convert_del_tags_inside_p
+    input = '<p>Lorem&nbsp;<del>ipsum dolor</del>&nbsp;sit amet</p>'
+    expected_output = <<-DOCX.strip
+      <w:p>
+        <w:pPr><w:pStyle w:val="Paragraph" /></w:pPr>
+        <w:r><w:t xml:space="preserve">Lorem </w:t></w:r>
+        <w:r>
+          <w:rPr><w:strike w:val="true" /></w:rPr>
+          <w:t xml:space="preserve">ipsum dolor</w:t>
+        </w:r>
+        <w:r><w:t xml:space="preserve"> sit amet</w:t></w:r>
+      </w:p>
+    DOCX
+    assert_equal normalize_wordml(expected_output), process(input)
+  end
+
   private
 
   def process(input)
