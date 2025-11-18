@@ -237,6 +237,43 @@ class ContentWordMLTest < Sablon::TestCase
 
     assert_xml_equal output, @document
   end
+
+  def test_inserts_table_word_ml_into_the_document
+    @word_ml = <<-XML.gsub(/^\s+|\n/, '')
+      <w:tbl>
+        <w:tr>
+          <w:tc><w:p><w:r><w:t>Cell 1</w:t></w:r></w:p></w:tc>
+          <w:tc><w:p><w:r><w:t>Cell 2</w:t></w:r></w:p></w:tc>
+        </w:tr>
+      </w:tbl>
+    XML
+
+    # Create content object ONCE
+    content = Sablon.content(:word_ml, @word_ml)
+
+    # First insertion
+    content.append_to @paragraph, @node, @env
+
+    output = <<-XML.gsub(/^\s+|\n/, '')
+      <w:tbl>
+        <w:tr>
+          <w:tc><w:p><w:r><w:t>Cell 1</w:t></w:r></w:p></w:tc>
+          <w:tc><w:p><w:r><w:t>Cell 2</w:t></w:r></w:p></w:tc>
+        </w:tr>
+      </w:tbl>
+      <w:p>AFTER</w:p>
+    XML
+
+    assert_xml_equal output, @document
+
+    # Second insertion with SAME content object - tests reusability
+    @document = Nokogiri::XML(doc_wrapper(@template_text))
+    @paragraph = @document.xpath('//w:p').first
+    @node = @paragraph.xpath('.//w:r').first.at_xpath('./w:t')
+
+    content.append_to @paragraph, @node, @env
+    assert_xml_equal output, @document
+  end
 end
 
 class ContentImageTest < Sablon::TestCase

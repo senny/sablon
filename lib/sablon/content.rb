@@ -74,6 +74,10 @@ module Sablon
       def self.wraps?(value); false end
 
       def initialize(value)
+        # Store as DocumentFragment to preserve namespace handling and XML structure.
+        # Note: Nodes from a fragment can only be added to a document once, as
+        # Nokogiri's add_next_sibling() moves nodes rather than copying them.
+        # The current_fragment() method handles creating fresh nodes when needed.
         super Nokogiri::XML.fragment(value)
       end
 
@@ -106,9 +110,27 @@ module Sablon
 
       private
 
+      # Returns a fresh DocumentFragment with new node instances.
+      #
+      # This method is critical for reusability: since Nokogiri's add_next_sibling()
+      # moves nodes (changing their parent), nodes from the original @xml fragment
+      # can only be inserted once. By re-parsing xml.to_xml(save_with: 0), we create
+      # brand new node instances that can be freely added to the document without
+      # affecting future insertions of the same WordML content.
+      #
+      # This allows the same WordML object to be used multiple times (e.g., inserting
+      # the same table into multiple documents), which is essential for template
+      # processing where content objects are often reused.
+      #
+      # The save_with: 0 option disables pretty-printing to avoid introducing
+      # unwanted whitespace/newlines during serialization.
+      def current_fragment
+        Nokogiri::XML.fragment(self.xml.to_xml(save_with: 0))
+      end
+
       # Returns `true` if all of the xml nodes to be inserted are
       def all_inline?
-        (xml.children.map(&:node_name) - inline_tags).empty?
+        (current_fragment.children.map(&:node_name) - inline_tags).empty?
       end
 
       # Array of tags allowed to be a child of the w:p XML tag as defined
@@ -128,18 +150,22 @@ module Sablon
 
       # Adds the XML to be inserted in the document as siblings to the
       # node passed in. Run properties are merged here because of namespace
-      # issues when working with a document fragment
+      # issues when working with a document fragment.
       def add_siblings_to(node, rpr_tag = nil)
-        # Since Nokogiri 1.11.0 adding siblings is only possible for nodes
-        # with a parent because the parent is used as the context node for
-        # parsing markup.
-        if !node.parent.nil?
-          xml.children.reverse.each do |child|
-            node.add_next_sibling child
-            # merge properties
-            next unless rpr_tag
-            merge_rpr_tags(child, rpr_tag.children)
-          end
+        # Guard: Since Nokogiri 1.11.0, adding siblings requires the node to have
+        # a parent (used as context for parsing). If the node was already removed
+        # from the document tree, silently skip insertion.
+        return if node.parent.nil?
+
+        # Use current_fragment to get fresh node instances. This is essential for
+        # reusability: nodes can only be added once since add_next_sibling() moves
+        # them rather than copying. Fresh nodes allow the same WordML content to be
+        # inserted multiple times.
+        current_fragment.children.reverse.each do |child|
+          node.add_next_sibling child
+          # merge properties
+          next unless rpr_tag
+          merge_rpr_tags(child, rpr_tag.children)
         end
       end
 
