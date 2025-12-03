@@ -66,9 +66,9 @@ class Sablon::TestCase < Minitest::Test
       "rId#{@current_rid += 1}"
     end
 
-    def add_list_definition(style)
+    def add_list_definition(style, start = nil)
       @current_numid += 1
-      Struct.new(:style, :numid).new(style, @current_numid)
+      Struct.new(:style, :numid, :start).new(style, @current_numid, start)
     end
 
     def reset

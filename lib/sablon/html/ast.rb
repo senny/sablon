@@ -211,7 +211,8 @@ module Sablon
         @definition = nil
         if node.ancestors(".//#{@list_tag}").length.zero?
           # Only register a definition upon the first list tag encountered
-          @definition = env.document.add_list_definition(properties['pStyle'])
+          @start = node['start']&.to_i
+          @definition = env.document.add_list_definition(properties['pStyle'], @start)
         end
 
         # update attributes of all child nodes

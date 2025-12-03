@@ -98,6 +98,15 @@ class HTMLConverterASTTest < Sablon::TestCase
     assert_equal "<Root: [<List: [<Paragraph{ListNumber}: [<Run{}: Lorem>]>, <Paragraph{ListNumber}: [<Run{}: ipsum>]>]>]>", ast.inspect
   end
 
+  def test_ol_with_start_attribute
+    input = '<ol start="5"><li>Fifth</li><li>Sixth</li></ol>'
+    ast = @converter.processed_ast(input)
+    assert_equal "<Root: [<List: [<Paragraph{ListNumber}: [<Run{}: Fifth>]>, <Paragraph{ListNumber}: [<Run{}: Sixth>]>]>]>", ast.inspect
+    
+    list = ast.grep(Sablon::HTMLConverter::List).first
+    assert_equal 5, list.instance_variable_get(:@start)
+  end
+
   def test_num_id
     ast = @converter.processed_ast('<ol><li>Some</li><li>Lorem</li></ol><ul><li>ipsum</li></ul><ol><li>dolor</li><li>sit</li></ol>')
     assert_equal %w[1 1 2 3 3], get_numpr_prop_from_ast(ast, :numId)
