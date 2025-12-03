@@ -49,6 +49,12 @@ module Sablon
       render(context, properties).string
     end
 
+    def fields
+      xml_node = Sablon::DOM::Model.new(Zip::File.open(@path, !File.exists?(@path))).zip_contents['word/document.xml']
+      parser = Sablon::Parser::MailMerge.new()
+      parser.parse_fields(xml_node).map(&:expression).uniq
+    end
+
     private
 
     def render(context, properties = {})
