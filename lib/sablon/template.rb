@@ -54,7 +54,7 @@ module Sablon
     def render(context, properties = {})
       # initialize environment
       @document = Sablon::DOM::Model.new(
-        if defined?(Zip::VERSION) && Gem::Version.new(Zip::VERSION) >= Gem::Version.new('3.0.0')
+        if rubyzip_3_or_later?
           Zip::File.open(@path, create: !File.exist?(@path))
         else
           Zip::File.open(@path, !File.exist?(@path))
@@ -65,10 +65,26 @@ module Sablon
       #
       # process files
       process(env)
-      #
-      Zip::OutputStream.write_buffer(StringIO.new) do |out|
+
+      write_output_stream do |out|
         generate_output_file(out, @document.zip_contents)
       end
+    end
+
+    # rubyzip 3.x enables Zip64 by default, adding extra fields to zip entries.
+    # This causes compatibility issues with some applications (e.g., Google Drive
+    # fails to open the docx). We suppress Zip64 extra fields for compatibility.
+    #
+    # @note The `suppress_extra_fields` option requires rubyzip >= 3.2.0.
+    #   For rubyzip 3.0/3.1, use `Zip.write_zip64_support = false` instead.
+    def write_output_stream(&block)
+      output_stream_options = if rubyzip_supports_suppress_extra_fields?
+                                { suppress_extra_fields: :zip64 }
+                              else
+                                {}
+                              end
+
+      Zip::OutputStream.write_buffer(StringIO.new, **output_stream_options, &block)
     end
 
     # Processes all of the entries searching for ones that match the pattern.
@@ -118,6 +134,14 @@ module Sablon
         output_stream.put_next_entry(prev_dir)
         created_dirs << prev_dir
       end
+    end
+
+    def rubyzip_3_or_later?
+      defined?(Zip::VERSION) && Gem::Version.new(Zip::VERSION) >= Gem::Version.new('3.0.0')
+    end
+
+    def rubyzip_supports_suppress_extra_fields?
+      defined?(Zip::VERSION) && Gem::Version.new(Zip::VERSION) >= Gem::Version.new('3.2.0')
     end
   end
 

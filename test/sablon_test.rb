@@ -209,3 +209,36 @@ class SablonSvgImagesTest < Sablon::TestCase
     assert_docx_equal @sample_path, @output_path
   end
 end
+
+class SablonWriteOutputStreamTest < Sablon::TestCase
+  def setup
+    super
+    @base_path = Pathname.new(File.expand_path('../', __FILE__))
+    @template_path = @base_path + 'fixtures/loops_template.docx'
+  end
+
+  # Docx files with Zip64 extra fields fail to open in Google Docs/Drive.
+  # rubyzip 3.x adds these by default, so we suppress them for compatibility.
+  def test_output_does_not_contain_zip64_extra_fields
+    template = Sablon.template @template_path
+    context = {
+      fruits: %w[Apple].map { |i| { name: i } },
+      cars: %w[Silverado].map { |i| { name: i } }
+    }
+
+    Tempfile.create(['sablon_zip64_test', '.docx']) do |tempfile|
+      template.render_to_file tempfile.path, context
+
+      # With rubyzip v3 but doesn't work with rubyzip v2:
+      # zf = Zip::File.open(tempfile.path)
+      # assert(zf.entries.none?(&:zip64?), 'Expected no Zip64 entries')
+
+      # Verify using zipinfo (t- = no extra field, tx = has extra field)
+      zipinfo_output = `zipinfo #{tempfile.path} 2>&1`
+      entries_with_extra_fields = zipinfo_output.lines.select { |line| line =~ /\s+t[xX]\s+/ }
+
+      assert_empty entries_with_extra_fields,
+                   "Expected no Zip64 extra fields, but found:\n#{entries_with_extra_fields.join}"
+    end
+  end
+end
