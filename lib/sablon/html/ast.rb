@@ -258,7 +258,7 @@ module Sablon
       # moves any list tags that are a child of a list item tag up one level
       # so they become a sibling instead of a child
       def process_child_nodes(node)
-        node.xpath("./li/#{@list_tag}").each do |list|
+        node.xpath("./li/ul | ./li/ol").each do |list|
           # transfer attributes from parent now because the list tag will
           # no longer be a child and won't inheirit them as usual
           transfer_node_attributes(list.children, list.parent.attributes)
