@@ -115,6 +115,14 @@ class HTMLConverterASTTest < Sablon::TestCase
     assert_equal %w[0 1 2 1 0 1 2], get_numpr_prop_from_ast(ast, :ilvl)
   end
 
+  def test_p_inside_li_is_unwrapped
+    # editors like Trix wrap <li> text in <p>; the <p> must be unwrapped
+    # because <li> already maps to w:p and OOXML forbids nested w:p elements
+    input = '<ul><li><p>item one</p></li><li><p>item two</p></li></ul>'
+    ast = @converter.processed_ast(input)
+    assert_equal '<Root: [<List: [<Paragraph{ListBullet}: [<Run{}: item one>]>, <Paragraph{ListBullet}: [<Run{}: item two>]>]>]>', ast.inspect
+  end
+
   def test_mixed_nested_list_ol_containing_ul
     # an unordered list nested inside an ordered list should produce
     # two visible list items, not just the outer item
