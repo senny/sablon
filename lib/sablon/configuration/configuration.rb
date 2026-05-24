@@ -69,8 +69,8 @@ module Sablon
         h4: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Heading4' }, allowed_children: :_inline },
         h5: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Heading5' }, allowed_children: :_inline },
         h6: { type: :block, ast_class: :paragraph, properties: { pStyle: 'Heading6' }, allowed_children: :_inline },
-        ol: { type: :block, ast_class: :list, properties: { pStyle: 'ListNumber' }, allowed_children: %i[ol li] },
-        ul: { type: :block, ast_class: :list, properties: { pStyle: 'ListBullet' }, allowed_children: %i[ul li] },
+        ol: { type: :block, ast_class: :list, properties: { pStyle: 'ListNumber' }, allowed_children: %i[ol ul li] },
+        ul: { type: :block, ast_class: :list, properties: { pStyle: 'ListBullet' }, allowed_children: %i[ul ol li] },
         li: { type: :block, ast_class: :list_paragraph },
 
         # inline style tags for tables
