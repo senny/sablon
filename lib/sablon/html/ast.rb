@@ -256,8 +256,16 @@ module Sablon
       end
 
       # moves any list tags that are a child of a list item tag up one level
-      # so they become a sibling instead of a child
+      # so they become a sibling instead of a child, and unwraps <p> tags
+      # directly inside <li> to prevent nested w:p elements in OOXML
       def process_child_nodes(node)
+        # Unwrap <p> directly inside <li>: editors such as Trix wrap list item
+        # text in <p>, but <li> already maps to w:p so nesting them produces
+        # invalid OOXML that Word silently drops.
+        node.xpath("./li/p").each do |p|
+          p.replace(p.children)
+        end
+
         node.xpath("./li/ul | ./li/ol").each do |list|
           # transfer attributes from parent now because the list tag will
           # no longer be a child and won't inheirit them as usual

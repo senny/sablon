@@ -133,6 +133,14 @@ class HTMLConverterASTTest < Sablon::TestCase
     assert_equal %w[0 0], get_numpr_prop_from_ast(ast, :ilvl)
   end
 
+  def test_p_inside_li_is_unwrapped
+    # editors like Trix wrap <li> text in <p>; the <p> must be unwrapped
+    # because <li> already maps to w:p and OOXML forbids nested w:p elements
+    input = '<ul><li><p>item one</p></li><li><p>item two</p></li></ul>'
+    ast = @converter.processed_ast(input)
+    assert_equal '<Root: [<List: [<Paragraph{ListBullet}: [<Run{}: item one>]>, <Paragraph{ListBullet}: [<Run{}: item two>]>]>]>', ast.inspect
+  end
+
   def test_table_tag
     input='<table></table>'
     ast = @converter.processed_ast(input)
