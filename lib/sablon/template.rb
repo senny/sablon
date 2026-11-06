@@ -89,13 +89,15 @@ module Sablon
       created_dirs = []
       contents.each do |entry_name, content|
         create_dirs_in_zipfile(created_dirs, File.dirname(entry_name), zip_out)
-        zip_out.put_next_entry(entry_name)
         #
         # convert Nokogiri XML to string
         if content.instance_of? Nokogiri::XML::Document
           content = content.to_xml(indent: 0, save_with: 0)
         end
         #
+        entry = Zip::Entry.new('', entry_name)
+        entry.size = content.bytesize
+        zip_out.put_next_entry(entry)
         zip_out.write(content)
       end
     end
