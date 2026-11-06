@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 require "test_helper"
 
 # Tests some low level private methods in the ASTBuilder class. #process_nodes
