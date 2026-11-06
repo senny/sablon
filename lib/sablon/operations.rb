@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 module Sablon
   module Statement
     class Insertion < Struct.new(:expr, :field)
