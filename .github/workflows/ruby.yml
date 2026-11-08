@@ -35,4 +35,10 @@ jobs:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true
     - name: Run tests
+      env:
+        # Raise on any string literal mutation, to stay ready for frozen string
+        # literals by default. Skipped on Rubies whose RubyGems or gems mutate
+        # string literals, which fails before the tests run.
+        # See https://gist.github.com/fxn/bf4eed2505c76f4fca03ab48c43adc72
+        RUBYOPT: ${{ !contains(fromJSON('["2.3", "2.4", "2.5", "2.6"]'), matrix.ruby-version) && '--enable=frozen-string-literal --debug=frozen-string-literal' || '' }}
       run: bundle exec rake
